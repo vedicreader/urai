@@ -1,0 +1,14 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "urai"
+  site-url: "https://vedicreader.github.io/urai"
+  description: "the chat conventions every backend shares"
+  repo-branch: main
+  repo-url: "https://github.com/vedicreader/urai"
+
+format-links:
+  - html
+  - format: commonmark
+    text: Markdown
