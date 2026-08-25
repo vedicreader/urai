@@ -9,14 +9,14 @@ __all__ = ['RUNTIMES', 'dflt_runtime', 'DFLT_FINAL_PROMPT', 'GEN_OPTS', 'Runtime
            'infer_runtime', 'resolve_runtime', 'ModelSpec', 'resolve', 'load_ref', 'model_caps', 'ChatOpts',
            'set_dotted', 'backend_kw', 'turn_kw']
 
-# %% ../nbs/04_opts.ipynb #924fbdd8
+# %% ../nbs/04_opts.ipynb #ed19e6ca
 import warnings
 from dataclasses import dataclass, field, fields, replace
 from importlib import import_module
 from fastcore.all import Path, L
 from .caps import Caps, hosted_caps, hosted_ctx, is_path, DFLT_CTX
 
-# %% ../nbs/04_opts.ipynb #b1f3728d
+# %% ../nbs/04_opts.ipynb #3683a39f
 @dataclass(frozen=True)
 class Runtime:
     "One registered backend: where its `Chat` lives and how to recognise a model of its own."
@@ -46,7 +46,7 @@ def register_runtime(rt, dflt=False):
 
 dflt_runtime = None   #: runtime for a `Chat()` with no model named
 
-# %% ../nbs/04_opts.ipynb #4f539567
+# %% ../nbs/04_opts.ipynb #6678ce24
 def split_runtime(model):
     "Split `'runtime/model'` into `(runtime, model)`. The prefix must name a registered runtime."
     if isinstance(model, str) and '/' in model:
@@ -71,7 +71,7 @@ def resolve_runtime(model=None, runtime=None, model_path=None):
     if nm not in RUNTIMES: raise ValueError(f'Unknown runtime {nm!r}; known: {", ".join(RUNTIMES)}.')
     return nm, model
 
-# %% ../nbs/04_opts.ipynb #95acb72c
+# %% ../nbs/04_opts.ipynb #63e91645
 @dataclass(frozen=True)
 class ModelSpec:
     "One model, resolved: which runtime runs it, what to call it, and how big it is."
@@ -98,7 +98,7 @@ def resolve(name=None, runtime=None, model_path=None, ctx=None, **opts):
         else: ctx, note = hosted_ctx(model_id)
     return ModelSpec(name or model_id or rt_name, rt_name, model_id, ctx, note, opts)
 
-# %% ../nbs/04_opts.ipynb #25bd25c7
+# %% ../nbs/04_opts.ipynb #2148bc02
 def load_ref(o):
     "`o` itself, or the object at dotted path `'pkg.mod.name'`."
     if not isinstance(o, str): return o
@@ -117,7 +117,7 @@ def model_caps(model=None, runtime=None, model_path=None):
         except Exception: return Caps()
     return Caps() if rt.local else hosted_caps(mid)
 
-# %% ../nbs/04_opts.ipynb #b1017d19
+# %% ../nbs/04_opts.ipynb #6a25f311
 DFLT_FINAL_PROMPT = ("You've reached the tool-call budget for this turn. Stop calling tools and "
                      "answer with what you already have.")
 
@@ -167,6 +167,12 @@ class ChatOpts:
         extra = {**opts.extra, **{k: v for k, v in kw.items() if k not in known}}
         return replace(opts, **{k: v for k, v in kw.items() if k in known}, extra=extra)
 
+    @property
+    def key(self):
+        "The API key: the explicit one, else whatever `api_key_env` names. Never stored on the object."
+        import os
+        return self.api_key or (os.environ.get(self.api_key_env) if self.api_key_env else None) or None
+
     def set(self):
         "The options actually chosen, by name. Defaults are absent, so a backend can tell them apart."
         d = {}
@@ -176,7 +182,7 @@ class ChatOpts:
             if v != f.default and not (f.default is None and v is None): d[f.name] = v
         return d
 
-# %% ../nbs/04_opts.ipynb #2c3ba914
+# %% ../nbs/04_opts.ipynb #0fa1186d
 def set_dotted(d, path, v):
     "Set `d['a']['b'] = v` for a path of `'a.b'`, creating the intermediate dicts."
     ks, cur = path.split('.'), d
@@ -198,7 +204,7 @@ def backend_kw(opts, opt_map=None, skip=(), warn=True):
         set_dotted(out, (opt_map or {}).get(k, k), v)
     return {**out, **opts.extra}
 
-# %% ../nbs/04_opts.ipynb #087851fe
+# %% ../nbs/04_opts.ipynb #a3f49314
 def turn_kw(opts=None, **kw):
     "Generation settings for one turn, from a `ChatOpts` or loose keywords. Loop and conversation settings are ignored."
     o = ChatOpts.create(opts, **kw)
