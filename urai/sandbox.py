@@ -8,7 +8,7 @@ Docs: https://vedicreader.github.io/urai/sandbox.html.md"""
 __all__ = ['extract_code', 'mk_result_fence', 'run_coro', 'task_complete', 'output_matches', 'PyFenceCallback', 'sync_iter',
            'killed_on_exit']
 
-# %% ../nbs/08_sandbox.ipynb #594ba497
+# %% ../nbs/08_sandbox.ipynb #6b1d1e27
 import asyncio, io, re, subprocess, warnings
 from contextlib import contextmanager, redirect_stdout
 from concurrent.futures import ThreadPoolExecutor
@@ -18,7 +18,7 @@ from .core import ChatCallback, resp_text
 from .chat import Chat
 from .eval import matches_
 
-# %% ../nbs/08_sandbox.ipynb #63520612
+# %% ../nbs/08_sandbox.ipynb #17e03f31
 _pyfence_re = re.compile(r'^```(?:python|py)[ \t]*\n(.*?)\n```', re.DOTALL | re.MULTILINE)
 
 def extract_code(text):
@@ -30,7 +30,7 @@ def mk_result_fence(out):
     return (f'```result\n{out}\n```\n\nIf this answers the request, reply with the final answer in '
             'prose; only write another ```python block if you need to run more code.')
 
-# %% ../nbs/08_sandbox.ipynb #3d688d71
+# %% ../nbs/08_sandbox.ipynb #aee62814
 @patch
 def run_py(self:Chat, code, ban_defs=False, g=None):
     "Run `code` in this chat's sandboxed, persistent namespace. Returns stdout plus the last expression."
@@ -49,7 +49,7 @@ def run_coro(coro):
     except RuntimeError: return asyncio.run(coro)
     with ThreadPoolExecutor(1) as ex: return ex.submit(asyncio.run, coro).result()
 
-# %% ../nbs/08_sandbox.ipynb #4e9f1d49
+# %% ../nbs/08_sandbox.ipynb #af46384a
 def task_complete(chat):
     "`done` policy: ask the model, in isolation, whether the latest result completes the request."
     convo = '\n'.join(f"{m.get('role','?')}: {resp_text(m)}" for m in chat.hist[-6:])
@@ -117,7 +117,7 @@ class PyFenceCallback(ChatCallback):
             yield from self.chat._stream(rf)
         finally: self._depth -= 1
 
-# %% ../nbs/08_sandbox.ipynb #d7a8e93b
+# %% ../nbs/08_sandbox.ipynb #354a026f
 def sync_iter(agen_fn, stop=None):
     "Drive the async generator from `agen_fn()` in sync code. Set `stop` to end the source stream."
     from queue import Queue

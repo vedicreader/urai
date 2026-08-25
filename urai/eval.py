@@ -7,13 +7,13 @@ Docs: https://vedicreader.github.io/urai/eval.html.md"""
 # %% auto #0
 __all__ = ['qa_sp_', 'extract_fence', 'matches_', 'mk_obj']
 
-# %% ../nbs/07_eval.ipynb #65fb674f
+# %% ../nbs/07_eval.ipynb #dee025eb
 from dataclasses import is_dataclass, fields
 from typing import get_type_hints
 from fastcore.all import first, listify, patch, AttrDict
 from .chat import Chat
 
-# %% ../nbs/07_eval.ipynb #30e758d9
+# %% ../nbs/07_eval.ipynb #b3e72122
 import re
 
 def extract_fence(text, tag='answer'):
@@ -25,7 +25,7 @@ def matches_(actual, expected):
     "Does `actual` contain any of `expected` (a scalar, or a list of accepted values)?"
     return any(str(e) in (actual or '') for e in listify(expected))
 
-# %% ../nbs/07_eval.ipynb #43032d94
+# %% ../nbs/07_eval.ipynb #f70363d8
 @patch
 def classify(self:Chat, text, labels, sp='Reply with only the single best label and nothing else.'):
     "One-shot label for `text`, run stateless so it does not touch the conversation."
@@ -33,7 +33,7 @@ def classify(self:Chat, text, labels, sp='Reply with only the single best label 
                        sp, think=False).lower()
     return first(labels, lambda l: l.lower() in out) or out.strip()
 
-# %% ../nbs/07_eval.ipynb #5ad291f3
+# %% ../nbs/07_eval.ipynb #5e31697f
 def mk_obj(schema, d):
     "Build `schema` from json-decoded `d`, rebuilding nested dataclasses. Non-dicts pass through."
     if not isinstance(d, dict): return d
@@ -54,7 +54,7 @@ def _structured_call(self:Chat, prompt, schema, sp):
     "One structured completion, as json-decoded data. Every backend implements it."
     raise NotImplementedError
 
-# %% ../nbs/07_eval.ipynb #a50b4cb1
+# %% ../nbs/07_eval.ipynb #6a2d13d1
 #: System prompt for `check`: asks for a fenced final answer.
 qa_sp_ = 'Answer the question, then put your final answer inside a ```answer fence.'
 

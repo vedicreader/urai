@@ -1,0 +1,15 @@
+website:
+  sidebar:
+    contents:
+      - index.ipynb
+      - 00_core.ipynb
+      - 01_tags.ipynb
+      - 02_msgs.ipynb
+      - 03_caps.ipynb
+      - 04_opts.ipynb
+      - 05_chat.ipynb
+      - 06_loop.ipynb
+      - 07_eval.ipynb
+      - 08_sandbox.ipynb
+      - 09_record.ipynb
+      - 10_broker.ipynb

@@ -6,9 +6,9 @@ Docs: https://vedicreader.github.io/urai/chat.html.md"""
 
 # %% auto #0
 __all__ = ['budget_msg_', 'cancel_msg_', 'cancelled_reply_', 'ContextWindowExceededError', 'is_ctx_error', 'get_runtime', 'Chat',
-           'chat', 'AsyncChat', 'adisplay_stream', 'ask_console', 'http_approval', 'hitl_policy']
+           'mk_chat', 'AsyncChat', 'adisplay_stream', 'ask_console', 'http_approval', 'hitl_policy']
 
-# %% ../nbs/05_chat.ipynb #10d03b6e
+# %% ../nbs/05_chat.ipynb #0d7e6a32
 import asyncio, json, os, threading
 from urllib.request import Request, urlopen
 from dataclasses import replace
@@ -18,7 +18,7 @@ from .msgs import mk_content, mk_msg, mk_msgs, is_media
 from .opts import (RUNTIMES, ChatOpts, ModelSpec, split_runtime, resolve_runtime,
                        load_ref, set_dotted, turn_kw)
 
-# %% ../nbs/05_chat.ipynb #e6fb691c
+# %% ../nbs/05_chat.ipynb #4945c4d3
 budget_msg_ = 'Tool-call budget exceeded; no more tools will run this turn.'
 cancel_msg_ = 'Not run: the user stopped this turn.'
 cancelled_reply_ = '(stopped by the user)'
@@ -35,7 +35,7 @@ def is_ctx_error(chat, e):
     try: return bool(chat.ctx_limit) and chat.pct_full >= 1
     except Exception: return False
 
-# %% ../nbs/05_chat.ipynb #5e30516a
+# %% ../nbs/05_chat.ipynb #63496152
 def get_runtime(nm):
     "The `Chat` subclass for runtime `nm`, importing the backend module lazily."
     rt = RUNTIMES[nm]
@@ -45,7 +45,7 @@ def get_runtime(nm):
         raise ImportError(f'The {nm!r} runtime is unavailable ({e}). '
                           f'Install it with: {rt.install}') from None
 
-# %% ../nbs/05_chat.ipynb #dbea5135
+# %% ../nbs/05_chat.ipynb #eebcf0ec
 class Chat:
     "Backend-agnostic chat. `Chat(model)` returns the subclass for that model's runtime."
     _runtime = None          # the registry name this subclass serves
@@ -103,7 +103,7 @@ class Chat:
             set_dotted(out, self._opt_map.get(k, k), v)
         return out
 
-# %% ../nbs/05_chat.ipynb #4d830647
+# %% ../nbs/05_chat.ipynb #4aaae736
 #: Options common enough to deserve an attribute of their own.
 _OPT_ATTRS = ('sp', 'approve', 'max_steps', 'tool_max_len', 'parallel_tools',
               'max_parallel_tools', 'final_prompt', 'ctx')
@@ -114,7 +114,7 @@ def _opt_prop(name):
 
 for _n in _OPT_ATTRS: setattr(Chat, _n, _opt_prop(_n))
 
-# %% ../nbs/05_chat.ipynb #0ad59f64
+# %% ../nbs/05_chat.ipynb #cb3b5448
 @patch
 def add_cb(self:Chat, cb):
     "Register a callback, class or instance. Binds `cb.chat` and returns the instance."
@@ -137,7 +137,7 @@ def remove_cbs(self:Chat, cbs):
     "Remove several callbacks, by instance or by class."
     L(cbs).map(self.remove_cb); return self
 
-# %% ../nbs/05_chat.ipynb #a1a023bb
+# %% ../nbs/05_chat.ipynb #ce88eb0f
 @patch
 def __call__(self:Chat, msg=None, stream=False, cbs=None, **kw):
     '''Run one chat turn: a `Resp`, or a generator when `stream` is set.
@@ -184,7 +184,7 @@ def _check_media(self:Chat):
     c = (self.turn_msg or {}).get('content')
     if isinstance(c, list) and any(is_media(p) for p in c): raise TypeError(self._media_note)
 
-# %% ../nbs/05_chat.ipynb #7d3b4b9c
+# %% ../nbs/05_chat.ipynb #d7702244
 @patch
 def _recreate_conv(self:Chat):
     "Rebuild whatever conversation state the backend holds from `self.hist`. A no-op for backends that re-send the whole list."
@@ -210,7 +210,7 @@ def reconfigure(self:Chat, sp=None, tools=None):
     self._recreate_conv()
     return self
 
-# %% ../nbs/05_chat.ipynb #659d8597
+# %% ../nbs/05_chat.ipynb #26a93710
 @patch
 def cancel(self:Chat):
     "Ask the turn in flight to stop at its next safe point. Safe to call from another thread."
@@ -253,8 +253,8 @@ def print_hist(self:Chat):
         display(Markdown(md))
     except Exception: print(md)
 
-# %% ../nbs/05_chat.ipynb #76b68b5c
-def chat(model=None, opts=None, *, runtime=None, model_path=None, **kw):
+# %% ../nbs/05_chat.ipynb #f1deb121
+def mk_chat(model=None, opts=None, *, runtime=None, model_path=None, **kw):
     "Build a `Chat`. `model` is a name, a `ModelSpec`, or nothing for the default runtime."
     if isinstance(model, ModelSpec):
         spec = model
@@ -262,7 +262,7 @@ def chat(model=None, opts=None, *, runtime=None, model_path=None, **kw):
         kw = {'ctx': spec.ctx, **spec.opts, **kw}
     return Chat(model, runtime=runtime, model_path=model_path, opts=ChatOpts.create(opts, **kw))
 
-# %% ../nbs/05_chat.ipynb #cac2d2d7
+# %% ../nbs/05_chat.ipynb #7a327050
 class AsyncChat(GetAttr):
     "Async twin of `Chat`. Blocking calls run in a worker thread."
     _default = 'chat'
@@ -296,7 +296,7 @@ async def adisplay_stream(chunks):
         if h is not None: h.update(Markdown(md))
     return md
 
-# %% ../nbs/05_chat.ipynb #6b948d4b
+# %% ../nbs/05_chat.ipynb #dc47c321
 def ask_console(tc):
     "Console y/N approval prompt for a tool call."
     a = tc['function'].get('arguments', {})

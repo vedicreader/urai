@@ -8,12 +8,12 @@ Docs: https://vedicreader.github.io/urai/caps.html.md"""
 __all__ = ['MODALITIES', 'ENDPOINT_TOOLS', 'CAPS_FALLBACK', 'DFLT_CTX', 'MODEL_EXTS', 'Caps', 'tool_modalities', 'tbl_caps',
            'fallback_caps', 'hosted_caps', 'hosted_ctx', 'is_path', 'hub_files', 'mmproj_caps', 'read_cfg', 'cfg_caps']
 
-# %% ../nbs/03_caps.ipynb #6e596c21
+# %% ../nbs/03_caps.ipynb #84857361
 import json
 from dataclasses import dataclass
 from fastcore.all import Path, first
 
-# %% ../nbs/03_caps.ipynb #9e42c4b3
+# %% ../nbs/03_caps.ipynb #fd911987
 MODALITIES = ('text', 'image', 'audio', 'video')   #: in the spelling fastllm's table uses
 
 @dataclass(frozen=True)
@@ -47,7 +47,7 @@ class Caps:
         t = f", tools={'+'.join(self.tools)}" if self.tools else ''
         return f"Caps(in={'+'.join(self.inp)}, out={'+'.join(self.out)}{t}, {self.source})"
 
-# %% ../nbs/03_caps.ipynb #2fa40419
+# %% ../nbs/03_caps.ipynb #13b0277e
 #: `mode` values that describe a generator rather than a chat, and what they return.
 _gen_modes = {'image_generation': ('image',), 'video_generation': ('video',), 'audio_speech': ('audio',)}
 
@@ -72,7 +72,7 @@ def tbl_caps(model):
     if not inp and not out: return None
     return Caps(tuple(inp or ('text',)), tuple(out or ('text',)), tool_modalities(info), 'fastllm')
 
-# %% ../nbs/03_caps.ipynb #97e97ac3
+# %% ../nbs/03_caps.ipynb #afe22c5a
 #: Modalities for vendors fastllm's table leaves blank. Prefix -> (inp, out).
 CAPS_FALLBACK = {p: (('text', 'image'), ('text',)) for p in
                  ('claude', 'anthropic/', 'sonnet', 'opus', 'haiku', 'fable')}
@@ -87,7 +87,7 @@ def hosted_caps(model):
     "Best answer for a hosted model: the table, then the name, then nothing."
     return tbl_caps(model) or fallback_caps(model) or Caps()
 
-# %% ../nbs/03_caps.ipynb #658be19c
+# %% ../nbs/03_caps.ipynb #5dca6808
 DFLT_CTX = 128_000   #: assumed when nothing knows better
 
 def hosted_ctx(model, dflt=DFLT_CTX):
@@ -100,7 +100,7 @@ def hosted_ctx(model, dflt=DFLT_CTX):
     except Exception as e: return dflt, f'context window unknown ({type(e).__name__}), assuming {dflt//1000}k'
     return dflt, f'context window unknown, assuming {dflt//1000}k'
 
-# %% ../nbs/03_caps.ipynb #0e521724
+# %% ../nbs/03_caps.ipynb #5ecc28fe
 MODEL_EXTS = ('.gguf', '.litertlm')   #: file suffixes that mean "a model, not a repo id"
 
 def is_path(model):
@@ -125,7 +125,7 @@ def mmproj_caps(model, model_path=None):
         return Caps(('text', 'image'), ('text',), (), 'mmproj')
     return None
 
-# %% ../nbs/03_caps.ipynb #5eb5f36a
+# %% ../nbs/03_caps.ipynb #c268dfb1
 #: `config.json` keys that mark a second tower, by the modality it reads.
 _tower_keys = {'image': ('vision_config', 'vision_tower', 'image_token_index'),
                'audio': ('audio_config',)}

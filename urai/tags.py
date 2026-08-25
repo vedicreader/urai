@@ -8,11 +8,11 @@ Docs: https://vedicreader.github.io/urai/tags.html.md"""
 __all__ = ['TAG_ARG_KEYS', 'TAG_TOOLS_SP', 'split_think', 'tag_args', 'mk_tag_tc', 'lone_tag_tc', 'parse_tool_tags',
            'tag_call_shape', 'tag_tools_sp', 'StreamSplit', 'acc_tc']
 
-# %% ../nbs/01_tags.ipynb #4b3a54bc
+# %% ../nbs/01_tags.ipynb #f1d513cc
 import json, re, uuid
 from fastcore.all import L
 
-# %% ../nbs/01_tags.ipynb #80122023
+# %% ../nbs/01_tags.ipynb #e99537e7
 _think_re = re.compile(r'<think>(.*?)</think>', re.DOTALL)
 
 def split_think(text):
@@ -25,7 +25,7 @@ def split_think(text):
         ths.append(rest.strip())
     return text.strip('\n'), '\n'.join(th for th in ths if th)
 
-# %% ../nbs/01_tags.ipynb #c8c86dc2
+# %% ../nbs/01_tags.ipynb #e263321a
 TAG_ARG_KEYS = ('arguments', 'input', 'parameters')
 
 def tag_args(d):
@@ -46,7 +46,7 @@ def mk_tag_tc(s):
     return {'id': f'call_{uuid.uuid4().hex[:8]}', 'type': 'function',
             'function': {'name': d['name'], 'arguments': tag_args(d)}}
 
-# %% ../nbs/01_tags.ipynb #894908ea
+# %% ../nbs/01_tags.ipynb #9482f0de
 _res_tags = ('tool_result', 'tool_results', 'function_result', 'function_results',
              'tool_function_result', 'tool_function_results',
              'tool_function_call', 'tool_function_calls',
@@ -65,14 +65,14 @@ def lone_tag_tc(text):
     if not any(k in d for k in TAG_ARG_KEYS): return None
     return mk_tag_tc(s)
 
-# %% ../nbs/01_tags.ipynb #32403bf7
+# %% ../nbs/01_tags.ipynb #a097ff21
 def parse_tool_tags(text):
     "Parse Hermes and Qwen style `<tool_call>{json}</tool_call>` blocks, returning `(clean_text, tool_calls)`."
     tcs = [tc for m in _toolcall_re.findall(text or '') if (tc := mk_tag_tc(m))]
     if not tcs and (tc := lone_tag_tc(text)): return '', [tc]
     return _toolres_re.sub('', _toolcall_re.sub('', text or '')).strip('\n'), tcs
 
-# %% ../nbs/01_tags.ipynb #8f792963
+# %% ../nbs/01_tags.ipynb #530417a6
 def tag_call_shape(text, names=None):
     "Does `text` still show a call the parser did not take? `names` limits it to tools that exist."
     t = text or ''
@@ -81,7 +81,7 @@ def tag_call_shape(text, names=None):
     pat = '|'.join(re.escape(str(n)) for n in (names or []) if n) if names is not None else r'[A-Za-z_]\w*'
     return bool(pat) and bool(re.search(rf'"name"\s*:\s*"(?:{pat})"', t))
 
-# %% ../nbs/01_tags.ipynb #f5307118
+# %% ../nbs/01_tags.ipynb #150e47be
 TAG_TOOLS_SP = """
 
 # Tools
@@ -115,7 +115,7 @@ def tag_tools_sp(toolspecs, sp='', template=TAG_TOOLS_SP):
     block = '\n'.join(json.dumps(t, ensure_ascii=False) for t in toolspecs)
     return (sp or '') + template.format(tools=block)
 
-# %% ../nbs/01_tags.ipynb #6d388016
+# %% ../nbs/01_tags.ipynb #dfb0657a
 _tags = ('<think>', '</think>', '<tool_call>', '</tool_call>',
          *(f'<{n}>' for n in _res_tags), *(f'</{n}>' for n in _res_tags))
 
@@ -183,7 +183,7 @@ class StreamSplit:
             self._tc_buf = ''
         elif (c := self._emit_text(s)): yield c
 
-# %% ../nbs/01_tags.ipynb #1eb4c797
+# %% ../nbs/01_tags.ipynb #299c6b54
 def acc_tc(acc, deltas):
     "Fold streamed OpenAI `tool_calls` deltas into `acc`, a list of partial tool_call dicts."
     for d in deltas or []:
