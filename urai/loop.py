@@ -7,7 +7,7 @@ Docs: https://vedicreader.github.io/urai/loop.html.md"""
 # %% auto #0
 __all__ = ['UsageCallback', 'ToolReminderCallback', 'ToolLoopMixin', 'msg_groups', 'evict_middle', 'SlidingWindowCallback']
 
-# %% ../nbs/06_loop.ipynb #46cae8e7
+# %% ../nbs/06_loop.ipynb #f7e7a0f2
 from concurrent.futures import ThreadPoolExecutor
 from fastcore.funccall import mk_ns, call_func
 from fastcore.all import L, store_attr, patch
@@ -17,7 +17,7 @@ from .msgs import mk_msg, mk_toolspec, tc_name, mk_tool_res_msg, sum_usage
 from .chat import (Chat, ContextWindowExceededError, is_ctx_error,
                        budget_msg_, cancel_msg_, cancelled_reply_)
 
-# %% ../nbs/06_loop.ipynb #eff0a0a6
+# %% ../nbs/06_loop.ipynb #fc2fd423
 class UsageCallback(ChatCallback):
     "Fold each turn's `usage` block, summed across tool rounds, into `chat.use`."
     order = 10
@@ -40,7 +40,7 @@ class ToolReminderCallback(ChatCallback):
         elif isinstance(m.get('content'), list):
             m['content'].append({'type': 'text', 'text': self.tool_reminder})
 
-# %% ../nbs/06_loop.ipynb #098b3266
+# %% ../nbs/06_loop.ipynb #f5b87da8
 class ToolLoopMixin:
     "The Python-side tool loop, for backends that get tool calls back as data."
     _ctx_tokens = 0
@@ -112,7 +112,7 @@ class ToolLoopMixin:
         self.turn_res = res
         if not recorded: self.hist.append(res)
 
-# %% ../nbs/06_loop.ipynb #59752641
+# %% ../nbs/06_loop.ipynb #1f11d0a2
 @patch
 def _send(self:ToolLoopMixin, msg, **kw):
     "Send one message, looping until the model stops calling tools or the budget ends the turn."
@@ -136,7 +136,7 @@ def _send(self:ToolLoopMixin, msg, **kw):
     for _ in run_cbs(self, 'after_response'): pass
     return self.turn_res
 
-# %% ../nbs/06_loop.ipynb #501ef736
+# %% ../nbs/06_loop.ipynb #58cfff39
 @patch
 def recover_context(self:ToolLoopMixin, err, keep_last=4, mx=500, **kw):
     "Window full mid-turn: shrink the oldest tool results, rebuild backend state, and ask for a close."
@@ -153,7 +153,7 @@ def recover_context(self:ToolLoopMixin, err, keep_last=4, mx=500, **kw):
         raise ContextWindowExceededError(
             f'could not recover after truncating tool results: {err}') from err
 
-# %% ../nbs/06_loop.ipynb #caefbf45
+# %% ../nbs/06_loop.ipynb #a9d7e4ed
 @patch
 def _stream(self:ToolLoopMixin, msg, cbs=None, **kw):
     "Stream a turn as markdown chunks. Callbacks in `cbs` live only for this turn."
@@ -202,7 +202,7 @@ def _stream(self:ToolLoopMixin, msg, cbs=None, **kw):
         return self.turn_res    # captured by `SaveReturn` and `AsyncChat`'s `.value`
     finally: self._streaming = prev; self.remove_cbs(added)
 
-# %% ../nbs/06_loop.ipynb #e2129bb4
+# %% ../nbs/06_loop.ipynb #987040b7
 def msg_groups(hist):
     "Split `hist` into atomic groups: a tool-calling assistant message stays with its results."
     groups, cur = [], []
@@ -224,7 +224,7 @@ def evict_middle(hist, keep_first=2, keep_last=8):
     drop = groups[keep_first:len(groups) - keep_last] if keep_last else groups[keep_first:]
     return [m for g in keep for m in g], [m for g in drop for m in g]
 
-# %% ../nbs/06_loop.ipynb #fa4b6412
+# %% ../nbs/06_loop.ipynb #70f61d02
 _sum_sp = 'Summarize the conversation extract faithfully and briefly. Reply with the summary only.'
 
 class SlidingWindowCallback(ChatCallback):
