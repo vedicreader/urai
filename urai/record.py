@@ -168,9 +168,10 @@ class RecordedChat(ToolLoopMixin, Chat):
 
     def __init__(self,
                  model=None,        # anything `Chat` takes; part of every key
+                 *,
                  path=None,         # the diskcache directory; None -> `CHAT_CACHE`
                  record=None,       # let a miss reach a real model; None -> read `env`
-                 env=RECORD_ENV,    # which variable that is
+                 env=None,          # which variable that is; None -> `RECORD_ENV`
                  runtime=None,      # forced runtime for the live chat
                  model_path=None,
                  opts=None,
@@ -182,7 +183,7 @@ class RecordedChat(ToolLoopMixin, Chat):
         # (`workspace`, `engine`, `quant`) are named parameters there, not portable options,
         # and `ChatOpts` would carry them into `extra` and hand them to the wire instead
         self._kw = {**({'ctx_limit': ctx_limit} if ctx_limit else {}), **kw}
-        self.rec = RecordCache(path, record, env=env)
+        self.rec = RecordCache(path, record, env=env or RECORD_ENV)
         self._chat, self._ctx_tokens = None, 0
         self._set_tools(o.tools)               # `toolspecs` and `ns`: `_setup` sets `tools` alone
         self.ctx_limit = o.ctx or DFLT_CTX
