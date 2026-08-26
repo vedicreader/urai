@@ -2,7 +2,7 @@ project:
   output-dir: _docs
 
 website:
-  title: "urai"
+  title: "uraiyadal"
   site-url: "https://vedicreader.github.io/urai"
   description: "the chat conventions every backend shares"
   repo-branch: main
