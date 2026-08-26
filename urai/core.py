@@ -1,4 +1,4 @@
-"""Usage counting, the callback protocol, and how a reply renders.
+"""Usage counting, callbacks, and response rendering.
 
 Docs: https://vedicreader.github.io/urai/core.html.md"""
 
@@ -16,7 +16,7 @@ from fastcore.all import store_attr, GetAttr, L
 
 # %% ../nbs/00_core.ipynb #846c8e36
 def use_system_certs(force=False):
-    "Verify TLS against the OS trust store rather than `certifi`. False if `truststore` is missing, or off by `URAI_SYSTEM_CERTS=0`."
+    "Use the OS trust store. Return false when unavailable or disabled by `URAI_SYSTEM_CERTS=0`."
     off = os.getenv('URAI_SYSTEM_CERTS', os.getenv('RISHI_SYSTEM_CERTS', '1')) == '0'
     if not force and off: return False
     try: import truststore
@@ -28,7 +28,7 @@ system_certs = use_system_certs()   #: done once, on import
 
 # %% ../nbs/00_core.ipynb #46e5f751
 class UsageStats:
-    "Token usage for a chat turn. `cost` and `model` are always present, so local and hosted usage share one type."
+    "Token usage for one chat turn."
     _sums = ('prompt_tokens', 'completion_tokens', 'total_tokens', 'n', 'cached_tokens', 'cost',
              'reasoning_tokens', 'cache_creation_tokens')
     def __init__(self,
@@ -169,7 +169,7 @@ tool_reminder_ = ('\n<system-reminder>After every tool call result, briefly summ
                   'what you found before continuing or calling another tool.</system-reminder>')
 
 class TruncationCallback(ChatCallback):
-    "Flag `turn_res['truncated']` when a reply reaches the output cap. Best effort: some backends do not say."
+    "Flag a reply that reaches the output cap when usage data is available."
     order = 20
     def __init__(self, max_tokens): store_attr()
     def after_response(self):

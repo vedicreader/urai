@@ -67,7 +67,7 @@ def lone_tag_tc(text):
 
 # %% ../nbs/01_tags.ipynb #a097ff21
 def parse_tool_tags(text):
-    "Parse Hermes and Qwen style `<tool_call>{json}</tool_call>` blocks, returning `(clean_text, tool_calls)`."
+    "Return clean text and calls parsed from `<tool_call>` blocks."
     tcs = [tc for m in _toolcall_re.findall(text or '') if (tc := mk_tag_tc(m))]
     if not tcs and (tc := lone_tag_tc(text)): return '', [tc]
     return _toolres_re.sub('', _toolcall_re.sub('', text or '')).strip('\n'), tcs

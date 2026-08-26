@@ -1,4 +1,4 @@
-"""Asking a model once, and replaying the answer forever.
+"""Recording model turns for deterministic replay.
 
 Docs: https://vedicreader.github.io/urai/record.html.md"""
 
@@ -68,7 +68,7 @@ class RecordCache:
 
 # %% ../nbs/09_record.ipynb #acdefa8b
 def canon_msg(m):
-    "What a reply depends on in one history entry: who spoke, what was said, what was attached, what was called."
+    "Canonical cache-key fields for one history entry."
     media = [sha256(str(p).encode()).hexdigest()[:16] for p in listify(m.get('content')) if is_media(p)]
     tcs = [(tc_name(tc), (tc.get('function') or {}).get('arguments')) for tc in (m.get('tool_calls') or [])]
     return [m.get('role', ''), resp_text(m), media, tcs]

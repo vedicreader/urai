@@ -66,10 +66,12 @@ class ChatBroker:
 
     def _free_socket(self):
         "Clear a socket file a dead broker left behind. A live one is never taken over."
-        if not Path(self.address).exists(): return
+        path = Path(self.address)
+        if not path.exists(): return
+        if not path.is_socket(): raise RuntimeError(f'broker path exists and is not a socket: {self.address}')
         probe = socket.socket(socket.AF_UNIX)
         try: probe.connect(self.address)
-        except ConnectionRefusedError: Path(self.address).unlink()
+        except ConnectionRefusedError: path.unlink()
         else: raise RuntimeError(f'broker already running at {self.address}')
         finally: probe.close()
 
@@ -137,11 +139,7 @@ class ChatBroker:
                 self.clients.discard(conn); self.handlers.discard(threading.current_thread())
 
     def _wake(self):
-        """Nudge the accept loop so it notices `stopping`.
-
-        Closing a listening socket does not wake a thread already blocked in `accept()`, so
-        `close()` would join that thread forever. One throwaway connection returns from
-        `accept()`, which then sees `stopping` and stops."""
+        """Connect once to wake `accept`, which closing the listener alone may not wake."""
         s = socket.socket(socket.AF_UNIX)
         try: s.connect(self.address)
         except OSError: pass

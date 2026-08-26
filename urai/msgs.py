@@ -1,4 +1,4 @@
-"""The canonical message shape, and the conversions in and out of it.
+"""Canonical messages and wire conversions.
 
 Docs: https://vedicreader.github.io/urai/msgs.html.md"""
 
@@ -146,7 +146,7 @@ def norm_resp(r):
 
 # %% ../nbs/02_msgs.ipynb #59c18c9e
 def to_oai_msg(m):
-    "A history entry as an OpenAI-style wire message: urai-only keys dropped, call args re-encoded as JSON."
+    "Convert a history entry to an OpenAI wire message."
     out = {k: m[k] for k in ('role', 'content', 'tool_calls', 'tool_call_id', 'name')
            if m.get(k) is not None}
     if 'tool_calls' in out:

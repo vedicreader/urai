@@ -1,4 +1,4 @@
-"""Running the tools a model asks for, and keeping the window from filling.
+"""Tool execution and context-window management.
 
 Docs: https://vedicreader.github.io/urai/loop.html.md"""
 
