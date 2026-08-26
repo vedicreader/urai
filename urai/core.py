@@ -49,6 +49,12 @@ class UsageStats:
                           model=self.model or other.model)
     def __radd__(self, other): return self if other in (None, 0) else self.__add__(other)
 
+    def __sub__(self, other):
+        "What this counter has added since `other`. A backend counts cumulatively; a turn is a delta."
+        if other is None: return self
+        return UsageStats(**{k: max(0, getattr(self, k) - getattr(other, k)) for k in self._sums},
+                          model=self.model or other.model)
+
     def __repr__(self):
         p = [f'total={self.total_tokens:,}', f'in={self.prompt_tokens:,}',
              f'out={self.completion_tokens:,}', f'turns={self.n}']
