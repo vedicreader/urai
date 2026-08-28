@@ -35,6 +35,8 @@ Documentation = "https://vedicreader.github.io/urai/"
 urai = "urai._modidx:d"
 
 [tool.nbdev]
+lib_name = "urai"
+lib_path = "urai"
 
 [tool.hatch.build.targets.wheel]
 packages = ["urai"]
