@@ -8,7 +8,7 @@ A backend registers itself, implements one way to send a message, and inherits t
 ## Install
 
 ```sh
-pip install urai
+pip install uraiyadal
 ```
 
 ## Configuring a chat

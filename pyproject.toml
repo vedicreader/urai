@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "urai"
+name = "uraiyadal"
 dynamic = ["version"]
 description = "the chat conventions every backend shares"
 readme = "README.md"
