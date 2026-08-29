@@ -111,9 +111,15 @@ class CachedChat:
         store_attr('model,sp,kw')
         self.tools, self.rec, self._chat, self.hist = L(tools), RecordCache(path, record), None, []
         self.use = UsageStats()   # folded from every reply, replayed or live, like `Chat.use`
+        self._ctx = 0             # occupancy the last reply reported. See `token_count`
 
     @property
     def cache(self): return self.rec.cache
+
+    @property
+    def token_count(self):
+        "Tokens the conversation occupies, as the last reply reported them. What a live `Chat` exposes."
+        return self._ctx
 
     def cancel(self):
         "Stop the live turn, if one was ever built. Nothing to stop while replaying."
@@ -133,9 +139,9 @@ class CachedChat:
     def _fold(self, u):
         """Add one reply's usage block to `use`, the way `UsageCallback` does for a live chat.
 
-        A recording holds what the call actually cost, so a replay reports it. Without this a
-        replayed turn looked free, and anything sized by a context window -- compaction, a budget,
-        a percentage full -- could not be exercised from recordings at all.
+        A recording holds what the call actually cost, so a replay reports it, and `token_count`
+        follows the same block. Without this a replayed turn looked free, and anything sized by a
+        context window -- compaction, a budget, a percentage full -- could not be tested at all.
         """
         u = u or {}
         self.use += UsageStats(
@@ -143,6 +149,7 @@ class CachedChat:
             cached_tokens=u.get('cached_tokens', 0), model=u.get('model') or self.model,
             reasoning_tokens=u.get('reasoning_tokens', 0),
             cache_creation_tokens=u.get('cache_creation_tokens', 0), cost=u.get('cost', 0.0))
+        if t := u.get('total_tokens'): self._ctx = t
         return self.use
 
     def _key(self, kind, *args, hist=True):
