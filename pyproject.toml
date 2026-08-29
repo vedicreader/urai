@@ -28,7 +28,7 @@ dependencies = [
 
 [project.optional-dependencies]
 record = ["diskcache>=5.6.3"]
-all = ["urai[record]"]
+all = ["uraiyadal[record]"]
 
 [project.urls]
 Repository = "https://github.com/vedicreader/urai"
@@ -38,6 +38,9 @@ Documentation = "https://vedicreader.github.io/urai/"
 urai = "urai._modidx:d"
 
 [tool.nbdev]
+# the distribution is `uraiyadal`; the import package is `urai`, and nbdev would otherwise
+# derive the directory from the distribution name and export into `uraiyadal/`
+lib_path = "urai"
 
 [tool.hatch.build.targets.wheel]
 packages = ["urai"]
@@ -50,7 +53,7 @@ path = "urai/__init__.py"
 
 [dependency-groups]
 dev = [
-    "urai[all]",
+    "uraiyadal[all]",
     "nbdev>=3.1.0",
     "notebook>=7.6.0",
     "ipykernel>=7.3.0",
