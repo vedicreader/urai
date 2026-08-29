@@ -111,14 +111,14 @@ class CachedChat:
         store_attr('model,sp,kw')
         self.tools, self.rec, self._chat, self.hist = L(tools), RecordCache(path, record), None, []
         self.use = UsageStats()   # folded from every reply, replayed or live, like `Chat.use`
-        self._ctx = 0             # occupancy the last reply reported. See `token_count`
+        self._ctx = 0             # occupancy the answering chat reported. See `token_count`
 
     @property
     def cache(self): return self.rec.cache
 
     @property
     def token_count(self):
-        "Tokens the conversation occupies, as the last reply reported them. What a live `Chat` exposes."
+        "Tokens the conversation occupies, as the chat that answered reported them."
         return self._ctx
 
     def cancel(self):
@@ -136,12 +136,11 @@ class CachedChat:
                               messages=self.hist, **self.kw)
         return self._chat
 
-    def _fold(self, u):
+    def _fold(self, u, ctx=None):
         """Add one reply's usage block to `use`, the way `UsageCallback` does for a live chat.
 
-        A recording holds what the call actually cost, so a replay reports it, and `token_count`
-        follows the same block. Without this a replayed turn looked free, and anything sized by a
-        context window -- compaction, a budget, a percentage full -- could not be tested at all.
+        A recording holds what the call actually cost, so a replay reports it. Without this a
+        replayed turn looked free, and anything sized by what a call cost could not be tested.
         """
         u = u or {}
         self.use += UsageStats(
@@ -149,7 +148,10 @@ class CachedChat:
             cached_tokens=u.get('cached_tokens', 0), model=u.get('model') or self.model,
             reasoning_tokens=u.get('reasoning_tokens', 0),
             cache_creation_tokens=u.get('cache_creation_tokens', 0), cost=u.get('cost', 0.0))
-        if t := u.get('total_tokens'): self._ctx = t
+        # a turn's usage block sums its model steps, so it is what the turn cost and not what the
+        # window holds. Occupancy is the answering chat's own count, recorded beside the reply
+        if ctx: self._ctx = ctx
+        elif t := u.get('total_tokens'): self._ctx = t   # recorded before `ctx` was stored
         return self.use
 
     def _key(self, kind, *args, hist=True):
@@ -172,9 +174,10 @@ class CachedChat:
         def _live():
             n = len(self.chat.hist)
             r = self.chat(prompt, **kw)
-            return {'resp': as_resp(r), 'hist': [dict(m) for m in self.chat.hist[n:]]}
+            return dict(resp=as_resp(r), hist=[dict(m) for m in self.chat.hist[n:]],
+                        ctx=getattr(self.chat, 'token_count', 0))
         rec = self.rec(key, _live, what)
-        self._fold(rec['resp'].get('usage'))
+        self._fold(rec['resp'].get('usage'), rec.get('ctx'))
         # a stopped turn is a truncated one, and a recording would replay the truncation forever
         if not hit and self.cancelled: self.rec.forget(key)
         self.hist += [dict(m) for m in rec['hist']]

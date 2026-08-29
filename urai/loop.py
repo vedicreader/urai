@@ -45,6 +45,11 @@ class ToolLoopMixin:
     "The Python-side tool loop, for backends that get tool calls back as data."
     _ctx_tokens = 0
 
+    @property
+    def token_count(self):
+        "What the window holds after the last turn. `Chat.pct_full` reads it; backends may override."
+        return self._ctx_tokens
+
     def _set_tools(self, tools):
         "Rebuild the wire schemas and the call namespace."
         self.toolspecs = [mk_toolspec(t) for t in L(tools)]
