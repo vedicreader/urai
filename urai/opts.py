@@ -1,4 +1,4 @@
-"""Naming a model once, and configuring it once.
+"""Portable model names and options.
 
 Docs: https://vedicreader.github.io/urai/opts.html.md"""
 
@@ -211,7 +211,7 @@ def backend_kw(opts, opt_map=None, skip=(), warn=True):
 
 # %% ../nbs/04_opts.ipynb #1ce6a21f
 def turn_kw(opts=None, **kw):
-    "Generation settings for one turn, from a `ChatOpts` or loose keywords. Loop and conversation settings are ignored."
+    "Return generation settings for one turn, excluding conversation and loop options."
     o = ChatOpts.create(opts, **kw)
     chosen = o.set()
     return {**{k: v for k, v in chosen.items() if k in GEN_OPTS}, **o.extra}

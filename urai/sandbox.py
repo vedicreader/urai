@@ -1,4 +1,4 @@
-"""Letting a model run Python without giving it a tool.
+"""Running Python fences produced by a model.
 
 Docs: https://vedicreader.github.io/urai/sandbox.html.md"""
 
@@ -144,11 +144,7 @@ def sync_iter(agen_fn, stop=None):
 
 @contextmanager
 def killed_on_exit(proc, timeout=2):
-    """Run a block over `proc`; leaving it early kills the child rather than waiting for it.
-
-    `with Popen(...)` calls `wait()` with no timeout, so a generator abandoned mid-stream blocks its
-    caller until the CLI finishes work nobody wants any more. A block that ends normally still
-    waits, and leaves the pipes open for the caller to read `stderr` from."""
+    """Wait for `proc` on success. Terminate it if the block exits early or raises."""
     try: yield proc
     except BaseException:
         if proc.poll() is None:

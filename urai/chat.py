@@ -1,4 +1,4 @@
-"""One conversation, whichever backend is behind it.
+"""One conversation across any backend.
 
 Docs: https://vedicreader.github.io/urai/chat.html.md"""
 
@@ -68,7 +68,7 @@ class Chat:
         self._setup(model, ChatOpts.create(opts, **kw))
 
     def _setup(self, model=None, opts=None):
-        "Shared init tail: strip the runtime prefix, store the options, build the history, register callbacks."
+        "Initialize shared chat state."
         _, model = split_runtime(model)
         o = self.opts = ChatOpts.create(opts)
         if o.max_parallel_tools and o.max_parallel_tools < 1:
@@ -140,15 +140,10 @@ def remove_cbs(self:Chat, cbs):
 # %% ../nbs/05_chat.ipynb #ce88eb0f
 @patch
 def __call__(self:Chat, msg=None, stream=False, cbs=None, **kw):
-    '''Run one chat turn: a `Resp`, or a generator when `stream` is set.
+    """Run one chat turn.
 
-    `stream=True` yields markdown strings, ready to print or hand to `display_stream`.
-    `stream='raw'` yields the underlying chunk dicts instead, for a consumer that wants the
-    text/thinking/tool-call structure rather than rendered markdown.
-    `kw` sets generation options (`temp`, `effort`, `max_output_tokens`, ...) for this turn alone.
-
-    One `Chat` is one conversation. `hist`, the turn state and the backend cache are shared
-    mutable state, so a single instance is not safe to drive from two threads at once.'''
+    `stream=True` yields markdown. `stream='raw'` yields chunk dicts. Keyword options apply
+    only to this turn. One `Chat` instance is mutable and not safe for concurrent turns."""
     self.use, self._steps, self._budget_exceeded, self._final_sent = UsageStats(), 0, False, False
     self._cancel.clear()
     self._stream_raw = stream == 'raw'
@@ -187,7 +182,7 @@ def _check_media(self:Chat):
 # %% ../nbs/05_chat.ipynb #d7702244
 @patch
 def _recreate_conv(self:Chat):
-    "Rebuild whatever conversation state the backend holds from `self.hist`. A no-op for backends that re-send the whole list."
+    "Rebuild backend conversation state from `self.hist`."
     pass
 
 @patch
@@ -202,7 +197,7 @@ def _set_tools(self:Chat, tools):
 
 @patch
 def reconfigure(self:Chat, sp=None, tools=None):
-    "Change `sp` or `tools` on a live conversation, keeping `hist`. `None` leaves that half alone; `tools=()` removes every tool."
+    "Change `sp` or `tools` while keeping `hist`; `None` preserves a value and `tools=()` clears tools."
     if sp is not None: self.sp = sp; self._set_sp(sp)
     if tools is not None:
         self.opts = replace(self.opts, tools=tuple(L(tools)))
@@ -219,7 +214,7 @@ def cancel(self:Chat):
 
 @patch
 def oneshot(self:Chat, prompt, sp='', think=None, max_tokens=None):
-    "One stateless reply: no history, no tools, nothing kept. `think=False` asks the model not to deliberate."
+    "Return one stateless reply without tools or history; `think=False` disables deliberation."
     return self._oneshot(prompt, sp, think=think, max_tokens=max_tokens)
 
 @patch

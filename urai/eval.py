@@ -1,4 +1,4 @@
-"""Asking a model a question you already know the answer to.
+"""Stateless model classification, extraction, and grading.
 
 Docs: https://vedicreader.github.io/urai/eval.html.md"""
 

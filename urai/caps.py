@@ -1,4 +1,4 @@
-"""What a model takes and what it hands back, without loading it.
+"""Model inputs and outputs without loading the model.
 
 Docs: https://vedicreader.github.io/urai/caps.html.md"""
 
@@ -55,7 +55,7 @@ _gen_modes = {'image_generation': ('image',), 'video_generation': ('video',), 'a
 ENDPOINT_TOOLS = {'/v1/responses': ('image',)}
 
 def tool_modalities(info):
-    "What a model generates when handed a server-side tool, which `supported_output_modalities` never says."
+    "Modalities produced by a server-side tool."
     eps = info.get('supported_endpoints') or ()
     return tuple(dict.fromkeys(m for e, ms in ENDPOINT_TOOLS.items() if e in eps for m in ms))
 

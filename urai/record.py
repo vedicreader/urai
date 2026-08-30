@@ -1,4 +1,4 @@
-"""Asking a model once, and replaying the answer forever.
+"""Recording model turns for deterministic replay.
 
 Docs: https://vedicreader.github.io/urai/record.html.md"""
 
@@ -44,10 +44,7 @@ class RecordCache:
                  record=None,   # let a miss run for real; None -> read `env`
                  env='URAI_RECORD_CHAT',
                  version=None): # part of every key; None -> `KEY_VERSION`
-        try: from diskcache import Cache
-        except ImportError as e: raise ImportError(
-            "RecordCache needs diskcache, which urai does not install by default: "
-            "pip install 'urai[record]'") from e
+        from diskcache import Cache
         self.cache, self.env = Cache(str(path or CHAT_CACHE)), env
         self.version = ifnone(version, KEY_VERSION)
         self.record = str2bool(os.getenv(env) or '') if record is None else record
@@ -93,7 +90,7 @@ def as_resp(r):
 
 
 def canon_msg(m):
-    "What a reply depends on in one history entry: who spoke, what was said, what was attached, what was called."
+    "Canonical cache-key fields for one history entry."
     media = [sha256(str(p).encode()).hexdigest()[:16] for p in listify(m.get('content')) if is_media(p)]
     tcs = [(tc_name(tc), (tc.get('function') or {}).get('arguments')) for tc in (m.get('tool_calls') or [])]
     return [m.get('role', ''), resp_text(m), media, tcs]
