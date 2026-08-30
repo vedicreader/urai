@@ -6,8 +6,9 @@ Docs: https://vedicreader.github.io/urai/msgs.html.md"""
 
 # %% auto #0
 __all__ = ['CHARS_PER_TOKEN', 'ROLE_NAMES', 'mk_content', 'is_media', 'mk_msg', 'mk_msgs', 'strip_media', 'to_media_part',
-           'mk_toolspec', 'ToolCall', 'tc_name', 'mk_tool_res_msg', 'mk_tool_res_msgs', 'parse_args', 'norm_resp',
-           'to_oai_msg', 'sum_usage', 'est_tokens', 'render_prompt', 'common_prefix_len']
+           'mk_toolspec', 'ToolCall', 'tc_name', 'mk_tool_res_msg', 'mk_tool_res_msgs', 'toolspec_params',
+           'coerce_args', 'hoist_buried', 'coerce_tcs', 'parse_args', 'norm_resp', 'to_oai_msg', 'sum_usage',
+           'est_tokens', 'render_prompt', 'common_prefix_len']
 
 # %% ../nbs/02_msgs.ipynb #bc883722
 import json, math, os
@@ -119,6 +120,73 @@ def mk_tool_res_msg(tc, result):
 def mk_tool_res_msgs(tcs, results):
     "Canonical tool-result messages for several calls at once."
     return [mk_tool_res_msg(tc, r) for tc, r in zip(tcs, results)]
+
+# %% ../nbs/02_msgs.ipynb #bd4ef6bb
+def toolspec_params(toolspecs, name):
+    "The JSON-schema `parameters` object the spec for `name` declares, or None when no spec names it."
+    for s in toolspecs or []:
+        f = s.get('function') if isinstance(s, dict) and 'function' in s else s
+        if isinstance(f, dict) and f.get('name') == name:
+            return f.get('parameters') or f.get('input_schema') or {}
+    return None
+
+def _try_json(s):
+    try: return json.loads(s)
+    except (json.JSONDecodeError, TypeError): return None
+
+_TRUE, _FALSE = ('true', 'yes', 'on'), ('false', 'no', 'off')
+
+def _as_type(v, t, sch):
+    "`v` as schema type `t`, or `v` unchanged wherever the conversion is not decidable."
+    if t == 'string': return v if isinstance(v, str) else json.dumps(v, ensure_ascii=False)
+    if t in ('integer', 'number'):
+        if isinstance(v, bool) or v is None: return v
+        if isinstance(v, str):
+            if not isinstance(v := _try_json(v.strip()), (int, float)) or isinstance(v, bool): return v
+        if not isinstance(v, (int, float)): return v
+        return int(v) if t == 'integer' and float(v).is_integer() else v
+    if t == 'boolean':
+        if isinstance(v, bool) or not isinstance(v, str): return v
+        s = v.strip().lower()
+        return True if s in _TRUE else False if s in _FALSE else v
+    if t == 'array':
+        if isinstance(v, list): items = v
+        elif isinstance(v, str) and isinstance(p := _try_json(v), list): items = p
+        elif v is None: return v
+        else: items = [v]                                  # a lone element where a list was asked for
+        it = sch.get('items') or {}
+        return [_as_type(x, it.get('type'), it) for x in items] if isinstance(it.get('type'), str) else items
+    if t == 'object':
+        if isinstance(v, str) and isinstance(p := _try_json(v), dict): return p
+    return v
+
+def coerce_args(args, params):
+    "Fit `args` to schema `params`. A type comes from the SCHEMA, never from how the model spelled the value."
+    props = (params or {}).get('properties') or {}
+    if not isinstance(args, dict) or not props: return args
+    return {k: (_as_type(v, t, props[k]) if isinstance(t := (props.get(k) or {}).get('type'), str) else v)
+            for k, v in args.items()}          # a union, or an absent type, is undecidable: leave it alone
+
+def hoist_buried(args, params):
+    "Lift required params the model buried in a container, but only when one container holds every one."
+    if not isinstance(args, dict): return args
+    req = [k for k in ((params or {}).get('required') or []) if k not in args]
+    if not req: return args
+    props = (params or {}).get('properties') or {}
+    for k, v in args.items():
+        if isinstance(v, str): v = _try_json(v)
+        if isinstance(v, dict) and all(r in v for r in req):   # unanimity, or the parse layer is innocent
+            return {**{a: b for a, b in args.items() if a != k or a in props}, **v}
+    return args
+
+def coerce_tcs(tcs, toolspecs):
+    "Fit every call's arguments to its own tool's schema. A tool no spec names is left untouched."
+    for tc in tcs or []:
+        f = tc.get('function') or {}
+        if not isinstance(a := f.get('arguments'), dict): continue
+        if (p := toolspec_params(toolspecs, f.get('name'))) is None: continue
+        f['arguments'] = coerce_args(hoist_buried(a, p), p)
+    return tcs
 
 # %% ../nbs/02_msgs.ipynb #14348315
 def parse_args(a):
