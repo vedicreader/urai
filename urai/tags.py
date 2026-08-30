@@ -224,14 +224,16 @@ def parse_tool_tags_ex(text, names=None):
     t = text or ''
     tcs, failed = parse_fn_tags(t), False   # the XML dialect is read FIRST: a value never decides the call
     rest = _toolcall_re.sub('', t)
-    if not tcs:
-        for b in _toolcall_re.findall(t):
+    for b in _toolcall_re.findall(t):
+        if parse_fn_tags(b): continue
+        if (tc := mk_tag_tc(b)): tcs.append(tc)
+        else: failed = True             # a block nothing could read is a loss, never a silent deletion
+    if (k := rest.rfind('<tool_call>')) >= 0:   # an opener the model never closed: cut at the token cap
+        b = rest[k + len('<tool_call>'):]
+        if not parse_fn_tags(b):
             if (tc := mk_tag_tc(b)): tcs.append(tc)
-            else: failed = True             # a block nothing could read is a loss, never a silent deletion
-        if (k := rest.rfind('<tool_call>')) >= 0:   # an opener the model never closed: cut at the token cap
-            if (tc := mk_tag_tc(rest[k + len('<tool_call>'):])): tcs.append(tc)
             else: failed = True
-            rest = rest[:k]
+        rest = rest[:k]
     if not tcs and not failed and (tc := lone_tag_tc(t, names)): return '', [tc], False
     clean = _fnblk_re.sub('', _toolres_re.sub('', rest)).strip('\n')
     return clean, tcs, failed

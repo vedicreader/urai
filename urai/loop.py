@@ -127,8 +127,9 @@ reparse_msg_ = ("That reply held a tool call this harness could not read. Send t
 @patch
 def _fix_step(self:ToolLoopMixin, res):
     "The ONE place a step's calls are repaired. Returns True when the turn should ask for the call again."
-    if (raw := res.pop('raw', None)) and self.toolspecs: dump_raw(self.toolspecs, raw)
-    if (tcs := res.get('tool_calls')): coerce_tcs(tcs, self.toolspecs); return False
+    toolspecs = getattr(self, 'toolspecs', ())
+    if (raw := res.pop('raw', None)) and toolspecs: dump_raw(toolspecs, raw)
+    if (tcs := res.get('tool_calls')): coerce_tcs(tcs, toolspecs); return False
     if not res.get('tool_parse_failed') or self._reparse_asked: return False
     self._reparse_asked = True          # once per round: a model that cannot re-emit it never will
     self.hist.append(res); self.hist.append(mk_msg(reparse_msg_))
