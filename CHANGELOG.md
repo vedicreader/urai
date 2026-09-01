@@ -2,6 +2,9 @@
 
 <!-- do not remove -->
 
+## 0.0.6
+tool rows for easy access
+
 ## 0.0.5
 tag parsing fixes for mlx models. adding usage stats to record
 

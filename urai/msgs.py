@@ -6,7 +6,7 @@ Docs: https://vedicreader.github.io/urai/msgs.html.md"""
 
 # %% auto #0
 __all__ = ['CHARS_PER_TOKEN', 'ROLE_NAMES', 'mk_content', 'is_media', 'mk_msg', 'mk_msgs', 'strip_media', 'to_media_part',
-           'mk_toolspec', 'ToolCall', 'tc_name', 'mk_tool_res_msg', 'mk_tool_res_msgs', 'toolspec_params',
+           'mk_toolspec', 'ToolCall', 'tc_name', 'tool_rows', 'mk_tool_res_msg', 'mk_tool_res_msgs', 'toolspec_params',
            'coerce_args', 'hoist_buried', 'coerce_tcs', 'parse_args', 'norm_resp', 'to_oai_msg', 'sum_usage',
            'est_tokens', 'render_prompt', 'common_prefix_len']
 
@@ -112,6 +112,10 @@ class ToolCall(dict):
 def tc_name(tc):
     "Name of a tool call, however it was built."
     return (tc.get('function') or {}).get('name', '')
+
+def tool_rows(m):
+    "Canonical `(name, arguments)` pairs from a history message."
+    return [(tc_name(tc), (tc.get('function') or {}).get('arguments') or {}) for tc in m.get('tool_calls') or []]
 
 def mk_tool_res_msg(tc, result):
     "Canonical `role='tool'` message carrying `result` back for tool call `tc`."

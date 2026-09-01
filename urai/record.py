@@ -12,7 +12,7 @@ import json, os, re
 from hashlib import sha256
 from fastcore.all import L, Path, store_attr, ifnone, listify, str2bool
 from .core import Resp, UsageStats, resp_text
-from .msgs import is_media, tc_name
+from .msgs import is_media, tool_rows
 from .chat import Chat
 
 # %% ../nbs/09_record.ipynb #43700c29
@@ -92,7 +92,7 @@ def as_resp(r):
 def canon_msg(m):
     "Canonical cache-key fields for one history entry."
     media = [sha256(str(p).encode()).hexdigest()[:16] for p in listify(m.get('content')) if is_media(p)]
-    tcs = [(tc_name(tc), (tc.get('function') or {}).get('arguments')) for tc in (m.get('tool_calls') or [])]
+    tcs = tool_rows(m)
     return [m.get('role', ''), resp_text(m), media, tcs]
 
 # %% ../nbs/09_record.ipynb #1284922e
