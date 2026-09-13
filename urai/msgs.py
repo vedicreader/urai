@@ -7,8 +7,8 @@ Docs: https://vedicreader.github.io/urai/msgs.html.md"""
 # %% auto #0
 __all__ = ['CHARS_PER_TOKEN', 'ROLE_NAMES', 'mk_content', 'is_media', 'mk_msg', 'mk_msgs', 'strip_media', 'to_media_part',
            'mk_toolspec', 'ToolCall', 'tc_name', 'tool_rows', 'mk_tool_res_msg', 'mk_tool_res_msgs', 'toolspec_params',
-           'coerce_args', 'hoist_buried', 'coerce_tcs', 'parse_args', 'norm_resp', 'to_oai_msg', 'sum_usage',
-           'est_tokens', 'render_prompt', 'common_prefix_len']
+           'coerce_args', 'hoist_buried', 'coerce_tcs', 'parse_args', 'norm_resp', 'stream_resp', 'to_oai_msg',
+           'sum_usage', 'est_tokens', 'render_prompt', 'common_prefix_len']
 
 # %% ../nbs/02_msgs.ipynb #bc883722
 import json, math, os
@@ -214,6 +214,17 @@ def norm_resp(r):
     if tcs: res['tool_calls'] = tcs
     if ch.get('finish_reason') == 'length': res['truncated'] = True
     if 'usage' in r: res['usage'] = dict(r['usage'])
+    return Resp(res)
+
+def stream_resp(split, tool_calls=None, thought=None, truncated=False, usage=None):
+    "A streamed step's `Resp`: a finished `StreamSplit` plus a backend's own tool_calls/thought/usage."
+    th = split.thought if thought is None else thought
+    tcs = split.tool_calls if tool_calls is None else tool_calls
+    res = {'role': 'assistant', 'content': split.text}
+    if th: res['channels'] = {'thought': th}
+    if tcs: res['tool_calls'] = tcs
+    if truncated: res['truncated'] = True
+    if usage is not None: res['usage'] = usage
     return Resp(res)
 
 # %% ../nbs/02_msgs.ipynb #59c18c9e

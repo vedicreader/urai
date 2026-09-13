@@ -44,10 +44,9 @@ def run_py(self:Chat, code, ban_defs=False, g=None):
     except Exception as e: return f'{type(e).__name__}: {e}'
 
 def run_coro(coro):
-    "Run an awaitable to completion from sync code, even inside a running event loop."
-    try: asyncio.get_running_loop()
-    except RuntimeError: return asyncio.run(coro)
-    with ThreadPoolExecutor(1) as ex: return ex.submit(asyncio.run, coro).result()
+    "Run an awaitable to completion from sync code, on fastcore's shared background loop."
+    from fastcore.aio import run_sync
+    return run_sync(coro)
 
 # %% ../nbs/08_sandbox.ipynb #af46384a
 def task_complete(chat):
@@ -119,28 +118,15 @@ class PyFenceCallback(ChatCallback):
 
 # %% ../nbs/08_sandbox.ipynb #354a026f
 def sync_iter(agen_fn, stop=None):
-    "Drive the async generator from `agen_fn()` in sync code. Set `stop` to end the source stream."
-    from queue import Queue
-    from threading import Thread
-    q, done = Queue(), object()
-    async def _pump():
-        agen = agen_fn()
-        try:
-            async for o in agen:
-                q.put(o)
-                if stop is not None and stop.is_set(): break
-        except BaseException as e: q.put(e)
-        finally:
-            try: await agen.aclose()
-            except BaseException: pass
-            q.put(done)
-    t = Thread(target=lambda: asyncio.run(_pump()), daemon=True)
-    t.start()
+    "Drive the async generator from `agen_fn()` in sync code, on fastcore's shared loop. Set `stop` to end the source stream early."
+    from fastcore.aio import run_sync
+    agen = agen_fn()
     try:
-        while (o := q.get()) is not done:
-            if isinstance(o, BaseException): raise o
-            yield o
-    finally: t.join(timeout=5)
+        while True:
+            if stop is not None and stop.is_set(): break
+            try: yield run_sync(agen.__anext__())
+            except StopAsyncIteration: break
+    finally: run_sync(agen.aclose())
 
 @contextmanager
 def killed_on_exit(proc, timeout=2):

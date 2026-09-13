@@ -7,7 +7,7 @@ Docs: https://vedicreader.github.io/urai/opts.html.md"""
 # %% auto #0
 __all__ = ['RUNTIMES', 'dflt_runtime', 'DFLT_FINAL_PROMPT', 'GEN_OPTS', 'ALIASES', 'Runtime', 'register_runtime', 'split_runtime',
            'infer_runtime', 'resolve_runtime', 'ModelSpec', 'resolve', 'load_ref', 'model_caps', 'ChatOpts',
-           'set_dotted', 'backend_kw', 'turn_kw']
+           'set_dotted', 'turn_kw']
 
 # %% ../nbs/04_opts.ipynb #fea6fec5
 import warnings
@@ -194,20 +194,6 @@ def set_dotted(d, path, v):
     for k in ks[:-1]: cur = cur.setdefault(k, {})
     cur[ks[-1]] = v
     return d
-
-def backend_kw(opts, opt_map=None, skip=(), warn=True):
-    "`opts` as one backend's own keyword arguments, renamed by `opt_map` and minus `skip`."
-    out, chosen = {}, opts.set()
-    if (env := chosen.pop('api_key_env', None)) and 'api_key' not in chosen:
-        import os
-        if (v := os.environ.get(env)): chosen['api_key'] = v
-    dropped = [k for k in chosen if k in skip]
-    if warn and dropped:
-        warnings.warn(f'ignored by this backend: {", ".join(sorted(dropped))}', stacklevel=2)
-    for k, v in chosen.items():
-        if k in skip: continue
-        set_dotted(out, (opt_map or {}).get(k, k), v)
-    return {**out, **opts.extra}
 
 # %% ../nbs/04_opts.ipynb #1ce6a21f
 def turn_kw(opts=None, **kw):
