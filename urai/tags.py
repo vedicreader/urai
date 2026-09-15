@@ -300,6 +300,7 @@ def dump_raw(toolspecs, raw, path=None):
 # %% ../nbs/01_tags.ipynb #dfb0657a
 _tags = ('<think>', '</think>', '<tool_call>', '</tool_call>', '<function=', '</function>',
          *(f'<{n}>' for n in _res_tags), *(f'</{n}>' for n in _res_tags))
+_MAX_TAG = max(map(len, _tags))
 
 class StreamSplit:
     "Stateful splitter: `<think>` becomes thought chunks, tool blocks are held back and parsed."
@@ -311,9 +312,11 @@ class StreamSplit:
 
     def _held(self):
         "Length of the longest `buf` suffix that could still become a tag."
-        for n in range(min(len(self.buf), max(map(len, _tags)) - 1), 0, -1):
-            if any(t.startswith(self.buf[-n:]) for t in _tags): return n
-        return 0
+        w = self.buf[-(_MAX_TAG-1):]
+        k = w.rfind('<')                       # every tag starts with '<' and holds no other '<'
+        if k < 0: return 0
+        suf = w[k:]
+        return len(suf) if any(t.startswith(suf) for t in _tags) else 0
 
     def _emit_text(self, out):
         out = _toolres_re.sub('', out)       # invented result markup: the streamed path never
