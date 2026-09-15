@@ -24,6 +24,9 @@ def split_think(text):
     if '<think>' in text:            # unterminated, e.g. cut off at the token cap
         text, _, rest = text.partition('<think>')
         ths.append(rest.strip())
+    elif '</think>' in text:         # a template prefill opened it, so the tag never arrived
+        pre, _, text = text.partition('</think>')
+        ths.insert(0, pre.strip())
     return text.strip('\n'), '\n'.join(th for th in ths if th)
 
 # %% ../nbs/01_tags.ipynb #8f4aec56
