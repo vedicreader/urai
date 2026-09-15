@@ -14,6 +14,7 @@ from fastcore.all import L, Path, store_attr, ifnone, listify, str2bool
 from .core import Resp, UsageStats, resp_text
 from .msgs import is_media, tool_rows
 from .chat import Chat
+from .opts import resolve_runtime
 
 # %% ../nbs/09_record.ipynb #43700c29
 class NotRecordable(TypeError):
@@ -104,9 +105,10 @@ class CachedChat:
                  record=None,  # let a miss reach a real model; None -> `$URAI_RECORD_CHAT`
                  sp='',        # system prompt, part of the key
                  tools=None,   # tool *names* are part of the key; the real chat gets the tools
+                 env='URAI_RECORD_CHAT',   # the switch a host names its recording after
                  **kw):        # forwarded to `Chat` on a miss
         store_attr('model,sp,kw')
-        self.tools, self.rec, self._chat, self.hist = L(tools), RecordCache(path, record), None, []
+        self.tools, self.rec, self._chat, self.hist = L(tools), RecordCache(path, record, env), None, []
         self.use = UsageStats()   # folded from every reply, replayed or live, like `Chat.use`
         self._ctx = 0             # occupancy the answering chat reported. See `token_count`
 
@@ -191,6 +193,20 @@ class CachedChat:
     def classify(self, text, labels, **kw):
         return self._ask('classify', [text, list(labels), kw], hist=False,
                          f=lambda: self.chat.classify(text, labels, **kw))
+
+    def structured(self, prompt, schema, sp=None):
+        "A schema-shaped reply, recorded as a dict: a schema built at runtime cannot be pickled."
+        from dataclasses import asdict, fields, is_dataclass
+        flds = [f.name for f in fields(schema)]
+        d = self._ask('structured', [prompt, sp, schema.__name__, flds], hist=False,
+                      f=lambda: (lambda o: asdict(o) if is_dataclass(o) else dict(o))(
+                          self.chat.structured(prompt, schema, sp=sp)))
+        return schema(**d)
+
+    @property
+    def runtime(self):
+        "Which runtime would answer, asked of the id rather than an engine a replay never builds."
+        return resolve_runtime(self.model, self.kw.get('runtime'), self.kw.get('model_path'))[0]
 
     def reconfigure(self, sp=None, tools=None):
         "Change `sp` or `tools` for the asks that follow. Both are in the key, so a replay stays honest."
