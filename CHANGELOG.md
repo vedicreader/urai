@@ -2,6 +2,9 @@
 
 <!-- do not remove -->
 
+## 0.0.8
+
+
 ## 0.0.7
 `stream_resp` shared drain loop for all backends. `StreamSplit._held` is O(1) per chunk.
 `CachedChat` covers `structured` and `runtime`, takes `env=`.
