@@ -43,6 +43,10 @@ class ToolReminderCallback(ChatCallback):
             m['content'].append({'type': 'text', 'text': self.tool_reminder})
 
 # %% ../nbs/06_loop.ipynb #f5b87da8
+def _denial(r):
+    "The text a refused call reports: the approver's reason when it can give one."
+    return str(r.reply()) if callable(getattr(r, 'reply', None)) else 'Denied by human operator'
+
 class ToolLoopMixin:
     "The Python-side tool loop, for backends that get tool calls back as data."
     _ctx_tokens = 0
@@ -69,10 +73,11 @@ class ToolLoopMixin:
         self.turn_tc = tc
         for _ in run_cbs(self, 'before_tool_calls'): pass
         over = self._budget_exceeded or (self.max_steps is not None and self._steps >= self.max_steps)
-        ok = False if over else (self.approve is None or self.approve(tc))
+        r = False if over else (self.approve is None or self.approve(tc))
+        ok = bool(r)
         if ok: self._steps += 1
         else: self._budget_exceeded = self._budget_exceeded or over
-        return ok, (budget_msg_ if over else 'Denied by human operator')
+        return ok, (budget_msg_ if over else _denial(r))
 
     def _record_tool(self, tc, out):
         "Truncate an over-long result, record it in `hist`, and fire `after_tool_calls`."
