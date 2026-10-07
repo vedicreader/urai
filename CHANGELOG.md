@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.9
+
+- A tagged call keeps its arguments when the model sends them flat, under `args`, or drops the outer closing brace after a finished `arguments` object.
+- A call whose arguments were lost is marked `unread`. `_fix_step` asks the model once to send it again rather than calling the tool with `{}`.
+- `norm_resp` and `stream_resp` set `tool_parse_failed`, so the reparse request fires for a tool call block that nothing could read.
+- A repaired string keeps the backslash of an unknown escape: a regex's `\w` stays `\w`.
+
 ## 0.0.8
 
 

@@ -48,7 +48,7 @@ def _loose_str(s, i, ends):
             if e == 'u' and i+5 < n:
                 try: out.append(chr(int(s[i+2:i+6], 16))); i += 6; continue
                 except ValueError: pass
-            out.append(e); i += 2; continue
+            out.append('\\' + e); i += 2; continue   # an unknown escape keeps its backslash: a regex's `\w` stays `\w`
         if c == '"':
             j = _ws(s, i+1)
             if j >= n or s[j] in ends: return ''.join(out), i+1, True
@@ -148,24 +148,26 @@ def mk_tc(name, args=None):
             'function': {'name': name, 'arguments': args or {}}}
 
 # %% ../nbs/01_tags.ipynb #e263321a
-TAG_ARG_KEYS = ('arguments', 'input', 'parameters')
+TAG_ARG_KEYS = ('arguments', 'input', 'parameters', 'args')
+_TC_KEYS = ('name', 'id', 'type')
 
 def tag_args(d):
-    "The argument dict of a tagged call, decoding the JSON string some models send instead."
-    for k in TAG_ARG_KEYS:
-        if (v := d.get(k)) is None: continue
-        if isinstance(v, str):
-            v = loose_json(v)[0]
-            if v is None: continue
+    "The argument dict of a tagged call; flat keys when it names no argument key; None when the arguments it names are unreadable."
+    keys = [k for k in TAG_ARG_KEYS if d.get(k) is not None]
+    if not keys: return {k: v for k, v in d.items() if k not in _TC_KEYS}
+    for v in (d[k] for k in keys):
+        if isinstance(v, str): v, ok = loose_json(v); v = v if ok else None   # a cut string ships nothing partial
         if isinstance(v, dict): return v
-    return {}
+    return None
 
 def mk_tag_tc(s):
-    "A tool_call dict from the body of a `<tool_call>` block, or None. Strict, then repaired, then salvaged."
+    "A tool_call dict from the body of a `<tool_call>` block, or None. A call whose arguments were lost is marked `unread`."
     d, ok = loose_json(s)
     if d is not None and d.get('name'):
-        return mk_tc(d['name'], tag_args(d) if ok else {})   # a cut object never ships partial values
-    if (name := salvage_name(s or '')): return mk_tc(name, {})
+        # a cut object keeps only completed values, so an `arguments` that landed is whole
+        args = tag_args(d) if ok or any(k in d for k in TAG_ARG_KEYS) else None
+        return mk_tc(d['name'], args) if args is not None else {**mk_tc(d['name']), 'unread': True}
+    if (name := salvage_name(s or '')): return {**mk_tc(name), 'unread': True}
     return None
 
 # %% ../nbs/01_tags.ipynb #d6731f91

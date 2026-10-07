@@ -134,7 +134,11 @@ def _fix_step(self:ToolLoopMixin, res):
     "The ONE place a step's calls are repaired. Returns True when the turn should ask for the call again."
     toolspecs = getattr(self, 'toolspecs', ())
     if (raw := res.pop('raw', None)) and toolspecs: dump_raw(toolspecs, raw)
-    if (tcs := res.get('tool_calls')): coerce_tcs(tcs, toolspecs); return False
+    if (tcs := res.get('tool_calls')):
+        lost = [tc.pop('unread', False) for tc in tcs]
+        # a call whose arguments were lost reaches its tool as a `TypeError`; ask for the reply again, once
+        if not (any(lost) and not self._reparse_asked): coerce_tcs(tcs, toolspecs); return False
+        res.pop('tool_calls'); res['tool_parse_failed'] = True
     if not res.get('tool_parse_failed') or self._reparse_asked: return False
     self._reparse_asked = True          # once per round: a model that cannot re-emit it never will
     self.hist.append(res); self.hist.append(mk_msg(reparse_msg_))

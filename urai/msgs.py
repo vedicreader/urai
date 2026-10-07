@@ -17,7 +17,7 @@ from fastcore.funccall import get_schema
 from fastcore.all import Path, L, first, listify, detect_mime
 from aidialog.msg_parts import InputImage, InputAudio, data_url
 from .core import Resp, resp_text
-from .tags import split_think, parse_tool_tags
+from .tags import split_think, parse_tool_tags, parse_tool_tags_ex
 
 # %% ../nbs/02_msgs.ipynb #b16aa506
 _audio_fmts = {'audio/wav': 'wav', 'audio/x-wav': 'wav', 'audio/wave': 'wav',
@@ -204,7 +204,7 @@ def norm_resp(r):
     ch = r['choices'][0]
     m = ch.get('message') or {}
     text, th = split_think(m.get('content') or '')
-    text, tag_tcs = parse_tool_tags(text)
+    text, tag_tcs, failed = parse_tool_tags_ex(text)
     tcs = [{'id': tc.get('id'), 'type': 'function',
             'function': {'name': tc.get('function', {}).get('name', ''),
                          'arguments': parse_args(tc.get('function', {}).get('arguments'))}}
@@ -212,6 +212,7 @@ def norm_resp(r):
     res = {'role': 'assistant', 'content': text}
     if th: res['channels'] = {'thought': th}
     if tcs: res['tool_calls'] = tcs
+    if failed: res['tool_parse_failed'] = True   # `_fix_step` asks for the call again
     if ch.get('finish_reason') == 'length': res['truncated'] = True
     if 'usage' in r: res['usage'] = dict(r['usage'])
     return Resp(res)
@@ -223,6 +224,7 @@ def stream_resp(split, tool_calls=None, thought=None, truncated=False, usage=Non
     res = {'role': 'assistant', 'content': split.text}
     if th: res['channels'] = {'thought': th}
     if tcs: res['tool_calls'] = tcs
+    if getattr(split, 'failed', False): res['tool_parse_failed'] = True
     if truncated: res['truncated'] = True
     if usage is not None: res['usage'] = usage
     return Resp(res)
