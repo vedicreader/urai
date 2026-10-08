@@ -55,6 +55,14 @@ class Chat:
     _stream_raw = False      # `stream='raw'` yields chunk dicts instead of markdown
     _media_ok = True         # can this transport carry pictures and sound?
     _media_note = ''         # ...and if not, what to use instead
+    _media_in = None
+
+    @property
+    def media_in(self):
+        "Do tool pictures reach the model? The transport's `_media_ok` unless a caller who knows the model says."
+        return self._media_ok if self._media_in is None else self._media_in
+    @media_in.setter
+    def media_in(self, v): self._media_in = v
 
     def __new__(cls, model=None, *, runtime=None, model_path=None, **kw):
         if cls is not Chat: return super().__new__(cls)
