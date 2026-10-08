@@ -2,6 +2,10 @@
 
 <!-- do not remove -->
 
+## 0.0.11
+
+- The tag protocol (`TAG_TOOLS_SP`) asks for independent calls together: each in its own `<tool_call>` block in one message, the reply ending after the last. It used to say "call one function at a time", so a model on the tags channel paid one round trip per call. The parser and the loop already took several.
+
 ## 0.0.10
 
 - A tool can return pictures: `ToolMedia(str)`, or any result with a non-empty `.media` list. After a step's tool messages, one user message carries them with a note naming the tools. At most 8 pictures of 20 MB each per step.

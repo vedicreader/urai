@@ -269,20 +269,24 @@ You can call the functions below. Their signatures are given as JSON schemas ins
 </tools>
 
 To call one, emit a JSON object with the function's name and its arguments inside \
-<tool_call></tool_call>. Then end your reply immediately and wait:
+<tool_call></tool_call>:
 
 <tool_call>
 {{"name": "the_function_name", "arguments": {{"first": "value"}}}}
 </tool_call>
 
-Nothing may follow </tool_call> in the same message: not a comment, not a guess at what the \
-result will be, not another call. Stop there. Call one function at a time.
+Calls that do not depend on each other's results -- reading several files, running several \
+searches -- go together in one message, each in its own <tool_call> block, one after another. \
+A call that needs an earlier result waits for it.
 
-Do not describe the call in prose as well as emitting it, and never invent a result -- the real \
-one comes back in the next message, under a "## Tool result (name)" heading. That heading is the \
-only form a result ever takes: do not write result markup of your own, do not wrap a result in \
-tags, and do not copy a result back into your reply. Say what you concluded from it, not what \
-it said."""
+After the last </tool_call>, end your reply and wait. Nothing may follow it in the same message: \
+not a comment, and not a guess at what a result will be.
+
+Do not describe a call in prose as well as emitting it, and never invent a result -- the real \
+ones come back in the next message, each under a "## Tool result (name)" heading. That heading \
+is the only form a result ever takes: do not write result markup of your own, do not wrap a \
+result in tags, and do not copy a result back into your reply. Say what you concluded from it, \
+not what it said."""
 
 def tag_tools_sp(toolspecs, sp='', template=TAG_TOOLS_SP):
     "`sp` plus the tag protocol and `toolspecs` as JSON, for a transport that can't carry tools."
