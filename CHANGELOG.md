@@ -2,6 +2,12 @@
 
 <!-- do not remove -->
 
+## 0.0.10
+
+- A tool can return pictures: `ToolMedia(str)`, or any result with a non-empty `.media` list. After a step's tool messages, one user message carries them with a note naming the tools. At most 8 pictures of 20 MB each per step.
+- `Chat.media_in` decides whether pictures are sent; it defaults to the transport's `_media_ok`. When false, the note names the paths instead.
+- `strip_hist_media(hist)` swaps image parts for a placeholder, for checkpoints.
+
 ## 0.0.9
 
 - A tagged call keeps its arguments when the model sends them flat, under `args`, or drops the outer closing brace after a finished `arguments` object.
