@@ -171,10 +171,11 @@ def mk_tag_tc(s):
     return None
 
 # %% ../nbs/01_tags.ipynb #d6731f91
-_fn_re   = re.compile(r'<function\s*=\s*([A-Za-z_][\w.\-]*)\s*>', re.I)
-_fnend_re = re.compile(r'</function\s*>', re.I)
+#: `<function=name>` (Qwen) or `<invoke name="name">` (Claude's own dialect)
+_fn_re   = re.compile(r'<(?:function\s*=\s*|invoke\s+name\s*=\s*")([A-Za-z_][\w.\-]*)"?\s*>', re.I)
+_fnend_re = re.compile(r'</(?:function|invoke)\s*>', re.I)
 #: only a CLOSED parameter is a complete one, so a cut call ships the name and whatever finished
-_par_re  = re.compile(r'<parameter\s*=\s*([A-Za-z_][\w.\-]*)\s*>(.*?)</parameter\s*>', re.I | re.S)
+_par_re  = re.compile(r'<parameter(?:\s*=\s*|\s+name\s*=\s*")([A-Za-z_][\w.\-]*)"?\s*>(.*?)</parameter\s*>', re.I | re.S)
 _num_re  = re.compile(r'-?\d+(?:\.\d+)?$')
 
 def _unframe(v):
@@ -209,7 +210,7 @@ _res_tags = ('tool_result', 'tool_results', 'function_result', 'function_results
              'function_call', 'function_calls', 'tool_use')
 _toolres_re = re.compile('|'.join(rf'</?{t}>>?' for t in _res_tags) + r'|</?tool_call>', re.I)
 _toolcall_re = re.compile(r'<tool_call>\s*(.*?)\s*</tool_call>', re.DOTALL)
-_fnblk_re = re.compile(r'<function\s*=.*?(?:</function\s*>|$)', re.I | re.S)
+_fnblk_re = re.compile(r'<(?:function\s*=|invoke\s+name\s*=).*?(?:</(?:function|invoke)\s*>|$)', re.I | re.S)
 _fence_re = re.compile(r'^```(?:json)?\s*|\s*```$')
 
 def lone_tag_tc(text, names=None):
@@ -307,7 +308,7 @@ def dump_raw(toolspecs, raw, path=None):
 
 
 # %% ../nbs/01_tags.ipynb #dfb0657a
-_tags = ('<think>', '</think>', '<tool_call>', '</tool_call>', '<function=', '</function>',
+_tags = ('<think>', '</think>', '<tool_call>', '</tool_call>', '<function=', '</function>', '<invoke ', '</invoke>',
          *(f'<{n}>' for n in _res_tags), *(f'</{n}>' for n in _res_tags))
 _MAX_TAG = max(map(len, _tags))
 
@@ -349,7 +350,8 @@ class StreamSplit:
             if self.state == 'text':
                 cands = [(k, t) for k, t in ((self.buf.find('<think>'), '<think>'),
                                              (self.buf.find('<tool_call>'), '<tool_call>'),
-                                             (self.buf.find('<function='), '<function=')) if k >= 0]
+                                             (self.buf.find('<function='), '<function='),
+                                             (self.buf.find('<invoke '), '<invoke ')) if k >= 0]
                 if not cands:
                     n = self._held()
                     out, self.buf = self.buf[:len(self.buf) - n], self.buf[len(self.buf) - n:]
@@ -359,7 +361,7 @@ class StreamSplit:
                 out, self.buf = self.buf[:k], self.buf[k + len(tag):]
                 if tag == '<think>': self.state = 'think'
                 else:
-                    self.state, self._end = 'tool', '</tool_call>' if tag == '<tool_call>' else '</function>'
+                    self.state, self._end = 'tool', {'<tool_call>': '</tool_call>', '<function=': '</function>'}.get(tag, '</invoke>')
                     # the opener is part of the block the XML parser reads, so it goes in the buffer
                     self._tc_buf = '' if tag == '<tool_call>' else tag
                 if (c := self._emit_text(out)): yield c
@@ -378,7 +380,7 @@ class StreamSplit:
                     n = self._held()
                     self._tc_buf += self.buf[:len(self.buf) - n]; self.buf = self.buf[len(self.buf) - n:]
                     return
-                self._tc_buf += self.buf[:k] + (self._end if self._end == '</function>' else '')
+                self._tc_buf += self.buf[:k] + (self._end if self._end != '</tool_call>' else '')
                 self.buf, self.state, self._strip = self.buf[k + len(self._end):], 'text', True
                 self._close_tool()
 

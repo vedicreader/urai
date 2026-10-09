@@ -2,6 +2,10 @@
 
 <!-- do not remove -->
 
+## 0.0.12
+
+- Tag calls in Claude's own dialect are read: `<invoke name="tool">` with `<parameter name="key">` values, inside `<tool_call>` blocks or a `<function_calls>` wrapper, streamed or whole. Claude falls back to it on the tags channel, most often when it sends several calls at once, and those calls used to be dropped.
+
 ## 0.0.11
 
 - The tag protocol (`TAG_TOOLS_SP`) asks for independent calls together: each in its own `<tool_call>` block in one message, the reply ending after the last. It used to say "call one function at a time", so a model on the tags channel paid one round trip per call. The parser and the loop already took several.
