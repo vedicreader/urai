@@ -272,7 +272,8 @@ def sum_usage(us):
     return out
 
 # %% ../nbs/02_msgs.ipynb #12cff266
-CHARS_PER_TOKEN = 3.25   #: measured on ornith-1.5:9b and qwen3:0.6b, which both give 3.50
+#: ornith-1.5:9b and qwen3:0.6b measure 3.50 on English prose; the lower figure keeps the estimate high, so a prompt sized to a window fits it
+CHARS_PER_TOKEN = 3.25
 
 def est_tokens(text):
     "Estimate the token count of `text` from its length."

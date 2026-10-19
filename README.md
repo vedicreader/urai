@@ -5,7 +5,7 @@
 
 Urai (உரை) means “dialogue” in Tamil. It is the part of a chat program that does not depend on which model you use. Local engines such as llama.cpp and hosted APIs such as OpenAI’s all take a list of messages and return a reply, but each one names its settings differently, formats tool calls differently, and reports token usage differently. A program that wants to switch between them, or move one conversation from one to another, ends up rewriting the same glue for each.
 
-Urai writes that glue once. It defines one conversation format, one set of option names, one tool loop, one streaming format and one way of counting tokens. A backend package such as [rishi](https://github.com/vedicreader/rishi) supplies the other half: a `Chat` subclass that knows how to send one request to its engine. [aidialog](https://github.com/AnswerDotAI/aidialog) defines the typed message parts that some backends use.
+Urai writes that glue once. It defines one conversation format, one set of option names, one tool loop, one streaming format and one way of counting tokens. A backend package such as [rishi](https://github.com/vedicreader/rishi) supplies the other half: a [`Chat`](https://vedicreader.github.io/urai/chat.html#chat) subclass that knows how to send one request to its engine. [aidialog](https://github.com/AnswerDotAI/aidialog) defines the typed message parts that some backends use.
 
 ## Install
 
@@ -17,7 +17,7 @@ Urai contains no backend, so on its own it cannot talk to a model. Install a bac
 
 ## Start a chat
 
-`mk_chat` builds a chat for a model name, and calling the chat with a message runs one turn and returns the reply. `resp_text` gets the text out of the reply.
+[`mk_chat`](https://vedicreader.github.io/urai/chat.html#mk_chat) builds a chat for a model name, and calling the chat with a message runs one turn and returns the reply. [`resp_text`](https://vedicreader.github.io/urai/core.html#resp_text) gets the text out of the reply.
 
 ``` python
 from urai import mk_chat, resp_text
@@ -35,7 +35,7 @@ The conversation so far is in `chat.hist`, as a list of plain dicts in the OpenA
 
 ## Resolve a model before loading it
 
-Loading a local model is slow, and you may want to know what you are about to load first. `resolve` works out which runtime a model name belongs to and how large its context window is, without building anything:
+Loading a local model is slow, and you may want to know what you are about to load first. [`resolve`](https://vedicreader.github.io/urai/opts.html#resolve) works out which runtime a model name belongs to and how large its context window is, without building anything:
 
 ``` python
 from urai import resolve
@@ -46,7 +46,7 @@ print(spec.runtime, spec.ctx, spec.local)
 chat = mk_chat(spec)
 ```
 
-The result is a `ModelSpec`. It is frozen, so it can be cached, compared, and passed from one part of a program to another, and `mk_chat` accepts it directly.
+The result is a [`ModelSpec`](https://vedicreader.github.io/urai/opts.html#modelspec). It is frozen, so it can be cached, compared, and passed from one part of a program to another, and [`mk_chat`](https://vedicreader.github.io/urai/chat.html#mk_chat) accepts it directly.
 
 ## Configure one turn
 
@@ -83,7 +83,7 @@ When the model asks for a tool, urai calls `approve` with the call; if it return
 | [msgs](msgs.html) | the canonical message format and conversions to and from providers |
 | [caps](caps.html) | what a model accepts and returns, and its context window |
 | [opts](opts.html) | the runtime registry, model resolution and portable options |
-| [chat](chat.html) | the `Chat` class, synchronous and async |
+| [chat](chat.html) | the [`Chat`](https://vedicreader.github.io/urai/chat.html#chat) class, synchronous and async |
 | [loop](loop.html) | running tools: approval, budgets, parallel calls and context recovery |
 | [eval](eval.html) | classification, structured output and grading |
 | [sandbox](sandbox.html) | running the Python a model writes |
@@ -92,7 +92,7 @@ When the model asks for a tool, urai calls `approve` with the call; if it return
 
 ## Write a backend
 
-A backend is a subclass of `Chat` registered under a runtime name. Add `ToolLoopMixin` when the engine returns tool calls as data, and implement the two methods it needs: `_model_step`, which makes one request and returns the reply, and `_stream_step`, which does the same while yielding chunks. `_opt_map` renames portable options to the engine’s own, and `_opt_skip` lists options the engine cannot use.
+A backend is a subclass of [`Chat`](https://vedicreader.github.io/urai/chat.html#chat) registered under a runtime name. Add [`ToolLoopMixin`](https://vedicreader.github.io/urai/loop.html#toolloopmixin) when the engine returns tool calls as data, and implement the two methods it needs: `_model_step`, which makes one request and returns the reply, and `_stream_step`, which does the same while yielding chunks. `_opt_map` renames portable options to the engine’s own, and `_opt_skip` lists options the engine cannot use.
 
 ``` python
 from urai import Chat, ToolLoopMixin, Runtime, register_runtime

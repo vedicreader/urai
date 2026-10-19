@@ -35,10 +35,10 @@ Documentation = "https://vedicreader.github.io/urai/"
 urai = "urai._modidx:d"
 
 [tool.nbdev]
-# the distribution is `uraiyadal`; the import package is `urai`, and nbdev would otherwise
-# derive both from the distribution name and export into `uraiyadal/`
-lib_name = "urai"
+# the distribution is `uraiyadal`, the import package `urai`; nbdev takes lib_name from the
+# distribution, so strip_libs names the `urai` doc index the README links come from
 lib_path = "urai"
+strip_libs = "urai"
 
 [tool.hatch.build.targets.wheel]
 packages = ["urai"]

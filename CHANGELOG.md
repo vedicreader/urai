@@ -2,6 +2,12 @@
 
 <!-- do not remove -->
 
+## 0.0.13
+
+- README links to the docs again. nbdev takes `lib_name` from the distribution name `uraiyadal` and found no doc index under it; `strip_libs = "urai"` points it at the `urai` index.
+- The comment on `CHARS_PER_TOKEN` says why it is 3.25 when the measured models give 3.50: the lower figure keeps the estimate high.
+- The `tbl_caps` test reads `gpt-image-1`; fastllm 0.0.65 dropped the retired `dall-e-3` from its model table, which failed CI.
+
 ## 0.0.12
 
 - Tag calls in Claude's own dialect are read: `<invoke name="tool">` with `<parameter name="key">` values, inside `<tool_call>` blocks or a `<function_calls>` wrapper, streamed or whole. Claude falls back to it on the tags channel, most often when it sends several calls at once, and those calls used to be dropped.
