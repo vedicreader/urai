@@ -32,14 +32,14 @@ def _recv_json(sock):
 
 # %% ../nbs/10_broker.ipynb #94997169
 def _brok_msgs(req):
-    "An `open` request's `messages`: a list of strings, checked before the engine sees it."
+    "The `messages` of an `open` request, checked to be a list of strings."
     msgs = req.get('messages') or []
     if not isinstance(msgs, list) or not all(isinstance(m, str) for m in msgs):
         raise ValueError('invalid conversation')
     return msgs
 
 def _brok_limit(req):
-    "A `send` request's `max_output_tokens`: a positive int, or nothing."
+    "The `max_output_tokens` of a `send` request, checked to be a positive int or None."
     n = req.get('max_output_tokens')
     if n is None: return None
     if isinstance(n, bool) or not isinstance(n, int) or n < 1: raise ValueError('invalid token limit')
@@ -47,7 +47,7 @@ def _brok_limit(req):
 
 # %% ../nbs/10_broker.ipynb #663c1d4a
 class ChatBroker:
-    "Serve isolated text chats over a Unix socket, all sharing one local engine."
+    "Serve separate text conversations over a Unix socket, all sharing one local engine."
     def __init__(self, address, chat_cls, engine=None, model_id=None, **engine_kw):
         self.address, self.chat_cls, self.engine = str(address), chat_cls, engine
         self.model_id, self.engine_kw, self._own_engine = model_id, engine_kw, engine is None
@@ -76,7 +76,7 @@ class ChatBroker:
         finally: probe.close()
 
     def start(self):
-        "Build the engine if this broker owns one, then serve `address` until `close`."
+        "Build the engine unless one was passed in, then serve `address` until `close`."
         with self.state_lock:
             if self.listener is not None: return self
             self._free_socket(); listener = None
@@ -153,7 +153,7 @@ class ChatBroker:
             except OSError: pass
 
     def close(self, timeout=5):
-        "Stop serving, drop every client, and release the engine this broker built."
+        "Stop serving, disconnect every client, and release the engine if this broker built it."
         with self.state_lock:
             listener, thread, handlers = self.listener, self.thread, list(self.handlers)
             clients, bound = list(self.clients), self._bound
@@ -171,7 +171,7 @@ class ChatBroker:
 
 # %% ../nbs/10_broker.ipynb #9e3e7fd1
 class BrokerChat:
-    "One isolated conversation on a `ChatBroker`: strings out, a `Resp` back."
+    "One conversation on a running `ChatBroker`, sending strings and receiving `Resp` replies."
     def __init__(self, address, messages=None):
         messages = list(messages or [])
         if not all(isinstance(m, str) for m in messages):
@@ -188,14 +188,14 @@ class BrokerChat:
         return res
 
     def __call__(self, msg, max_output_tokens=None):
-        "Send one turn through the shared engine."
+        "Send `msg` as one turn and return the reply."
         if not isinstance(msg, str): raise TypeError('broker messages must be strings')
         with self.lock:
             return Resp(self._call({'op': 'send', 'msg': msg,
                                     'max_output_tokens': max_output_tokens})['response'])
 
     def close(self):
-        "Let the broker drop this conversation. Idempotent."
+        "End this conversation; calling it again does nothing."
         with self.lock:
             if getattr(self, 'conn', None) is None: return
             try: self._call({'op': 'close'})

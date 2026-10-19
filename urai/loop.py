@@ -23,7 +23,7 @@ from .chat import (Chat, ContextWindowExceededError, is_ctx_error,
 
 # %% ../nbs/06_loop.ipynb #fc2fd423
 class UsageCallback(ChatCallback):
-    "Fold each turn's `usage` block, summed across tool rounds, into `chat.use`."
+    "Add the token usage reported for each turn to `chat.use`."
     order = 10
     def after_response(self):
         u = self.chat.turn_res.get('usage') or {}
@@ -34,7 +34,7 @@ class UsageCallback(ChatCallback):
             cache_creation_tokens=u.get('cache_creation_tokens', 0), cost=u.get('cost', 0.0))
 
 class ToolReminderCallback(ChatCallback):
-    "Ask the model to say what a tool result told it, rather than silently calling the next one."
+    "Append `tool_reminder` to each outgoing message while the chat has tools."
     order = 30
     def __init__(self, tool_reminder=tool_reminder_): store_attr()
     def before_send(self):
@@ -61,7 +61,7 @@ def _pic(o):
 def _pic_name(o): return f'{len(o)} bytes' if isinstance(o, (bytes, bytearray)) else str(o)
 
 def media_note(names, sent=0, left=(), media_in=True):
-    "The text heading the pictures a step's tools returned, or standing in for them."
+    "The note sent with the pictures that a step's tools returned, or in place of them."
     left = f" Not attached: {', '.join(left)}." if left else ''
     if media_in and sent: return (f'The {sent} picture(s) below are the results of {names}, in call order. '
                                   f'Look at them and continue the task.{left}')
@@ -72,23 +72,23 @@ def _denial(r):
     return str(r.reply()) if callable(getattr(r, 'reply', None)) else 'Denied by human operator'
 
 class ToolLoopMixin:
-    "The Python-side tool loop, for backends that get tool calls back as data."
+    "The tool loop for backends that receive tool calls as data."
     _ctx_tokens = 0
     _reparse_asked = False
     _step_media = None
 
     @property
     def token_count(self):
-        "What the window holds after the last turn. `Chat.pct_full` reads it; backends may override."
+        "The number of tokens in the context after the last turn."
         return self._ctx_tokens
 
     def _set_tools(self, tools):
-        "Rebuild the wire schemas and the call namespace."
+        "Rebuild the tool schemas and the table of callable tools."
         self.toolspecs = [mk_toolspec(t) for t in L(tools)]
         self.ns = mk_ns([t for t in L(tools) if callable(t)])
 
     def call_tool(self, tc):
-        "Run one approved call against `self.ns`. An exception comes back as an error string."
+        "Run tool call `tc` and return its result, or the error as a string if it raised."
         if tc.get('server'): return '(run by the provider)'   # the provider's to run, not ours
         try: return call_func(tc_name(tc), (tc.get('function') or {}).get('arguments') or {}, ns=self.ns)
         except Exception as e: return f'{type(e).__name__}: {e}'
@@ -187,7 +187,7 @@ def _fix_step(self:ToolLoopMixin, res):
 # %% ../nbs/06_loop.ipynb #1f11d0a2
 @patch
 def _send(self:ToolLoopMixin, msg, **kw):
-    "Send one message, looping until the model stops calling tools or the budget ends the turn."
+    "Send one message, running tools until the model stops calling them or the budget runs out."
     self.turn_msg = self.mk_msg(msg)
     self._reparse_asked = False
     self._check_media()
@@ -213,7 +213,7 @@ def _send(self:ToolLoopMixin, msg, **kw):
 # %% ../nbs/06_loop.ipynb #58cfff39
 @patch
 def recover_context(self:ToolLoopMixin, err, keep_last=4, mx=500, **kw):
-    "Window full mid-turn: shrink the oldest tool results, rebuild backend state, and ask for a close."
+    "Recover from a full window by shortening older tool results and asking the model for a final answer."
     idxs = [i for i, m in enumerate(self.hist) if m.get('role') == 'tool']
     for i in (idxs[:-keep_last] if keep_last else idxs):
         c = self.hist[i].get('content')
@@ -230,7 +230,7 @@ def recover_context(self:ToolLoopMixin, err, keep_last=4, mx=500, **kw):
 # %% ../nbs/06_loop.ipynb #a9d7e4ed
 @patch
 def _stream(self:ToolLoopMixin, msg, cbs=None, **kw):
-    "Stream a turn as markdown chunks. Callbacks in `cbs` live only for this turn."
+    "Stream one turn as markdown chunks, running tools as `_send` does."
     added = self.add_cbs(cbs); prev = getattr(self, '_streaming', False); self._streaming = True
     try:
         self.turn_msg = self.mk_msg(msg)
@@ -280,7 +280,7 @@ def _stream(self:ToolLoopMixin, msg, cbs=None, **kw):
 
 # %% ../nbs/06_loop.ipynb #987040b7
 def msg_groups(hist):
-    "Split `hist` into atomic groups: a tool-calling assistant message stays with its results."
+    "Split `hist` into groups that keep each tool-calling message with its results."
     groups, cur = [], []
     for m in hist:
         if m.get('role') == 'tool':
@@ -293,7 +293,7 @@ def msg_groups(hist):
     return groups
 
 def evict_middle(hist, keep_first=2, keep_last=8):
-    "Drop whole groups from the middle of `hist`. Returns `(new_hist, dropped)`."
+    "Drop whole message groups from the middle of `hist`, returning `(new_hist, dropped)`."
     groups = msg_groups(hist)
     if len(groups) <= keep_first + keep_last: return list(hist), []
     keep = groups[:keep_first] + (groups[-keep_last:] if keep_last else [])
@@ -304,12 +304,12 @@ def evict_middle(hist, keep_first=2, keep_last=8):
 _sum_sp = 'Summarize the conversation extract faithfully and briefly. Reply with the summary only.'
 
 class SlidingWindowCallback(ChatCallback):
-    "Evict the middle of `hist` before a turn that would overflow. Needs `chat.ctx_limit` set."
+    "Drop the middle of the history before a turn once the window passes `threshold`."
     order = 5
     def __init__(self,
                  threshold=0.9,    # evict once the context is this full
-                 keep_first=2,     # leading groups to anchor: the task, usually
-                 keep_last=8,      # trailing groups to keep: the live thread
+                 keep_first=2,     # message groups to keep at the start, usually the task
+                 keep_last=8,      # message groups to keep at the end
                  summarize=False,  # spend one model call replacing the dropped middle with a summary
                  mx=4000):         # characters of dropped conversation to feed the summarizer
         store_attr()

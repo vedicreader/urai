@@ -116,7 +116,7 @@ def _loose_arr(s, i):
         out.append(v)
 
 def loose_json(s):
-    "Parse `s` as a JSON object, tolerating what models get wrong. `(obj, complete)`, or `(None, False)`."
+    "Parse `s` as a JSON object, tolerating common model mistakes, and return `(obj, complete)` or `(None, False)`."
     s = (s or '').strip()
     if not s.startswith('{'): return None, False
     try: return json.loads(s), True                # strict wins, so conforming input is untouched
@@ -128,7 +128,7 @@ def loose_json(s):
 _name_re = re.compile(r'"name"\s*:\s*"([^"\\]{1,128})"')
 
 def salvage_name(s):
-    "The tool name from a call cut inside its own object, or None. Depth 1 only: a nested `name` is data."
+    "The top-level tool name from a call that was cut off, or None."
     depth, i, n = 0, 0, len(s or '')
     while i < n:
         c = s[i]
@@ -143,7 +143,7 @@ def salvage_name(s):
 
 # %% ../nbs/01_tags.ipynb #7112f541
 def mk_tc(name, args=None):
-    "A tool_call dict in the canonical OpenAI shape."
+    "A tool call dict in the OpenAI shape, with a fresh `call_` id."
     return {'id': f'call_{uuid.uuid4().hex[:8]}', 'type': 'function',
             'function': {'name': name, 'arguments': args or {}}}
 
@@ -152,7 +152,7 @@ TAG_ARG_KEYS = ('arguments', 'input', 'parameters', 'args')
 _TC_KEYS = ('name', 'id', 'type')
 
 def tag_args(d):
-    "The argument dict of a tagged call; flat keys when it names no argument key; None when the arguments it names are unreadable."
+    "The arguments of a parsed call body, under any of `TAG_ARG_KEYS`, or None when they cannot be read."
     keys = [k for k in TAG_ARG_KEYS if d.get(k) is not None]
     if not keys: return {k: v for k, v in d.items() if k not in _TC_KEYS}
     for v in (d[k] for k in keys):
@@ -161,7 +161,7 @@ def tag_args(d):
     return None
 
 def mk_tag_tc(s):
-    "A tool_call dict from the body of a `<tool_call>` block, or None. A call whose arguments were lost is marked `unread`."
+    "A tool call dict from the body of a `<tool_call>` block, marked `unread` when its arguments were lost, or None."
     d, ok = loose_json(s)
     if d is not None and d.get('name'):
         # a cut object keeps only completed values, so an `arguments` that landed is whole
@@ -193,7 +193,7 @@ def _spelled(v):
     return v
 
 def parse_fn_tags(text):
-    "Calls in the `<function=name><parameter=key>` XML dialect, which Qwen 3.5+ templates mandate."
+    "Tool calls written in the `<function=name>` or `<invoke name=...>` XML form."
     out = []
     for m in _fn_re.finditer(text or ''):
         body = text[m.end():]
@@ -214,7 +214,7 @@ _fnblk_re = re.compile(r'<(?:function\s*=|invoke\s+name\s*=).*?(?:</(?:function|
 _fence_re = re.compile(r'^```(?:json)?\s*|\s*```$')
 
 def lone_tag_tc(text, names=None):
-    "A whole reply that is one bare call object: what the tags asked for, without the tags."
+    "A tool call from a reply that is nothing but one untagged call object, or None."
     s = _fence_re.sub('', (text or '').strip()).strip()
     if not (s.startswith('{') and s.endswith('}')): return None
     d, ok = loose_json(s)
@@ -226,7 +226,7 @@ def lone_tag_tc(text, names=None):
 
 # %% ../nbs/01_tags.ipynb #a097ff21
 def parse_tool_tags_ex(text, names=None):
-    "`(clean_text, calls, failed)`. `failed` marks a call the model emitted that nothing could parse."
+    "Parse tool calls out of `text`, returning `(clean_text, calls, failed)`, where `failed` means a block could not be read."
     t = text or ''
     tcs, failed = parse_fn_tags(t), False   # the XML dialect is read FIRST: a value never decides the call
     rest = _toolcall_re.sub('', t)
@@ -245,12 +245,12 @@ def parse_tool_tags_ex(text, names=None):
     return clean, tcs, failed
 
 def parse_tool_tags(text, names=None):
-    "Return clean text and calls parsed from `<tool_call>` and `<function=>` blocks."
+    "Parse tool calls out of `text`, returning `(clean_text, calls)`."
     return parse_tool_tags_ex(text, names)[:2]
 
 # %% ../nbs/01_tags.ipynb #530417a6
 def tag_call_shape(text, names=None):
-    "Does `text` still show a call the parser did not take? `names` limits it to tools that exist."
+    "True when `text` still looks like a tool call, optionally only for tools in `names`."
     t = text or ''
     if '<tool_call' in t: return True
     if not any(f'"{k}"' in t for k in TAG_ARG_KEYS): return False
@@ -290,18 +290,18 @@ result in tags, and do not copy a result back into your reply. Say what you conc
 not what it said."""
 
 def tag_tools_sp(toolspecs, sp='', template=TAG_TOOLS_SP):
-    "`sp` plus the tag protocol and `toolspecs` as JSON, for a transport that can't carry tools."
+    "Append the tool schemas and the `<tool_call>` instructions to the system prompt `sp`."
     if not toolspecs: return sp
     block = '\n'.join(json.dumps(t, ensure_ascii=False) for t in toolspecs)
     return (sp or '') + template.format(tools=block)
 
 # %% ../nbs/01_tags.ipynb #38bb19e1
 def RAW_DUMP():
-    "Path a capture is writing to, from `$URAI_RAW_DUMP`, or None. Read per call, so a test can set it."
+    "The capture file path from `$URAI_RAW_DUMP`, or None."
     return os.environ.get('URAI_RAW_DUMP') or None
 
 def dump_raw(toolspecs, raw, path=None):
-    "Append one `(tools, raw)` pair to the capture file, for replaying real traffic through the parser."
+    "Append the tool schemas and one raw reply to the capture file as a JSON line."
     if not (path := path or RAW_DUMP()) or not raw: return False
     with open(path, 'a') as f: f.write(json.dumps({'tools': toolspecs or [], 'raw': raw}) + '\n')
     return True
@@ -313,7 +313,7 @@ _tags = ('<think>', '</think>', '<tool_call>', '</tool_call>', '<function=', '</
 _MAX_TAG = max(map(len, _tags))
 
 class StreamSplit:
-    "Stateful splitter: `<think>` becomes thought chunks, tool blocks are held back and parsed."
+    "Split a streamed reply into thinking chunks, text chunks and parsed tool calls."
     def __init__(self, keep_raw=None):
         self.buf, self.state, self.text, self.thought = '', 'text', '', ''
         self.tool_calls, self._tc_buf, self._strip = [], '', False
@@ -385,7 +385,7 @@ class StreamSplit:
                 self._close_tool()
 
     def finish(self):
-        "Flush leftovers: unterminated think becomes thought, an unclosed tool block is salvaged."
+        "Yield what is left in the buffer at the end of the stream and parse any unclosed tool block."
         s, self.buf = self.buf, ''
         if self.state == 'think':
             if s: self.thought += s; yield {'channels': {'thought': s}}
@@ -396,7 +396,7 @@ class StreamSplit:
 
 # %% ../nbs/01_tags.ipynb #299c6b54
 def acc_tc(acc, deltas):
-    "Fold streamed OpenAI `tool_calls` deltas into `acc`, a list of partial tool_call dicts."
+    "Add streamed OpenAI `tool_calls` fragments to `acc`, one entry per call index."
     for d in deltas or []:
         i = d.get('index', 0)
         while len(acc) <= i: acc.append({'id': None, 'type': 'function',

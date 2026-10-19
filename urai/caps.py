@@ -22,7 +22,7 @@ class Caps:
     inp: tuple = ('text',)      # modalities it accepts
     out: tuple = ('text',)      # modalities it returns unprompted
     tools: tuple = ()           # modalities it returns when given a server-side generation tool
-    source: str = 'default'     # who answered: fastllm|mmproj|config|runtime|fallback|default
+    source: str = 'default'     # where the answer came from: fastllm, mmproj, config, runtime, fallback, or default when nothing knew
 
     @property
     def gen_image(self): return 'image' in self.out or 'image' in self.tools
@@ -30,12 +30,12 @@ class Caps:
     def gen_video(self): return 'video' in self.out or 'video' in self.tools
     @property
     def known(self):
-        "Did anything actually answer? `default` means nobody knew, not that the model is text-only."
+        "False when nothing knew the answer, which is not the same as a text-only model."
         return self.source != 'default'
     def accepts(self, kind): return kind in self.inp
 
     def fmt(self):
-        "One line for a status bar, silent about a plain text-in, text-out model."
+        "A one-line summary for a status bar, empty for a plain text-in, text-out model."
         if not self.known: return 'modalities unknown'
         bits = []
         if self.inp != ('text',): bits.append('in: ' + ' '.join(self.inp))
@@ -55,12 +55,12 @@ _gen_modes = {'image_generation': ('image',), 'video_generation': ('video',), 'a
 ENDPOINT_TOOLS = {'/v1/responses': ('image',)}
 
 def tool_modalities(info):
-    "Modalities produced by a server-side tool."
+    "The modalities a model can produce through a provider-run tool, from its `supported_endpoints`."
     eps = info.get('supported_endpoints') or ()
     return tuple(dict.fromkeys(m for e, ms in ENDPOINT_TOOLS.items() if e in eps for m in ms))
 
 def tbl_caps(model):
-    "Modalities from fastllm's bundled model table, or `None` when it says nothing."
+    "The `Caps` that fastllm's bundled model table gives for `model`, or None when it has nothing."
     try:
         from fastllm.types import get_model_info
         v, _, m = str(model).partition('/')
@@ -78,20 +78,20 @@ CAPS_FALLBACK = {p: (('text', 'image'), ('text',)) for p in
                  ('claude', 'anthropic/', 'sonnet', 'opus', 'haiku', 'fable')}
 
 def fallback_caps(model):
-    "Modalities from `CAPS_FALLBACK`, for the vendors fastllm's table leaves empty."
+    "The `Caps` for a model whose name matches a prefix in `CAPS_FALLBACK`, or None."
     s = str(model).lower()
     hit = first(CAPS_FALLBACK.items(), lambda kv: kv[0] in s)
     return Caps(hit[1][0], hit[1][1], (), 'fallback') if hit else None
 
 def hosted_caps(model):
-    "Best answer for a hosted model: the table, then the name, then nothing."
+    "The `Caps` of a hosted model from fastllm's table, then from its name, else an unknown `Caps()`."
     return tbl_caps(model) or fallback_caps(model) or Caps()
 
 # %% ../nbs/03_caps.ipynb #5dca6808
 DFLT_CTX = 128_000   #: assumed when nothing knows better
 
 def hosted_ctx(model, dflt=DFLT_CTX):
-    "Context window for a hosted model, as `(tokens, note)`. The note says so when it was a guess."
+    "The context window of a hosted model as `(tokens, note)`, where `note` says when the figure is assumed."
     try:
         from fastllm.types import get_model_info
         v, _, m = str(model).partition('/')
@@ -104,11 +104,11 @@ def hosted_ctx(model, dflt=DFLT_CTX):
 MODEL_EXTS = ('.gguf', '.litertlm')   #: file suffixes that mean "a model, not a repo id"
 
 def is_path(model):
-    "Does `model` name a local file rather than a hub repo id?"
+    "True when `model` names a local file or path instead of a Hugging Face repo id."
     return bool(model) and (str(model).lower().endswith(MODEL_EXTS) or Path(model).exists())
 
 def hub_files(repo):
-    "Every already-cached file path for hub repo `repo`. Never touches the network."
+    "The paths of every file of hub repo `repo` already in the local cache."
     try:
         from huggingface_hub import scan_cache_dir
         r = first(scan_cache_dir().repos, lambda r: r.repo_id == str(repo))
@@ -116,7 +116,7 @@ def hub_files(repo):
     return [str(f.file_path) for rev in r.revisions for f in rev.files] if r else []
 
 def mmproj_caps(model, model_path=None):
-    "A GGUF model with an `mmproj` projector beside it takes images."
+    "Image input when an `mmproj` projector file sits with the GGUF model, else None."
     fs = list(hub_files(model)) if model and not is_path(model) else []
     for p in (model_path, model):
         d = Path(p).parent if p else None
@@ -131,7 +131,7 @@ _tower_keys = {'image': ('vision_config', 'vision_tower', 'image_token_index'),
                'audio': ('audio_config',)}
 
 def read_cfg(model, model_path=None):
-    "A model's `config.json` as a dict, from a local directory or the hub cache, else `{}`."
+    "A model's `config.json` as a dict, from a local folder or the hub cache, else `{}`."
     for p in (model_path, model):
         if p and (f := Path(p)/'config.json').exists():
             try: return json.loads(f.read_text())
@@ -143,7 +143,7 @@ def read_cfg(model, model_path=None):
     except Exception: return {}
 
 def cfg_caps(model, model_path=None):
-    "Modalities a model's `config.json` declares, from the towers it carries beside the text one."
+    "The input modalities that a model's `config.json` declares through its vision or audio keys."
     cfg = read_cfg(model, model_path)
     if not cfg: return None
     inp = ('text',) + tuple(k for k, ks in _tower_keys.items() if any(x in cfg for x in ks))

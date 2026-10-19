@@ -18,7 +18,7 @@ from .opts import resolve_runtime
 
 # %% ../nbs/09_record.ipynb #43700c29
 class NotRecordable(TypeError):
-    "A reply that cannot be stored as one. Never cached, so the next ask tries again."
+    "Raised for a reply that cannot be recorded; it is never cached, so the next run asks again."
 
 
 # %% ../nbs/09_record.ipynb #3b458012
@@ -29,34 +29,30 @@ _transient_re = re.compile(
     r'rate.?limit|timed? ?out|timeout|temporarily|try again|50[234]\b|429', re.I)
 
 def is_transient(e):
-    """Is `e` a failure of the moment rather than of the ask? Those are not worth remembering.
-
-    A reply that cannot be stored counts: caching it would replay the refusal instead of the
-    answer, and the next ask would never get a chance to record one.
-    """
+    "True when `e` is a passing failure, such as a rate limit or timeout, that should not be recorded."
     if isinstance(e, NotRecordable): return True
     return isinstance(e, (ConnectionError, TimeoutError, OSError)) or bool(_transient_re.search(str(e)))
 
 # %% ../nbs/09_record.ipynb #1734deca
 class RecordCache:
-    "Record what a call returned the first time and replay it after. The primitive under `CachedChat`."
+    "Record what a call returned the first time and replay it on later calls with the same key."
     def __init__(self,
-                 path=None,     # the diskcache directory; None -> `CHAT_CACHE`
-                 record=None,   # let a miss run for real; None -> read `env`
+                 path=None,     # the diskcache directory; None uses `CHAT_CACHE`
+                 record=None,   # run the call on a miss; None reads the `env` variable
                  env='URAI_RECORD_CHAT',
-                 version=None): # part of every key; None -> `KEY_VERSION`
+                 version=None): # part of every key; None uses `KEY_VERSION`
         from diskcache import Cache
         self.cache, self.env = Cache(str(path or CHAT_CACHE)), env
         self.version = ifnone(version, KEY_VERSION)
         self.record = str2bool(os.getenv(env) or '') if record is None else record
 
     def key(self, *parts):
-        "Stable hash of `parts`, with the cache version in it."
+        "A stable hash of `parts` and the cache version."
         return sha256(json.dumps([self.version, *parts], sort_keys=True,
                                  default=str).encode()).hexdigest()
 
     def __call__(self, key, f, what=''):
-        "Replay `key`, else run `f()` and record what it did, including how it failed."
+        "Replay the recording for `key`, else run `f()` and record its result or its error."
         if key in self.cache:
             got, val = self.cache[key]
             if got == 'exc': raise RuntimeError(val)
@@ -71,19 +67,12 @@ class RecordCache:
         return val
 
     def forget(self, key):
-        "Drop one recording, for when what it captured was never the truth. Was there one?"
+        "Delete the recording for `key`, returning True if there was one."
         return self.cache.pop(key, None) is not None
 
 # %% ../nbs/09_record.ipynb #acdefa8b
 def as_resp(r):
-    """One reply as something recordable.
-
-    Most backends answer with a mapping. A local engine may answer with plain text, and `dict()`
-    on a string raises a `ValueError` about sequence lengths rather than saying what is wrong.
-
-    Anything else is refused rather than coerced. A streamed turn arrives here as a generator, and
-    recording its `repr` would store a memory address as the answer and replay it for ever.
-    """
+    "Convert reply `r`, a mapping or plain text, to a dict that can be recorded, else raise `NotRecordable`."
     if isinstance(r, str): return {'role': 'assistant', 'content': r}
     try: return dict(r)
     except (TypeError, ValueError) as e:
@@ -91,21 +80,21 @@ def as_resp(r):
 
 
 def canon_msg(m):
-    "Canonical cache-key fields for one history entry."
+    "The fields of history message `m` that go into a cache key."
     media = [sha256(str(p).encode()).hexdigest()[:16] for p in listify(m.get('content')) if is_media(p)]
     tcs = tool_rows(m)
     return [m.get('role', ''), resp_text(m), media, tcs]
 
 # %% ../nbs/09_record.ipynb #1284922e
 class CachedChat:
-    "A `Chat` whose replies are recorded to disk and replayed on a second ask. A replay builds no engine."
+    "A `Chat` stand-in that records replies to disk and replays them without building a model."
     def __init__(self,
                  model=None,   # anything `Chat` takes; part of the key
-                 path=None,    # the diskcache directory; None -> `CHAT_CACHE`
-                 record=None,  # let a miss reach a real model; None -> `$URAI_RECORD_CHAT`
+                 path=None,    # the diskcache directory; None uses `CHAT_CACHE`
+                 record=None,  # ask a real model on a miss; None reads `$URAI_RECORD_CHAT`
                  sp='',        # system prompt, part of the key
-                 tools=None,   # tool *names* are part of the key; the real chat gets the tools
-                 env='URAI_RECORD_CHAT',   # the switch a host names its recording after
+                 tools=None,   # tools for the real chat; their names are part of the key
+                 env='URAI_RECORD_CHAT',   # the environment variable that turns recording on
                  **kw):        # forwarded to `Chat` on a miss
         store_attr('model,sp,kw')
         self.tools, self.rec, self._chat, self.hist = L(tools), RecordCache(path, record, env), None, []

@@ -29,7 +29,7 @@ def _audio_fmt(mime):
     return _audio_fmts.get(mime, mime.split('/')[-1])
 
 def mk_content(o):
-    "`o` as an OpenAI-style content part: text, a base64 `image_url`, or an `input_audio`."
+    "Convert `o` to an OpenAI-style content part: text, a base64 `image_url`, or an `input_audio`."
     if isinstance(o, dict): return o
     if isinstance(o, str): return {'type': 'text', 'text': o}
     if isinstance(o, os.PathLike): o = Path(o).read_bytes()
@@ -45,12 +45,12 @@ def mk_content(o):
     raise TypeError(f'Unsupported content type: {type(o)}')
 
 def is_media(p):
-    "Is `p` an image or audio content part?"
+    "True when `p` is an image or audio content part."
     return isinstance(p, dict) and p.get('type') in ('image_url', 'input_audio')
 
 # %% ../nbs/02_msgs.ipynb #0beeff29
 def mk_msg(content, role='user'):
-    "An OpenAI-style message dict from a str, bytes, list, or dict."
+    "Build an OpenAI-style message from a string, bytes, path, list, or message dict."
     if content is None or isinstance(content, dict): return content
     parts = [mk_content(o) for o in content] if isinstance(content, list) else [mk_content(content)]
     if all(p.get('type') == 'text' for p in parts):
@@ -58,7 +58,7 @@ def mk_msg(content, role='user'):
     return {'role': role, 'content': parts}
 
 def mk_msgs(msgs):
-    "Normalize a list of messages to OpenAI-style dicts."
+    "Apply `mk_msg` to each item in `msgs`."
     return [mk_msg(m) for m in listify(msgs)] if msgs else []
 
 # %% ../nbs/02_msgs.ipynb #eaaf0126
@@ -72,12 +72,12 @@ def strip_media(m):
                                       else p.get('text', '') for p in c)}
 
 def strip_hist_media(hist):
-    "`hist` with every media part swapped for its placeholder: a checkpoint keeps no base64."
+    "Apply `strip_media` to every message in `hist`."
     return [strip_media(m) for m in hist]
 
 # %% ../nbs/02_msgs.ipynb #5fcf3a94
 def to_media_part(p):
-    "An OpenAI-style media content part as a typed aidialog `Part`, or None if `p` is not media."
+    "Convert an image or audio part to an aidialog `InputImage` or `InputAudio`, or return None."
     if not is_media(p): return None
     if p['type'] == 'image_url':
         image = p.get('image_url')
@@ -89,7 +89,7 @@ def to_media_part(p):
 
 # %% ../nbs/02_msgs.ipynb #20e32a7f
 def mk_toolspec(f):
-    "OpenAI-style tool spec for callable `f`. Spec dicts pass through."
+    "Build an OpenAI-style tool schema for function `f`, returning a dict schema unchanged."
     if isinstance(f, dict): return f
     sc = get_schema(f, pname='parameters')
     sc.get('parameters', {}).pop('title', None)   # get_schema adds a stray title for classes
@@ -99,7 +99,7 @@ def mk_toolspec(f):
 import uuid
 
 class ToolCall(dict):
-    "One tool call in canonical form. A `dict` subclass, so anything that indexes it keeps working."
+    "One tool call in canonical form, as a `dict` with `name`, `arguments` and `server` properties."
     def __init__(self, name='', arguments=None, id=None, server=False):
         super().__init__(id=id or f'call_{uuid.uuid4().hex[:8]}', type='function',
                          function={'name': name, 'arguments': arguments if arguments is not None else {}})
@@ -115,34 +115,34 @@ class ToolCall(dict):
     def __repr__(self): return f'ToolCall({self.name}, {self.arguments})'
 
 def tc_name(tc):
-    "Name of a tool call, however it was built."
+    "The name of tool call `tc`."
     return (tc.get('function') or {}).get('name', '')
 
 def tool_rows(m):
-    "Canonical `(name, arguments)` pairs from a history message."
+    "The `(name, arguments)` pair of each tool call in message `m`."
     return [(tc_name(tc), (tc.get('function') or {}).get('arguments') or {}) for tc in m.get('tool_calls') or []]
 
 def mk_tool_res_msg(tc, result):
-    "Canonical `role='tool'` message carrying `result` back for tool call `tc`."
+    "A `role='tool'` message that returns `result` for tool call `tc`."
     return {'role': 'tool', 'tool_call_id': tc.get('id'), 'name': tc_name(tc), 'content': str(result)}
 
 class ToolMedia(str):
-    "A tool result's text carrying pictures, as paths or bytes, that the loop sends the model after it."
+    "A tool result string that also carries pictures, as paths or bytes, in `media`."
     def __new__(cls, text='', media=()):
         o = super().__new__(cls, text); o.media = list(media); return o
 
 def tool_media(o):
-    "The pictures a tool result carries: any result with a non-empty `.media` list counts."
+    "The pictures in tool result `o`, or an empty list."
     m = getattr(o, 'media', None)
     return list(m) if isinstance(m, (list, tuple)) else []
 
 def mk_tool_res_msgs(tcs, results):
-    "Canonical tool-result messages for several calls at once."
+    "Apply `mk_tool_res_msg` to each pair of calls and results."
     return [mk_tool_res_msg(tc, r) for tc, r in zip(tcs, results)]
 
 # %% ../nbs/02_msgs.ipynb #bd4ef6bb
 def toolspec_params(toolspecs, name):
-    "The JSON-schema `parameters` object the spec for `name` declares, or None when no spec names it."
+    "The JSON schema `parameters` of tool `name` in `toolspecs`, or None when no schema names it."
     for s in toolspecs or []:
         f = s.get('function') if isinstance(s, dict) and 'function' in s else s
         if isinstance(f, dict) and f.get('name') == name:
@@ -180,14 +180,14 @@ def _as_type(v, t, sch):
     return v
 
 def coerce_args(args, params):
-    "Fit `args` to schema `params`. A type comes from the SCHEMA, never from how the model spelled the value."
+    "Convert each argument in `args` to the type that schema `params` declares for it, where that is safe."
     props = (params or {}).get('properties') or {}
     if not isinstance(args, dict) or not props: return args
     return {k: (_as_type(v, t, props[k]) if isinstance(t := (props.get(k) or {}).get('type'), str) else v)
             for k, v in args.items()}          # a union, or an absent type, is undecidable: leave it alone
 
 def hoist_buried(args, params):
-    "Lift required params the model buried in a container, but only when one container holds every one."
+    "Move missing required parameters out of a nested container when one container holds all of them."
     if not isinstance(args, dict): return args
     req = [k for k in ((params or {}).get('required') or []) if k not in args]
     if not req: return args
@@ -199,7 +199,7 @@ def hoist_buried(args, params):
     return args
 
 def coerce_tcs(tcs, toolspecs):
-    "Fit every call's arguments to its own tool's schema. A tool no spec names is left untouched."
+    "Run `hoist_buried` and `coerce_args` on each call in `tcs` using its tool's schema."
     for tc in tcs or []:
         f = tc.get('function') or {}
         if not isinstance(a := f.get('arguments'), dict): continue
@@ -209,13 +209,13 @@ def coerce_tcs(tcs, toolspecs):
 
 # %% ../nbs/02_msgs.ipynb #14348315
 def parse_args(a):
-    "Parse OpenAI JSON-string tool arguments to a dict. Dicts pass through, bad JSON becomes `{}`."
+    "Decode JSON string tool arguments to a dict, returning `{}` for invalid JSON."
     if isinstance(a, dict): return a
     try: return json.loads(a) if a else {}
     except json.JSONDecodeError: return {}
 
 def norm_resp(r):
-    "An OpenAI-style chat completion as a urai `Resp`."
+    "Convert an OpenAI-style chat completion to a urai `Resp`."
     ch = r['choices'][0]
     m = ch.get('message') or {}
     text, th = split_think(m.get('content') or '')
@@ -233,7 +233,7 @@ def norm_resp(r):
     return Resp(res)
 
 def stream_resp(split, tool_calls=None, thought=None, truncated=False, usage=None):
-    "A streamed step's `Resp`: a finished `StreamSplit` plus a backend's own tool_calls/thought/usage."
+    "Build the `Resp` for a streamed step from a finished `StreamSplit` and the backend's own values."
     th = split.thought if thought is None else thought
     tcs = split.tool_calls if tool_calls is None else tool_calls
     res = {'role': 'assistant', 'content': split.text}
@@ -246,7 +246,7 @@ def stream_resp(split, tool_calls=None, thought=None, truncated=False, usage=Non
 
 # %% ../nbs/02_msgs.ipynb #59c18c9e
 def to_oai_msg(m):
-    "Convert a history entry to an OpenAI wire message."
+    "Convert a history message to the form an OpenAI-compatible API accepts."
     out = {k: m[k] for k in ('role', 'content', 'tool_calls', 'tool_call_id', 'name')
            if m.get(k) is not None}
     if 'tool_calls' in out:
@@ -261,7 +261,7 @@ def to_oai_msg(m):
 
 # %% ../nbs/02_msgs.ipynb #32ad8ba0
 def sum_usage(us):
-    "Sum OpenAI usage dicts, ignoring Nones. `model` is carried through rather than summed."
+    "Add up OpenAI usage dicts, skipping None and keeping the first `model` named."
     us = [u for u in us if u]
     if not us: return None
     out = {k: sum(u.get(k, 0) for u in us)
@@ -275,14 +275,14 @@ def sum_usage(us):
 CHARS_PER_TOKEN = 3.25   #: measured on ornith-1.5:9b and qwen3:0.6b, which both give 3.50
 
 def est_tokens(text):
-    "Rough token count for a transport with no tokenizer of its own."
+    "Estimate the token count of `text` from its length."
     return max(1, math.ceil(len(text) / CHARS_PER_TOKEN)) if text else 0
 
 #: How each role is titled when a conversation is rendered as one block of text.
 ROLE_NAMES = {'user': 'User', 'assistant': 'Assistant', 'tool': 'Tool result', 'system': 'System'}
 
 def render_prompt(hist, sp=''):
-    "A conversation as one block of text, for a transport that takes a prompt rather than messages."
+    "Render a conversation as one block of text with a heading per message."
     out = [sp] if sp else []
     for m in hist:
         if not (txt := resp_text(m)) and not m.get('tool_calls'): continue

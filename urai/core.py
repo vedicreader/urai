@@ -16,7 +16,7 @@ from fastcore.all import store_attr, GetAttr, L
 
 # %% ../nbs/00_core.ipynb #846c8e36
 def use_system_certs(force=False):
-    "Use the OS trust store. Return false when unavailable or disabled by `URAI_SYSTEM_CERTS=0`."
+    "Make Python trust the OS certificate store, returning False when `truststore` is missing or `URAI_SYSTEM_CERTS=0`."
     off = os.getenv('URAI_SYSTEM_CERTS', os.getenv('RISHI_SYSTEM_CERTS', '1')) == '0'
     if not force and off: return False
     try: import truststore
@@ -39,8 +39,8 @@ class UsageStats:
                  cached_tokens=0,           # prompt tokens served from a KV or prefix cache
                  cost=0.0,                  # what the provider charged; 0 for local inference
                  model=None,                # which model spent them
-                 reasoning_tokens=0,        # billed separately by hosted providers
-                 cache_creation_tokens=0):  # ...as are cache writes
+                 reasoning_tokens=0,        # thinking tokens, which hosted providers bill separately
+                 cache_creation_tokens=0):  # tokens written to the provider's prompt cache
         store_attr()
 
     def __add__(self, other):
@@ -60,18 +60,18 @@ class UsageStats:
         return '|'.join(p)
 
     def fmt(self):
-        "Markdown `<details>` token block, empty when nothing was spent."
+        "A collapsible markdown block showing the token counts, or an empty string when no tokens were used."
         if not self.total_tokens: return ''
         return f"\n\n<details><summary>{self.total_tokens:,} tokens</summary>\n\n`{self!r}`\n\n</details>\n"
 
 # %% ../nbs/00_core.ipynb #19d8025c
 class ChatCallback(GetAttr):
-    "Base chat callback. Reads chat state via `GetAttr`, so `self.turn_msg` is `chat.turn_msg`."
+    "Base class for chat callbacks; attributes it lacks are read from the chat, so `self.turn_msg` is `chat.turn_msg`."
     order, _default, chat, run = 0, 'chat', None, True
     def __repr__(self): return type(self).__name__
 
 def run_cbs(chat, event):
-    "Dispatch `event` to enabled callbacks in `order`, forwarding whatever they yield."
+    "Run `event` on each enabled callback of `chat` in `order`, yielding whatever the callbacks yield."
     for cb in chat.cbs.sorted('order'):
         if cb.run and hasattr(cb, event):
             r = getattr(cb, event)()
@@ -85,15 +85,15 @@ def resp_text(resp):
     return ''.join(p.get('text', '') for p in c if isinstance(p, dict) and p.get('type') == 'text')
 
 def thought(resp):
-    "The model's thinking (`channels.thought`), or ''."
+    "The model's thinking from `channels['thought']`, or an empty string."
     return resp.get('channels', {}).get('thought', '') if isinstance(resp, dict) else ''
 
 def truncated(resp):
-    "Was `resp` flagged as cut off at the token cap?"
+    "True when `resp` is marked as cut off at the output token limit."
     return bool(resp.get('truncated')) if isinstance(resp, dict) else False
 
 def has_tool_call(o):
-    "Does this chunk carry a `tool_call` content part?"
+    "True when chunk `o` holds a `tool_call` content part."
     return any(isinstance(p, dict) and p.get('type') == 'tool_call'
                for p in (o.get('content') or [] if isinstance(o, dict) else []))
 

@@ -17,25 +17,25 @@ from .chat import Chat
 import re
 
 def extract_fence(text, tag='answer'):
-    "Contents of the last ```<tag> fence in `text`, else the whole stripped text."
+    "The contents of the last fenced block labelled `tag` in `text`, else the whole stripped text."
     ms = re.findall(rf'^```{tag}[ \t]*\n(.*?)\n```', text or '', re.DOTALL | re.MULTILINE)
     return ms[-1] if ms else (text or '').strip()
 
 def matches_(actual, expected):
-    "Does `actual` contain any of `expected` (a scalar, or a list of accepted values)?"
+    "True when `actual` contains `expected`, or any value in a list of accepted values."
     return any(str(e) in (actual or '') for e in listify(expected))
 
 # %% ../nbs/07_eval.ipynb #f70363d8
 @patch
 def classify(self:Chat, text, labels, sp='Reply with only the single best label and nothing else.'):
-    "One-shot label for `text`, run stateless so it does not touch the conversation."
+    "Ask the model which of `labels` fits `text`, without touching the conversation."
     out = self.oneshot(f"{text}\n\nChoose exactly one label from: {', '.join(labels)}.",
                        sp, think=False).lower()
     return first(labels, lambda l: l.lower() in out) or out.strip()
 
 # %% ../nbs/07_eval.ipynb #5e31697f
 def mk_obj(schema, d):
-    "Build `schema` from json-decoded `d`, rebuilding nested dataclasses. Non-dicts pass through."
+    "Build `schema` from decoded JSON `d`, rebuilding nested dataclasses."
     if not isinstance(d, dict): return d
     if is_dataclass(schema):
         hints = get_type_hints(schema)
@@ -46,12 +46,12 @@ def mk_obj(schema, d):
 
 @patch
 def structured(self:Chat, prompt, schema, sp='Reply with only a JSON object matching the schema.'):
-    "One-shot structured output. Returns `schema(...)`, rebuilding nested dataclasses."
+    "Ask the model for data matching `schema` and return it as a `schema` object."
     return mk_obj(schema, self._structured_call(prompt, schema, sp))
 
 @patch
 def _structured_call(self:Chat, prompt, schema, sp):
-    "One structured completion, as json-decoded data. Every backend implements it."
+    "Get decoded JSON for `schema` from the model; each backend implements this."
     raise NotImplementedError
 
 # %% ../nbs/07_eval.ipynb #6a2d13d1
@@ -60,7 +60,7 @@ qa_sp_ = 'Answer the question, then put your final answer inside a ```answer fen
 
 @patch
 def grades(self:Chat, question, expected, actual):
-    "LLM-as-judge on this chat's model: is `actual` right, given reference `expected`?"
+    "Ask this chat's model whether answer `actual` is correct given the reference `expected`."
     q = (f'Question: {question}\nReference answer: {expected}\nCandidate answer: {actual}\n'
          "Reply 'yes' if the candidate is correct, otherwise 'no'.")
     return self.classify(q, ['yes', 'no'],
@@ -69,7 +69,7 @@ def grades(self:Chat, question, expected, actual):
 @patch
 def check(self:Chat, question, expected, grade_fn=matches_, llm_judge=False, judge=None,
           tag='answer', sp=qa_sp_):
-    "Ask `question` stateless, read the ```<tag> answer, and grade it against `expected`."
+    "Ask `question` without touching the conversation, read the fenced answer, and grade it against `expected`."
     a = extract_fence(self.oneshot(question, sp), tag)
     ok = (judge or self).grades(question, expected, a) if (llm_judge or judge) else grade_fn(a, expected)
     return AttrDict(question=question, expected=expected, answer=a, ok=ok)

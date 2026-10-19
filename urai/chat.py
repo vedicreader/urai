@@ -24,20 +24,20 @@ cancel_msg_ = 'Not run: the user stopped this turn.'
 cancelled_reply_ = '(stopped by the user)'
 
 class ContextWindowExceededError(RuntimeError):
-    "A turn could not finish: the context window filled and recovery also failed."
+    "Raised when the context window filled and recovering from it also failed."
 
 _ctx_err_markers = ('context window', 'context length', 'max number of tokens', 'out of bounds',
                     'kv cache', 'n_ctx', 'exceed context', 'available state entries')
 
 def is_ctx_error(chat, e):
-    "Best effort: does `e`, from a backend step, look like the context window filling up?"
+    "True when exception `e` from a backend looks like the context window filling up."
     if any(m in str(e).lower() for m in _ctx_err_markers): return True
     try: return bool(chat.ctx_limit) and chat.pct_full >= 1
     except Exception: return False
 
 # %% ../nbs/05_chat.ipynb #63496152
 def get_runtime(nm):
-    "The `Chat` subclass for runtime `nm`, importing the backend module lazily."
+    "The `Chat` subclass for runtime `nm`, importing its module on first use."
     rt = RUNTIMES[nm]
     try: return load_ref(rt.cls)
     except ImportError as e:
@@ -47,19 +47,19 @@ def get_runtime(nm):
 
 # %% ../nbs/05_chat.ipynb #eebcf0ec
 class Chat:
-    "Backend-agnostic chat. `Chat(model)` returns the subclass for that model's runtime."
+    "A conversation with any registered backend; `Chat(model)` returns the subclass for the model's runtime."
     _runtime = None          # the registry name this subclass serves
     _opt_map = {}            # portable option name -> this backend's own (dotted nests)
     _opt_skip = ()           # ...and the ones it cannot honour at all
     _dflt_cbs = []
     _stream_raw = False      # `stream='raw'` yields chunk dicts instead of markdown
-    _media_ok = True         # can this transport carry pictures and sound?
-    _media_note = ''         # ...and if not, what to use instead
+    _media_ok = True         # whether this backend can send images and audio
+    _media_note = ''         # the error message to give when it cannot
     _media_in = None
 
     @property
     def media_in(self):
-        "Do tool pictures reach the model? The transport's `_media_ok` unless a caller who knows the model says."
+        "True when pictures returned by tools are sent to the model; set it to override the backend's default."
         return self._media_ok if self._media_in is None else self._media_in
     @media_in.setter
     def media_in(self, v): self._media_in = v
@@ -93,7 +93,7 @@ class Chat:
     mk_content, mk_msg, mk_msgs = staticmethod(mk_content), staticmethod(mk_msg), staticmethod(mk_msgs)
 
     def fmt2hist(self, msgs):
-        "Backend messages -> canonical urai history dicts. Backends override; the base normalizes."
+        "Convert messages in the backend's format to canonical history dicts."
         return self.mk_msgs(msgs)
 
     @property
@@ -104,7 +104,7 @@ class Chat:
     def cancelled(self): return self._cancel.is_set()
 
     def map_opts(self, kw):
-        "Portable option names under this backend's own, dropping what it cannot honour."
+        "Translate portable option names to this backend's names, dropping those it cannot use."
         out = {}
         for k, v in (kw or {}).items():
             if k in self._opt_skip: continue
@@ -125,18 +125,18 @@ for _n in _OPT_ATTRS: setattr(Chat, _n, _opt_prop(_n))
 # %% ../nbs/05_chat.ipynb #cb3b5448
 @patch
 def add_cb(self:Chat, cb):
-    "Register a callback, class or instance. Binds `cb.chat` and returns the instance."
+    "Attach callback `cb`, a class or an instance, and return the instance."
     if isinstance(cb, type): cb = cb()
     cb.chat = self; self.cbs.append(cb); return cb
 
 @patch
 def add_cbs(self:Chat, cbs):
-    "Register several callbacks and return the `L` of registered instances."
+    "Attach several callbacks and return the attached instances."
     return L(cbs).map(self.add_cb)
 
 @patch
 def remove_cb(self:Chat, cb):
-    "Remove a callback by instance, or by class to drop every callback of that type."
+    "Remove callback `cb`, or every callback of a class when `cb` is a class."
     keep = (lambda c: not isinstance(c, cb)) if isinstance(cb, type) else (lambda c: c is not cb)
     self.cbs = self.cbs.filter(keep); return self
 
@@ -168,7 +168,7 @@ def __call__(self:Chat, msg=None, stream=False, cbs=None, **kw):
 
 @patch
 def _stream_turn(self:Chat, msg, cbs=None, **kw):
-    "Stream one turn, plus a `final_prompt` round if the tool-call budget ended it early."
+    "Stream one turn, and a `final_prompt` round if the tool call budget ended it early."
     r = yield from self._stream(msg, cbs, **kw)
     if self._budget_exceeded and not self._final_sent:
         self._final_sent = True
@@ -177,12 +177,12 @@ def _stream_turn(self:Chat, msg, cbs=None, **kw):
 
 @patch
 def _emit(self:Chat, o, fmt):
-    "One streamed chunk: the raw dict in raw mode, else `fmt`-rendered markdown."
+    "One streamed chunk, as the raw dict in raw mode or as markdown from `fmt`."
     return o if self._stream_raw else fmt.format_item(o)
 
 @patch
 def _check_media(self:Chat):
-    "Refuse media a text-only transport cannot carry, rather than dropping it in silence."
+    "Raise `TypeError` when a backend that cannot carry media is sent an image or audio."
     if self._media_ok: return
     c = (self.turn_msg or {}).get('content')
     if isinstance(c, list) and any(is_media(p) for p in c): raise TypeError(self._media_note)
@@ -190,22 +190,22 @@ def _check_media(self:Chat):
 # %% ../nbs/05_chat.ipynb #d7702244
 @patch
 def _recreate_conv(self:Chat):
-    "Rebuild backend conversation state from `self.hist`."
+    "Rebuild the backend's conversation state from `self.hist`."
     pass
 
 @patch
 def _set_sp(self:Chat, sp):
-    "Note a new system prompt wherever the backend keeps one. `_recreate_conv` applies it."
+    "Store a new system prompt where the backend keeps it, for `_recreate_conv` to apply."
     pass
 
 @patch
 def _set_tools(self:Chat, tools):
-    "Rebuild whatever tool state the backend holds: wire schemas, a call namespace."
+    "Rebuild the backend's tool state, such as its tool schemas."
     pass
 
 @patch
 def reconfigure(self:Chat, sp=None, tools=None):
-    "Change `sp` or `tools` while keeping `hist`; `None` preserves a value and `tools=()` clears tools."
+    "Change the system prompt or the tools and keep the history; `None` keeps a value and `tools=()` removes all tools."
     if sp is not None: self.sp = sp; self._set_sp(sp)
     if tools is not None:
         self.opts = replace(self.opts, tools=tuple(L(tools)))
@@ -216,29 +216,29 @@ def reconfigure(self:Chat, sp=None, tools=None):
 # %% ../nbs/05_chat.ipynb #26a93710
 @patch
 def cancel(self:Chat):
-    "Ask the turn in flight to stop at its next safe point. Safe to call from another thread."
+    "Ask the running turn to stop at its next chunk or tool call; safe to call from another thread."
     self._cancel.set()
     return True
 
 @patch
 def oneshot(self:Chat, prompt, sp='', think=None, max_tokens=None):
-    "Return one stateless reply without tools or history; `think=False` disables deliberation."
+    "Return the text of one reply to `prompt`, without tools or history; `think=False` turns thinking off."
     return self._oneshot(prompt, sp, think=think, max_tokens=max_tokens)
 
 @patch
 def _oneshot(self:Chat, prompt, sp='', think=None, max_tokens=None):
-    "One stateless completion's text. Every backend implements it; `oneshot` is the public door."
+    "The backend's implementation of `oneshot`."
     raise NotImplementedError
 
 @patch
 def recover_context(self:Chat, error, max_output_tokens=None):
-    "Backend contract for recovering from a full context window."
+    "Recover from a full context window; backends that can do so override this."
     raise ContextWindowExceededError(
         f'context recovery is not implemented for {type(self).__name__}') from error
 
 @patch
 def close(self:Chat):
-    "Release backend resources. Overridden per backend."
+    "Release the backend's resources, such as a loaded model."
     pass
 
 @patch
@@ -258,7 +258,7 @@ def print_hist(self:Chat):
 
 # %% ../nbs/05_chat.ipynb #f1deb121
 def mk_chat(model=None, opts=None, *, runtime=None, model_path=None, **kw):
-    "Build a `Chat`. `model` is a name, a `ModelSpec`, or nothing for the default runtime."
+    "Build a `Chat` from a model name, a `ModelSpec`, or nothing for the default runtime."
     if isinstance(model, ModelSpec):
         spec = model
         model, runtime = spec.model_id, spec.runtime
@@ -267,19 +267,19 @@ def mk_chat(model=None, opts=None, *, runtime=None, model_path=None, **kw):
 
 # %% ../nbs/05_chat.ipynb #7a327050
 class AsyncChat(GetAttr):
-    "Async twin of `Chat`. Blocking calls run in a worker thread."
+    "An async wrapper around a `Chat` that runs its blocking calls in a worker thread."
     _default = 'chat'
     def __init__(self, model=None, *, runtime=None, **kw):
         self.chat = model if hasattr(model, '_send') else Chat(model, runtime=runtime, **kw)
 
     async def __call__(self, msg=None, stream=False, cbs=None, **kw):
-        "Run one chat turn. `await` the result, or an async chunk iterator when `stream` is set."
+        "Run one chat turn and return the reply, or an async chunk iterator when `stream` is set."
         if stream: return self._astream(msg, cbs, **kw)
         return await asyncio.to_thread(lambda: self.chat(msg, False, cbs, **kw))
 
     @asave_iter
     async def _astream(it, self, msg, cbs=None, **kw):
-        "Drive the sync stream in a worker thread. The iterator's `.value` holds the final `Resp`."
+        "Run the chat's stream in a worker thread, leaving the final `Resp` on the iterator's `.value`."
         g = SaveReturn(self.chat(msg, stream=True, cbs=cbs, **kw))
         gi, done = iter(g), object()
         while (o := await asyncio.to_thread(next, gi, done)) is not done: yield o
@@ -290,7 +290,7 @@ class AsyncChat(GetAttr):
     async def __aexit__(self, *exc): self.close()
 
 async def adisplay_stream(chunks):
-    "Async twin of `display_stream`. Renders live in a notebook, and returns the full markdown."
+    "Show an async markdown stream live in a notebook and return the full markdown."
     if not hasattr(chunks, '__aiter__'): chunks = await chunks
     from IPython.display import display, Markdown
     h, md = display(Markdown(''), display_id=True), ''
@@ -301,12 +301,12 @@ async def adisplay_stream(chunks):
 
 # %% ../nbs/05_chat.ipynb #dc47c321
 def ask_console(tc):
-    "Console y/N approval prompt for a tool call."
+    "Ask on the console whether tool call `tc` may run."
     a = tc['function'].get('arguments', {})
     return input(f"Authorize {tc['function']['name']}({a})? [y/N] ").strip().lower() in ('y', 'yes')
 
 def http_approval(url=None, timeout=300):
-    "An approval callback that asks a running web UI over HTTP."
+    "An approval function that asks a running web interface over HTTP."
     endpoint = (url or os.environ.get('URAI_APPROVAL_URL')
                 or 'http://127.0.0.1:5001').rstrip('/') + '/agent/approval/request'
     def ask(tc):
@@ -321,7 +321,7 @@ def http_approval(url=None, timeout=300):
     return ask
 
 def hitl_policy(modes, ask=None, http=False):
-    "An `approve(tool_call)` from per-tool modes. `http` asks a web UI instead of the console."
+    "Build an `approve` function from per-tool modes, asking the console or, with `http`, a web interface."
     ask = http_approval(http if isinstance(http, str) else None) if http else (ask or ask_console)
     def approve(tc):
         mode = modes.get(tc['function']['name'], 'check') if modes else 'check'

@@ -22,18 +22,18 @@ from .eval import matches_
 _pyfence_re = re.compile(r'^```(?:python|py)[ \t]*\n(.*?)\n```', re.DOTALL | re.MULTILINE)
 
 def extract_code(text):
-    "Code of the last ```python fence in `text`, else None."
+    "The code in the last Python fenced block of `text`, else None."
     return ms[-1] if (ms := _pyfence_re.findall(text or '')) else None
 
 def mk_result_fence(out):
-    "Feed a code result back, asking for prose or for more code."
+    "Wrap a code output in a `result` block that asks the model for a prose answer or more code."
     return (f'```result\n{out}\n```\n\nIf this answers the request, reply with the final answer in '
             'prose; only write another ```python block if you need to run more code.')
 
 # %% ../nbs/08_sandbox.ipynb #aee62814
 @patch
 def run_py(self:Chat, code, ban_defs=False, g=None):
-    "Run `code` in this chat's sandboxed, persistent namespace. Returns stdout plus the last expression."
+    "Run `code` in this chat's persistent sandbox and return its printed output and last value."
     if not hasattr(self, '_pyrun'): self._pyrun = RunPython(g=g, ban_defs=ban_defs)
     buf = io.StringIO()
     try:
@@ -50,20 +50,20 @@ def run_coro(coro):
 
 # %% ../nbs/08_sandbox.ipynb #af46384a
 def task_complete(chat):
-    "`done` policy: ask the model, in isolation, whether the latest result completes the request."
+    "A `done` function that asks the model whether the last few messages complete the request."
     convo = '\n'.join(f"{m.get('role','?')}: {resp_text(m)}" for m in chat.hist[-6:])
     return chat.classify(convo, ['complete', 'needs_more_work']) == 'complete'
 
 def output_matches(expected):
-    "`done` policy: stop once the last code output contains `str(expected)`."
+    "A `done` function that is True once the last code output contains `expected`."
     return lambda chat: matches_(getattr(chat, 'turn_code_out', ''), expected)
 
 class PyFenceCallback(ChatCallback):
-    "Run ```python fences, feed results back, and loop until `done(chat)` or no fence is left."
+    "Run the Python blocks a model writes and send it the output until it stops or `done(chat)` is True."
     order = 50
     def __init__(self,
                  max_rounds=5,       # safety cap on rounds of code in one turn
-                 done=None,          # `done(chat) -> bool`; None means "stop when there is no fence"
+                 done=None,          # `done(chat) -> bool`; None stops when a reply has no code block
                  pyrun:callable=None # runner to use instead of `chat.run_py`
                 ):
         store_attr(); self._depth = 0; self._warned = False
@@ -89,7 +89,7 @@ class PyFenceCallback(ChatCallback):
         return out, bool(self.done and self.done(self.chat))
 
     def after_response(self):
-        "Feed the result back: synchronously, or as a chunk generator during a streamed turn."
+        "Run the reply's code and send the output back to the model."
         if not self._active(): return
         if getattr(self.chat, '_streaming', False): return self._after_stream()
         out, done = self._run_code()
@@ -118,7 +118,7 @@ class PyFenceCallback(ChatCallback):
 
 # %% ../nbs/08_sandbox.ipynb #354a026f
 def sync_iter(agen_fn, stop=None):
-    "Drive the async generator from `agen_fn()` in sync code, on fastcore's shared loop. Set `stop` to end the source stream early."
+    "Iterate the async generator from `agen_fn()` in sync code, ending early when `stop` is set."
     from fastcore.aio import run_sync
     agen = agen_fn()
     try:
@@ -130,7 +130,7 @@ def sync_iter(agen_fn, stop=None):
 
 @contextmanager
 def killed_on_exit(proc, timeout=2):
-    """Wait for `proc` on success. Terminate it if the block exits early or raises."""
+    """Wait for `proc` when the block succeeds, and terminate it when the block raises."""
     try: yield proc
     except BaseException:
         if proc.poll() is None:

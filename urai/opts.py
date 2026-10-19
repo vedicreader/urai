@@ -19,11 +19,11 @@ from .caps import Caps, hosted_caps, hosted_ctx, is_path, DFLT_CTX
 # %% ../nbs/04_opts.ipynb #55e2c1fc
 @dataclass(frozen=True)
 class Runtime:
-    "One registered backend: where its `Chat` lives and how to recognise a model of its own."
+    "One registered backend: the `Chat` class that runs it and the name patterns that select it."
     name: str
     cls: object                # `'pkg.mod.ChatSubclass'`, or the class itself
     pats: tuple = ()           # id or path substrings that infer this runtime
-    optional: bool = False     # ...so a missing import can suggest an extra instead of raising
+    optional: bool = False     # needs a pip extra, so a missing import can suggest installing it
     extra: str = ''            # the pip extra that installs it; defaults to `name`
     local: bool = True         # does it run on this machine?
     caps: object = None        # `caps(model, model_path)` prober, dotted or callable
@@ -31,14 +31,14 @@ class Runtime:
 
     @property
     def install(self):
-        "What to tell someone whose optional backend is missing."
+        "The pip command that installs this backend."
         pkg = self.cls.split('.')[0] if isinstance(self.cls, str) else self.name
         return f"pip install '{pkg}[{self.extra or self.name}]'"
 
 RUNTIMES = {}   #: name -> `Runtime`, in inference order
 
 def register_runtime(rt, dflt=False):
-    "Add `rt` to the registry. `dflt=True` also makes it what a bare `Chat()` builds."
+    "Add `rt` to the registry, and with `dflt=True` make it the runtime a bare `Chat()` uses."
     global dflt_runtime
     RUNTIMES[rt.name] = rt
     if dflt: dflt_runtime = rt.name
@@ -48,20 +48,20 @@ dflt_runtime = None   #: runtime for a `Chat()` with no model named
 
 # %% ../nbs/04_opts.ipynb #827581c0
 def split_runtime(model):
-    "Split `'runtime/model'` into `(runtime, model)`. The prefix must name a registered runtime."
+    "Split `'runtime/model'` into `(runtime, model)` when the prefix names a registered runtime."
     if isinstance(model, str) and '/' in model:
         b, m = model.split('/', 1)
         if b in RUNTIMES: return b, m
     return None, model
 
 def infer_runtime(model):
-    "Guess a runtime from the shape of a model id or path, else `None`."
+    "The first registered runtime whose patterns match `model`, else None."
     s = str(model or '').lower()
     if not s: return None
     return next((n for n, rt in RUNTIMES.items() if any(p in s for p in rt.pats)), None)
 
 def resolve_runtime(model=None, runtime=None, model_path=None):
-    "Resolve `(runtime, model)` from an explicit `runtime`, a `runtime/` prefix, or the id shape."
+    "Work out `(runtime, model)` from an explicit `runtime`, a `runtime/` prefix, or the name's shape."
     pre, model = split_runtime(model)
     nm = runtime or pre or infer_runtime(model) or infer_runtime(model_path)
     if nm is None and model is None and model_path is None: nm = dflt_runtime
@@ -74,7 +74,7 @@ def resolve_runtime(model=None, runtime=None, model_path=None):
 # %% ../nbs/04_opts.ipynb #509334a3
 @dataclass(frozen=True)
 class ModelSpec:
-    "One model, resolved: which runtime runs it, what to call it, and how big it is."
+    "A resolved model: its runtime, the id the backend is given, and its context window."
     name: str                  # what the caller typed
     runtime: str
     model_id: str              # what the backend is given
@@ -89,7 +89,7 @@ class ModelSpec:
     def __str__(self): return f'{self.name} ({self.model_id})'
 
 def resolve(name=None, runtime=None, model_path=None, ctx=None, **opts):
-    "A `ModelSpec` for `name`, working out the runtime and the window."
+    "Resolve `name` to a `ModelSpec` without loading the model."
     rt_name, model_id = resolve_runtime(name, runtime, model_path)
     rt, note = RUNTIMES[rt_name], ''
     if ctx is None:
@@ -100,13 +100,13 @@ def resolve(name=None, runtime=None, model_path=None, ctx=None, **opts):
 
 # %% ../nbs/04_opts.ipynb #5ecdfe8b
 def load_ref(o):
-    "`o` itself, or the object at dotted path `'pkg.mod.name'`."
+    "Import and return the object at dotted path `o`, or return `o` if it is not a string."
     if not isinstance(o, str): return o
     mod, _, nm = o.rpartition('.')
     return getattr(import_module(mod), nm)
 
 def model_caps(model=None, runtime=None, model_path=None):
-    "What `model` accepts and returns, resolved without loading it."
+    "The `Caps` of `model`, from its runtime's own check or the hosted table, without loading it."
     try: nm, mid = resolve_runtime(model, runtime, model_path)
     except Exception: nm, mid = runtime, model
     mid = str(mid if mid is not None else (model or ''))
@@ -130,7 +130,7 @@ ALIASES = {'reasoning_effort': 'effort', 'temperature': 'temp', 'max_tokens': 'm
 
 @dataclass(frozen=True)
 class ChatOpts:
-    "Everything a chat can be configured with, under names every runtime shares."
+    "Every chat setting under the portable name all runtimes share."
     # the conversation
     sp: str = ''                       # system prompt
     tools: tuple = ()                  # callables, or spec dicts for provider-side tools
@@ -156,14 +156,14 @@ class ChatOpts:
     tool_mode: str = ''                # 'native' sends schemas on the wire, 'tags' in the prompt
     # credentials
     api_key: str = ''
-    api_key_env: str = ''              # ...or the variable holding it, for config that must not
-    base_url: str = ''                 # carry secrets
+    api_key_env: str = ''              # the environment variable holding the key
+    base_url: str = ''                 # base URL of the API to call
     # anything the portable names do not cover
     extra: dict = field(default_factory=dict)
 
     @classmethod
     def create(cls, opts=None, **kw):
-        "A `ChatOpts` from an existing one plus overrides, or from loose keywords alone."
+        "Build a `ChatOpts` from an existing one or a dict plus keyword overrides."
         if opts is None: opts = cls()
         elif isinstance(opts, dict): opts = cls(**opts)
         if not kw: return opts
@@ -174,12 +174,12 @@ class ChatOpts:
 
     @property
     def key(self):
-        "The API key: the explicit one, else whatever `api_key_env` names. Never stored on the object."
+        "The API key from `api_key`, else from the environment variable `api_key_env` names."
         import os
         return self.api_key or (os.environ.get(self.api_key_env) if self.api_key_env else None) or None
 
     def set(self):
-        "The options actually chosen, by name. Defaults are absent, so a backend can tell them apart."
+        "A dict of the options that differ from their defaults."
         d = {}
         for f in fields(self):
             if f.name == 'extra': continue
@@ -189,7 +189,7 @@ class ChatOpts:
 
 # %% ../nbs/04_opts.ipynb #1ec3d549
 def set_dotted(d, path, v):
-    "Set `d['a']['b'] = v` for a path of `'a.b'`, creating the intermediate dicts."
+    "Set `d['a']['b'] = v` for `path='a.b'`, creating the dicts in between."
     ks, cur = path.split('.'), d
     for k in ks[:-1]: cur = cur.setdefault(k, {})
     cur[ks[-1]] = v
@@ -197,7 +197,7 @@ def set_dotted(d, path, v):
 
 # %% ../nbs/04_opts.ipynb #1ce6a21f
 def turn_kw(opts=None, **kw):
-    "Return generation settings for one turn, excluding conversation and loop options."
+    "The settings in `opts` and `kw` that can apply to a single turn, plus any `extra` options."
     o = ChatOpts.create(opts, **kw)
     chosen = o.set()
     return {**{k: v for k, v in chosen.items() if k in GEN_OPTS}, **o.extra}
