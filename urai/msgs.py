@@ -6,10 +6,10 @@ Docs: https://vedicreader.github.io/urai/msgs.html.md"""
 
 # %% auto #0
 __all__ = ['CHARS_PER_TOKEN', 'ROLE_NAMES', 'mk_content', 'is_media', 'mk_msg', 'mk_msgs', 'strip_media', 'strip_hist_media',
-           'to_media_part', 'mk_toolspec', 'ToolCall', 'tc_name', 'tool_rows', 'mk_tool_res_msg', 'ToolMedia',
-           'tool_media', 'mk_tool_res_msgs', 'toolspec_params', 'coerce_args', 'hoist_buried', 'coerce_tcs',
-           'parse_args', 'norm_resp', 'stream_resp', 'to_oai_msg', 'sum_usage', 'est_tokens', 'render_prompt',
-           'common_prefix_len']
+           'to_media_part', 'lit_schema', 'mk_toolspec', 'ToolCall', 'tc_name', 'tool_rows', 'mk_tool_res_msg',
+           'ToolMedia', 'tool_media', 'mk_tool_res_msgs', 'toolspec_params', 'coerce_args', 'hoist_buried',
+           'coerce_tcs', 'parse_args', 'norm_resp', 'stream_resp', 'to_oai_msg', 'sum_usage', 'est_tokens',
+           'render_prompt', 'common_prefix_len']
 
 # %% ../nbs/02_msgs.ipynb #bc883722
 import json, math, os
@@ -88,11 +88,49 @@ def to_media_part(p):
     return InputAudio(text=url, mime=(data_url(url) or (None, None))[0])
 
 # %% ../nbs/02_msgs.ipynb #20e32a7f
+import enum, types, typing
+from typing import Literal, get_args, get_origin, get_type_hints
+
+def lit_schema(vals):
+    "JSON Schema for a `Literal` of `vals`: their JSON type or types, and an `enum` of them."
+    vals = [v.value if isinstance(v, enum.Enum) else v for v in vals]
+    ts = list(dict.fromkeys('null' if v is None else 'boolean' if isinstance(v, bool) else 'integer' if isinstance(v, int)
+                            else 'number' if isinstance(v, float) else 'string' for v in vals))
+    return {'type': ts[0] if len(ts) == 1 else ts, 'enum': vals}
+
+def _lits(sc, t):
+    "`sc`, the schema `get_schema` made for hint `t`, with each `Literal` in it, through unions and containers, as an `enum`."
+    o, args = get_origin(t), get_args(t)
+    if o is Literal: return {**{k: v for k, v in sc.items() if k in ('description', 'default')}, **lit_schema(args)}
+    if o in (typing.Union, types.UnionType) and len(sc.get('anyOf', ())) == len(args):
+        return {**sc, 'anyOf': [_lits(s, a) for s, a in zip(sc['anyOf'], args)]}
+    if 'items' in sc and len(args) == 1: return {**sc, 'items': _lits(sc['items'], args[0])}
+    return sc
+
+def _plain(s, defs, seen=()):
+    "Pydantic schema `s` with each `$ref` inlined from `defs` and no `title`s, which strict providers refuse or ignore."
+    if isinstance(s, list): return [_plain(x, defs, seen) for x in s]
+    if not isinstance(s, dict): return s
+    if (ref := s.get('$ref')):
+        name = ref.split('/')[-1]
+        if name in seen: return {'type': 'object'}   # a model that holds itself
+        return _plain({**defs.get(name, {}), **{k: v for k, v in s.items() if k != '$ref'}}, defs, (*seen, name))
+    return {k: ({n: _plain(x, defs, seen) for n, x in v.items()} if k == 'properties' else _plain(v, defs, seen))
+            for k, v in s.items() if k not in ('title', '$defs')}
+
 def mk_toolspec(f):
     "Build an OpenAI-style tool schema for function `f`, returning a dict schema unchanged."
     if isinstance(f, dict): return f
+    if hasattr(f, 'model_json_schema'):   # pydantic: `get_schema` would read `__init__(**data)` as one `data` field
+        sc = _plain((js := f.model_json_schema()), js.get('$defs', {}))
+        return {'type': 'function', 'function': {'name': f.__name__, 'description': sc.pop('description', ''), 'parameters': sc}}
     sc = get_schema(f, pname='parameters')
-    sc.get('parameters', {}).pop('title', None)   # get_schema adds a stray title for classes
+    ps = sc.get('parameters', {})
+    ps.pop('title', None)   # get_schema adds a stray title for classes
+    try: hints = get_type_hints(f)
+    except Exception: hints = {}
+    for k, v in ps.get('properties', {}).items():
+        if k in hints: ps['properties'][k] = _lits(v, hints[k])
     return {'type': 'function', 'function': sc}
 
 # %% ../nbs/02_msgs.ipynb #e3ee206c

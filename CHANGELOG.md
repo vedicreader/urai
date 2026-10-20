@@ -2,6 +2,11 @@
 
 <!-- do not remove -->
 
+## 0.0.14
+
+- `mk_toolspec` describes a pydantic model by its own fields. It reads `model_json_schema`, inlines each `$ref` and drops the `title`s; `get_schema` read the model's `__init__(**data)` and handed the model one opaque `data` object, so `structured` with a pydantic schema came back empty or wrong. A tool loop calling such a class now passes its fields, not `data=`.
+- A `Literal` field or parameter becomes an `enum` with its JSON type, alone or inside `Optional`, a union or a list. `get_schema` wrote the type `"object[object, object]"`, which is not JSON Schema, and Gemini refused the whole request. `lit_schema` builds the `enum`.
+
 ## 0.0.13
 
 - README links to the docs again. nbdev takes `lib_name` from the distribution name `uraiyadal` and found no doc index under it; `strip_libs = "urai"` points it at the `urai` index.
