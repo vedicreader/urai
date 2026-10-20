@@ -2,6 +2,12 @@
 
 <!-- do not remove -->
 
+## 0.0.16
+
+- A reply cut off at the output limit in the middle of a tool call is asked for again with `cut_msg_`, which asks for the call in smaller pieces. `reparse_msg_` asked for a cleaner `<tool_call>` block, which does not help a call that was too long.
+- A backend can put its own re-ask message in the reply's `reparse` key, and its account of why the call was lost in `lost`. Neither key reaches `hist`.
+- `ToolCallError` is raised when a reply with a `lost` reason fails after the model was already asked once in the turn to resend a call. The turn ended on a reply that hid the failure. A failure with no `lost` reason still ends the turn as before.
+
 ## 0.0.15
 
 - `parse_tool_tags` strips `<parameter>` elements left outside any call. A degenerate Claude reply in the `<invoke>` dialect wrote stray `<parameter name="1">`, `</parameter>` and nested `<parameter>` blocks between its calls. Those stayed in the clean text, and a caller that shows the reply's last line as a status showed `</parameter>`. The strip runs only when the reply holds an `<invoke>` or `<function=...>` call.
