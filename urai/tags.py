@@ -225,6 +225,8 @@ def lone_tag_tc(text, names=None):
     return mk_tc(d['name'], tag_args(d))
 
 # %% ../nbs/01_tags.ipynb #a097ff21
+_strayp_re = re.compile(r'<parameter\b[^>]*>(?:.*?</parameter\s*>)?|</parameter\s*>', re.I | re.S)
+
 def parse_tool_tags_ex(text, names=None):
     "Parse tool calls out of `text`, returning `(clean_text, calls, failed)`, where `failed` means a block could not be read."
     t = text or ''
@@ -241,8 +243,9 @@ def parse_tool_tags_ex(text, names=None):
             else: failed = True
         rest = rest[:k]
     if not tcs and not failed and (tc := lone_tag_tc(t, names)): return '', [tc], False
-    clean = _fnblk_re.sub('', _toolres_re.sub('', rest)).strip('\n')
-    return clean, tcs, failed
+    clean = _fnblk_re.sub('', _toolres_re.sub('', rest))
+    if _fn_re.search(t): clean = _strayp_re.sub('', clean)   # parameters a degenerate reply left between its calls
+    return clean.strip('\n'), tcs, failed
 
 def parse_tool_tags(text, names=None):
     "Parse tool calls out of `text`, returning `(clean_text, calls)`."

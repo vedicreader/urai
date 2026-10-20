@@ -2,6 +2,10 @@
 
 <!-- do not remove -->
 
+## 0.0.15
+
+- `parse_tool_tags` strips `<parameter>` elements left outside any call. A degenerate Claude reply in the `<invoke>` dialect wrote stray `<parameter name="1">`, `</parameter>` and nested `<parameter>` blocks between its calls. Those stayed in the clean text, and a caller that shows the reply's last line as a status showed `</parameter>`. The strip runs only when the reply holds an `<invoke>` or `<function=...>` call.
+
 ## 0.0.14
 
 - `mk_toolspec` describes a pydantic model by its own fields. It reads `model_json_schema`, inlines each `$ref` and drops the `title`s; `get_schema` read the model's `__init__(**data)` and handed the model one opaque `data` object, so `structured` with a pydantic schema came back empty or wrong. A tool loop calling such a class now passes its fields, not `data=`.
