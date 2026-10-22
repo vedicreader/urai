@@ -6,8 +6,8 @@ Docs: https://vedicreader.github.io/urai/tags.html.md"""
 
 # %% auto #0
 __all__ = ['TAG_ARG_KEYS', 'TAG_TOOLS_SP', 'split_think', 'loose_json', 'salvage_name', 'mk_tc', 'tag_args', 'mk_tag_tc',
-           'parse_fn_tags', 'lone_tag_tc', 'parse_tool_tags_ex', 'parse_tool_tags', 'tag_call_shape', 'tag_tools_sp',
-           'RAW_DUMP', 'dump_raw', 'StreamSplit', 'acc_tc']
+           'parse_fn_tags', 'lone_tag_tc', 'tool_blocks', 'parse_tool_tags_ex', 'parse_tool_tags', 'tag_call_shape',
+           'tag_tools_sp', 'RAW_DUMP', 'dump_raw', 'StreamSplit', 'acc_tc']
 
 # %% ../nbs/01_tags.ipynb #f1d513cc
 import json, os, re, uuid
@@ -160,8 +160,11 @@ def tag_args(d):
         if isinstance(v, dict): return v
     return None
 
+_stray_re = re.compile(r'(?:\s*<[^<>{}]*>)+\s*')
+
 def mk_tag_tc(s):
     "A tool call dict from the body of a `<tool_call>` block, marked `unread` when its arguments were lost, or None."
+    if (m := _stray_re.match(s or '')): s = s[m.end():]      # empty stray tags before the object are not part of it
     d, ok = loose_json(s)
     if d is not None and d.get('name'):
         # a cut object keeps only completed values, so an `arguments` that landed is whole
@@ -227,12 +230,32 @@ def lone_tag_tc(text, names=None):
 # %% ../nbs/01_tags.ipynb #a097ff21
 _strayp_re = re.compile(r'<parameter\b[^>]*>(?:.*?</parameter\s*>)?|</parameter\s*>', re.I | re.S)
 
+_open_re = re.compile('<tool_' + 'call>')
+_lead_re = re.compile(r'\s*(?:<[^<>{}]*>\s*)*')
+_close_re = re.compile(r'\s*</tool_' + 'call>')
+
+def tool_blocks(text):
+    "The `(start, end, body)` of each closed call block in `text`; a JSON object is read whole, so a tag quoted in its strings ends nothing."
+    out, i, dec = [], 0, json.JSONDecoder()
+    while (o := _open_re.search(text, i)):
+        a, j = o.start(), o.end(); k = _lead_re.match(text, j).end()
+        if text[k:k+1] == '{':
+            try:
+                _, e = dec.raw_decode(text, k)
+                if (c := _close_re.match(text, e)): out.append((a, c.end(), text[j:e].strip())); i = c.end(); continue
+            except json.JSONDecodeError: pass
+        if not (m := _toolcall_re.match(text, a)): break      # no closer anywhere after: an opener left open
+        out.append((a, m.end(), m.group(1))); i = m.end()
+    return out
+
 def parse_tool_tags_ex(text, names=None):
     "Parse tool calls out of `text`, returning `(clean_text, calls, failed)`, where `failed` means a block could not be read."
     t = text or ''
     tcs, failed = parse_fn_tags(t), False   # the XML dialect is read FIRST: a value never decides the call
-    rest = _toolcall_re.sub('', t)
-    for b in _toolcall_re.findall(t):
+    blocks, rest, p = tool_blocks(t), '', 0
+    for a, e, _ in blocks: rest += t[p:a]; p = e
+    rest += t[p:]
+    for _, _, b in blocks:
         if parse_fn_tags(b): continue
         if (tc := mk_tag_tc(b)): tcs.append(tc)
         else: failed = True             # a block nothing could read is a loss, never a silent deletion

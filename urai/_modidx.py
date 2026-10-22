@@ -286,4 +286,5 @@ d = { 'settings': { 'branch': 'main',
                            'urai.tags.split_think': ('tags.html#split_think', 'urai/tags.py'),
                            'urai.tags.tag_args': ('tags.html#tag_args', 'urai/tags.py'),
                            'urai.tags.tag_call_shape': ('tags.html#tag_call_shape', 'urai/tags.py'),
-                           'urai.tags.tag_tools_sp': ('tags.html#tag_tools_sp', 'urai/tags.py')}}}
+                           'urai.tags.tag_tools_sp': ('tags.html#tag_tools_sp', 'urai/tags.py'),
+                           'urai.tags.tool_blocks': ('tags.html#tool_blocks', 'urai/tags.py')}}}

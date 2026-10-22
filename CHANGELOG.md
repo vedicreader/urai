@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.17
+
+- A tool-call block with a stray empty tag, a doubled opening tag, or `arguments` before `name` parses to its real arguments. Before, the name was salvaged and the arguments dropped, so the call ran with `{}` and the tool raised `missing 1 required positional argument`.
+- A call that cannot be read is never run. Each such call is answered with `unread_msg_`; before, the second one in a turn was dispatched with empty arguments.
+- Identical calls (same name and arguments) in one reply run once; the repeats are answered with `dup_msg_`. A reply with 300 identical calls had run the tool 9 times.
+- A tool-call tag quoted inside a string argument no longer ends or starts a call: `tool_blocks` reads each block's JSON object whole before looking for the closing tag.
+
 ## 0.0.16
 
 - A reply cut off at the output limit in the middle of a tool call is asked for again with `cut_msg_`, which asks for the call in smaller pieces. `reparse_msg_` asked for a cleaner `<tool_call>` block, which does not help a call that was too long.
