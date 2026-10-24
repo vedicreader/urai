@@ -18,7 +18,7 @@ from fastcore.all import L, store_attr, patch
 from .core import (UsageStats, ChatCallback, StreamFormatter, Resp, run_cbs, resp_text,
                        thought, has_tool_call, tool_reminder_)
 from .tags import dump_raw
-from .msgs import mk_msg, mk_content, mk_toolspec, tc_name, mk_tool_res_msg, sum_usage, coerce_tcs, tool_media
+from .msgs import mk_msg, mk_content, mk_toolspec, tc_name, mk_tool_res_msg, sum_usage, coerce_tcs, tool_media, toolspec_params
 from .chat import (Chat, ContextWindowExceededError, is_ctx_error,
                        budget_msg_, cancel_msg_, cancelled_reply_)
 
@@ -90,10 +90,22 @@ class ToolLoopMixin:
         self.ns = mk_ns([t for t in L(tools) if callable(t)])
 
     def call_tool(self, tc):
-        "Run tool call `tc` and return its result, or the error as a string if it raised."
+        "Run a readable call with all required arguments. Return errors as strings."
         if tc.get('server'): return '(run by the provider)'
-        if tc.get('id') in self._unread_ids: return unread_msg_
-        try: return call_func(tc_name(tc), (tc.get('function') or {}).get('arguments') or {}, ns=self.ns)
+        if tc.get('unread') or tc.get('id') in self._unread_ids: return unread_msg_
+        name = tc_name(tc)
+        specs = getattr(self, 'toolspecs', ())
+        coerce_tcs([tc], specs)
+        args = (tc.get('function') or {}).get('arguments', {})
+        if not isinstance(args, dict): return unread_msg_
+        params = toolspec_params(specs, name) or {}
+        missing = [k for k in params.get('required', []) if k not in args]
+        if missing:
+            fields = ', '.join(missing)
+            kind = 'argument' if len(missing) == 1 else 'arguments'
+            return (f'Tool call not run: {name} is missing required {kind}: {fields}. '
+                    f'Send the call again with {fields} included in arguments.')
+        try: return call_func(name, args, ns=self.ns)
         except Exception as e: return f'{type(e).__name__}: {e}'
 
     def _approve1(self, tc):

@@ -218,7 +218,7 @@ _fnblk_re = re.compile(r'<(?:function\s*=|invoke\s+name\s*=).*?(?:</(?:function|
 _fence_re = re.compile(r'^```(?:json)?\s*|\s*```$')
 
 def lone_tag_tc(text, names=None):
-    "A tool call from a reply that is nothing but one untagged call object, or None."
+    "Read one bare call object. Mark unreadable arguments `unread`."
     s = _fence_re.sub('', (text or '').strip()).strip()
     if not (s.startswith('{') and s.endswith('}')): return None
     d, ok = loose_json(s)
@@ -226,7 +226,8 @@ def lone_tag_tc(text, names=None):
     if not any(k in d for k in TAG_ARG_KEYS): return None
     # with `names`, an untagged object must name a known tool. Otherwise the model is talking about JSON.
     if names is not None and d['name'] not in set(names): return None
-    return mk_tc(d['name'], tag_args(d))
+    args = tag_args(d)
+    return mk_tc(d['name'], args) if args is not None else {**mk_tc(d['name']), 'unread': True}
 
 # %% ../nbs/01_tags.ipynb #a097ff21
 _strayp_re = re.compile(r'<parameter\b[^>]*>(?:.*?</parameter\s*>)?|</parameter\s*>', re.I | re.S)

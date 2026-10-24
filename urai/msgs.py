@@ -248,10 +248,11 @@ def coerce_tcs(tcs, toolspecs):
 
 # %% ../nbs/02_msgs.ipynb #14348315
 def parse_args(a):
-    "Decode JSON string tool arguments to a dict, returning `{}` for invalid JSON."
+    "Decode native arguments to a dict. Return None when they cannot be read."
     if isinstance(a, dict): return a
-    try: return json.loads(a) if a else {}
-    except json.JSONDecodeError: return {}
+    try: parsed = json.loads(a)
+    except (json.JSONDecodeError, TypeError): return None
+    return parsed if isinstance(parsed, dict) else None
 
 def norm_resp(r):
     "Convert an OpenAI-style chat completion to a urai `Resp`."
@@ -259,10 +260,15 @@ def norm_resp(r):
     m = ch.get('message') or {}
     text, th = split_think(m.get('content') or '')
     text, tag_tcs, failed = parse_tool_tags_ex(text)
-    tcs = [{'id': tc.get('id'), 'type': 'function',
-            'function': {'name': tc.get('function', {}).get('name', ''),
-                         'arguments': parse_args(tc.get('function', {}).get('arguments'))}}
-           for tc in (m.get('tool_calls') or [])] + tag_tcs
+    tcs = []
+    for tc in m.get('tool_calls') or []:
+        f = tc.get('function') or {}
+        args = parse_args(f.get('arguments'))
+        call = {'id': tc.get('id'), 'type': 'function',
+                'function': {'name': f.get('name', ''), 'arguments': args if args is not None else {}}}
+        if args is None: call['unread'] = True; failed = True
+        tcs.append(call)
+    tcs += tag_tcs
     res = {'role': 'assistant', 'content': text}
     if th: res['channels'] = {'thought': th}
     if tcs: res['tool_calls'] = tcs

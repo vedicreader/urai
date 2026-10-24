@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.19
+
+- `call_tool` checks required arguments after hoisting and type conversion. A missing field returns a tool-call error without running the tool. The error lists all missing fields. Direct native calls and name-only JSON calls use the same check.
+- `lone_tag_tc` keeps unreadable arguments marked `unread`. Before, they became readable calls with `{}`.
+- `parse_args` returns `None` for empty or invalid native arguments. `norm_resp` marks these calls `unread` and sets `tool_parse_failed`. A bad call does not raise during the turn. A valid empty JSON object stays readable.
+- Breaking for callers of `parse_args`: code that renders a stored call back into a provider's format must use `parse_args(s) or {}`. Before, `parse_args` never returned `None`.
+
 ## 0.0.18
 
 - `split_think` reads only a reasoning block at the start of the text. A think tag that comes after answer text stays in the answer. Before, a quoted think tag anywhere cut the rest of the reply away as thought.
