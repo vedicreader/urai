@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Reading thinking and tool calls out of plain text.">
+
+<title>tags – uraiyadal</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-f2788e636de456f6409e966386820849.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="tags – uraiyadal">
+<meta property="og:description" content="Reading thinking and tool calls out of plain text.">
+<meta property="og:site_name" content="uraiyadal">
+<meta name="twitter:title" content="tags – uraiyadal">
+<meta name="twitter:description" content="Reading thinking and tool calls out of plain text.">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">uraiyadal</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-end">
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./tags.html">tags</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">urai</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./core.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">core</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./tags.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">tags</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./msgs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">msgs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./caps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">caps</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./opts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">opts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chat.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">chat</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./loop.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">loop</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./eval.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">eval</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sandbox.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">sandbox</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./record.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">record</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./broker.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">broker</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#thinking" id="toc-thinking" class="nav-link active" data-scroll-target="#thinking">Thinking</a></li>
+  <li><a href="#a-call-in-the-text" id="toc-a-call-in-the-text" class="nav-link" data-scroll-target="#a-call-in-the-text">A call in the text</a></li>
+  <li><a href="#putting-schemas-in-the-prompt" id="toc-putting-schemas-in-the-prompt" class="nav-link" data-scroll-target="#putting-schemas-in-the-prompt">Putting schemas in the prompt</a></li>
+  <li><a href="#streaming" id="toc-streaming" class="nav-link" data-scroll-target="#streaming">Streaming</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/vedicreader/urai/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="tags.html.md"><i class="bi bi-file-code"></i>Markdown</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">tags</h1>
+</div>
+
+<div>
+  <div class="description">
+    Reading thinking and tool calls out of plain text.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<section id="thinking" class="level2">
+<h2 class="anchored" data-anchor-id="thinking">Thinking</h2>
+<p><code>split_think(text)</code> returns <code>(clean_text, thought)</code>. <code>clean_text</code> is the reply with its leading <code>&lt;think&gt;</code> blocks removed. <a href="https://vedicreader.github.io/urai/core.html#thought"><code>thought</code></a> is the text of those blocks. Several leading blocks are joined with newlines. Only a block at the start of the reply is thinking. A think tag that appears after the answer has started, for example when the answer explains the tag, is answer text and stays in <code>clean_text</code>. The function also handles two damaged forms. If a leading <code>&lt;think&gt;</code> never closes, everything after it counts as thinking. This happens when the reply ran out of tokens in mid-thought. If a <code>&lt;/think&gt;</code> has no opener before it, everything before it counts as thinking. This happens when the chat template already wrote the opening tag into the prompt.</p>
+<div id="625dd9db" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.189946+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.294295+00:00&quot;,&quot;total&quot;:0.10435382000000004}}" data-execution_count="4">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L19" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="split_think" class="level3">
+<h3 class="anchored" data-anchor-id="split_think">split_think</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> split_think(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    text</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Split the leading <code>&lt;think&gt;...&lt;/think&gt;</code> block(s) out of <code>text</code>, returning <code>(clean_text, thought)</code>.</em></p>
+</section>
+</div>
+<div id="5b27a6fd" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>test_eq(split_think(<span class="st">'&lt;think&gt;weighing it&lt;/think&gt;the answer'</span>), (<span class="st">'the answer'</span>, <span class="st">'weighing it'</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>test_eq(split_think(<span class="st">'no tags here'</span>), (<span class="st">'no tags here'</span>, <span class="st">''</span>))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>test_eq(split_think(<span class="st">'</span><span class="ch">\n</span><span class="st"> &lt;think&gt;one&lt;/think&gt;&lt;think&gt;two&lt;/think&gt;mid'</span>), (<span class="st">'mid'</span>, <span class="st">'one</span><span class="ch">\n</span><span class="st">two'</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>test_eq(split_think(<span class="st">'&lt;think&gt;cut off here'</span>), (<span class="st">''</span>, <span class="st">'cut off here'</span>))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>test_eq(split_think(<span class="va">None</span>), (<span class="st">''</span>, <span class="st">''</span>))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>test_eq(split_think(<span class="st">'weighing it&lt;/think&gt;the answer'</span>), (<span class="st">'the answer'</span>, <span class="st">'weighing it'</span>))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># a think tag after the answer has started is answer text</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>test_eq(split_think(<span class="st">'write &lt;think&gt; to open'</span>), (<span class="st">'write &lt;think&gt; to open'</span>, <span class="st">''</span>))</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>test_eq(split_think(<span class="st">'use &lt;think&gt;x&lt;/think&gt; tags'</span>), (<span class="st">'use &lt;think&gt;x&lt;/think&gt; tags'</span>, <span class="st">''</span>))</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>test_eq(split_think(<span class="st">'&lt;think&gt;why&lt;/think&gt;use &lt;think&gt;x&lt;/think&gt;'</span>), (<span class="st">'use &lt;think&gt;x&lt;/think&gt;'</span>, <span class="st">'why'</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="a-call-in-the-text" class="level2">
+<h2 class="anchored" data-anchor-id="a-call-in-the-text">A call in the text</h2>
+<p>The body of a <code>&lt;tool_call&gt;</code> block should be a JSON object with a <code>name</code> and an <code>arguments</code> object. The helpers below turn whatever the model wrote into a tool call dict. The dict has the OpenAI form <code>{'id', 'type': 'function', 'function': {'name', 'arguments'}}</code>. <a href="https://vedicreader.github.io/urai/tags.html#mk_tc"><code>mk_tc</code></a> builds it.</p>
+<p>Small models often write JSON that a strict parser rejects. <code>loose_json(s)</code> tries strict <code>json.loads</code> first. Valid input is never altered. If strict parsing fails, <a href="https://vedicreader.github.io/urai/tags.html#loose_json"><code>loose_json</code></a> uses a tolerant reader. The tolerant reader accepts these mistakes:</p>
+<ul>
+<li>quotes inside a string that were never escaped</li>
+<li>raw newlines inside strings</li>
+<li>single-quoted strings and unquoted keys</li>
+<li>Python <code>True</code>, <code>False</code> and <code>None</code></li>
+<li>trailing commas</li>
+</ul>
+<p><a href="https://vedicreader.github.io/urai/tags.html#loose_json"><code>loose_json</code></a> returns <code>(obj, complete)</code>. <code>complete</code> is <code>False</code> when the text stopped before the object closed. A value that was cut off is left out of <code>obj</code>. A half-written argument is never returned as if it were whole. Input that does not start with <code>{</code> gives <code>(None, False)</code>.</p>
+<div id="177536a1" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.302342+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.305050+00:00&quot;,&quot;total&quot;:0.0027114549999964765}}" data-execution_count="7">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L117" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="loose_json" class="level3">
+<h3 class="anchored" data-anchor-id="loose_json">loose_json</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> loose_json(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    s</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Parse <code>s</code> as a JSON object, tolerating common model mistakes, and return <code>(obj, complete)</code> or <code>(None, False)</code>.</em></p>
+</section>
+</div>
+<div id="1297cb0d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>test_eq(loose_json(<span class="st">'{"a": 1}'</span>), ({<span class="st">'a'</span>: <span class="dv">1</span>}, <span class="va">True</span>))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># an unescaped quote inside a value: the string closes at the CONFIRMED delimiter, not the first one</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>test_eq(loose_json(<span class="st">'{"p": "say "hi" now"}'</span>)[<span class="dv">0</span>], {<span class="st">'p'</span>: <span class="st">'say "hi" now'</span>})</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>test_eq(loose_json(<span class="st">'{"code": "a</span><span class="ch">\n</span><span class="st">b"}'</span>)[<span class="dv">0</span>], {<span class="st">'code'</span>: <span class="st">'a</span><span class="ch">\n</span><span class="st">b'</span>})   <span class="co"># a raw newline in a value</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>test_eq(loose_json(<span class="st">"{'k': True, 'n': None,}"</span>)[<span class="dv">0</span>], {<span class="st">'k'</span>: <span class="va">True</span>, <span class="st">'n'</span>: <span class="va">None</span>})</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>test_eq(loose_json(<span class="st">'{"a": 1, "b": "cut'</span>)[<span class="dv">1</span>], <span class="va">False</span>)            <span class="co"># ran off the end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>A reply can be cut off inside a call. The arguments are lost then, but the tool name usually arrived. <a href="https://vedicreader.github.io/urai/tags.html#salvage_name"><code>salvage_name</code></a> reads that name. The caller can then report which call failed. The function reads only the top level of the object. A <code>name</code> key inside the arguments belongs to the data and not to the call.</p>
+<div id="f6106279" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.306561+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.309026+00:00&quot;,&quot;total&quot;:0.0024672570000063843}}" data-execution_count="9">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L129" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="salvage_name" class="level3">
+<h3 class="anchored" data-anchor-id="salvage_name">salvage_name</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> salvage_name(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    s</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>The top-level tool name from a call that was cut off, or None.</em></p>
+</section>
+</div>
+<div id="0c186688" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.309854+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.312091+00:00&quot;,&quot;total&quot;:0.0022400640000057592}}" data-execution_count="11">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L144" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="mk_tc" class="level3">
+<h3 class="anchored" data-anchor-id="mk_tc">mk_tc</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mk_tc(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    name, args:NoneType<span class="op">=</span><span class="va">None</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>A tool call dict in the OpenAI shape, with a fresh <code>call_</code> id.</em></p>
+</section>
+</div>
+<div id="03a0c606" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>test_eq(salvage_name(<span class="st">'{"name": "edit", "arguments": {"file": "x.py", "new": "def f(:'</span>), <span class="st">'edit'</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>test_eq(salvage_name(<span class="st">'{"arguments": {"name": "buried"</span><span class="sc">}}</span><span class="st">'</span>), <span class="va">None</span>)   <span class="co"># depth 1 only</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>test_eq(salvage_name(<span class="st">'no call here'</span>), <span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="0fc1b806" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.314405+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.317111+00:00&quot;,&quot;total&quot;:0.0027098829999943064}}" data-execution_count="13">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L164" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="mk_tag_tc" class="level3">
+<h3 class="anchored" data-anchor-id="mk_tag_tc">mk_tag_tc</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mk_tag_tc(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    s</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>A tool call dict from the body of a <code>&lt;tool_call&gt;</code> block, marked <code>unread</code> when its arguments were lost, or None.</em></p>
+</section>
+</div>
+<div id="db3dee9b" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.317196+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.319645+00:00&quot;,&quot;total&quot;:0.0024530250000083242}}" data-execution_count="14">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L153" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="tag_args" class="level3">
+<h3 class="anchored" data-anchor-id="tag_args">tag_args</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tag_args(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    d</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>The arguments of a parsed call body, under any of <code>TAG_ARG_KEYS</code>, or None when they cannot be read.</em></p>
+</section>
+</div>
+<div id="b0654d4a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>test_eq(tag_args({<span class="st">'arguments'</span>: {<span class="st">'a'</span>: <span class="dv">1</span>}}), {<span class="st">'a'</span>: <span class="dv">1</span>})</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>test_eq(tag_args({<span class="st">'input'</span>: <span class="st">'{"a": 1}'</span>}), {<span class="st">'a'</span>: <span class="dv">1</span>})     <span class="co"># a JSON string, decoded</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>test_eq(tag_args({<span class="st">'parameters'</span>: {<span class="st">'b'</span>: <span class="dv">2</span>}}), {<span class="st">'b'</span>: <span class="dv">2</span>})</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>test_eq(tag_args({<span class="st">'args'</span>: {<span class="st">'b'</span>: <span class="dv">2</span>}}), {<span class="st">'b'</span>: <span class="dv">2</span>})</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>test_eq(tag_args({<span class="st">'arguments'</span>: <span class="st">'not json'</span>}), <span class="va">None</span>)     <span class="co"># named but unreadable: lost, not empty</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>test_eq(tag_args({<span class="st">'arguments'</span>: <span class="dv">3</span>}), <span class="va">None</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>test_eq(tag_args({}), {})</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>test_eq(tag_args({<span class="st">'name'</span>: <span class="st">'grep'</span>, <span class="st">'pattern'</span>: <span class="st">'x'</span>, <span class="st">'type'</span>: <span class="st">'function'</span>}), {<span class="st">'pattern'</span>: <span class="st">'x'</span>})   <span class="co"># flat, as models drift to</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="8699ae9f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>tc <span class="op">=</span> mk_tag_tc(<span class="st">'{"name": "add", "arguments": {"a": 1</span><span class="sc">}}</span><span class="st">'</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>test_eq(tc[<span class="st">'function'</span>], {<span class="st">'name'</span>: <span class="st">'add'</span>, <span class="st">'arguments'</span>: {<span class="st">'a'</span>: <span class="dv">1</span>}})</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> tc[<span class="st">'id'</span>].startswith(<span class="st">'call_'</span>) <span class="kw">and</span> <span class="st">'unread'</span> <span class="kw">not</span> <span class="kw">in</span> tc</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>test_eq(mk_tag_tc(<span class="st">'{"name": "grep", "pattern": "def"}'</span>)[<span class="st">'function'</span>][<span class="st">'arguments'</span>], {<span class="st">'pattern'</span>: <span class="st">'def'</span>})</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># the outer closing brace is missing and the arguments are complete</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>test_eq(mk_tag_tc(<span class="st">'{"name": "grep", "arguments": {"pattern": "x"}'</span>)[<span class="st">'function'</span>][<span class="st">'arguments'</span>], {<span class="st">'pattern'</span>: <span class="st">'x'</span>})</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># cut inside the arguments: no partial arguments, and the call is marked `unread`</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>test_eq(mk_tag_tc(<span class="st">'{"name": "grep", "arguments": {"pattern": "x", "path": "a'</span>)[<span class="st">'unread'</span>], <span class="va">True</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>test_eq(mk_tag_tc(<span class="st">'{"name": "grep", "arguments": "{oops"}'</span>)[<span class="st">'unread'</span>], <span class="va">True</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>test_eq(mk_tag_tc(<span class="st">'{"arguments": </span><span class="sc">{}</span><span class="st">}'</span>), <span class="va">None</span>)   <span class="co"># a call needs a name</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>test_eq(mk_tag_tc(<span class="st">'not json'</span>), <span class="va">None</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>test_eq(mk_tag_tc(<span class="st">'[1, 2]'</span>), <span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="48391411" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># strict JSON refuses `\w`; the repair keeps the backslash rather than turning `def \w+` into `def w+`</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>test_eq(mk_tag_tc(<span class="vs">r'{"name": "grep", "arguments": {"pattern": "def </span><span class="dv">\w</span><span class="op">+</span><span class="vs">", "sep": "a</span><span class="ch">\/</span><span class="vs">b"}}'</span>)[<span class="st">'function'</span>][<span class="st">'arguments'</span>],</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'pattern'</span>: <span class="vs">r'def </span><span class="dv">\w</span><span class="op">+</span><span class="vs">'</span>, <span class="st">'sep'</span>: <span class="st">'a/b'</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Qwen 3.5 and later chat templates ask the model for calls in an XML form: <code>&lt;function=read&gt;&lt;parameter=path&gt;a.txt&lt;/parameter&gt;&lt;/function&gt;</code>. Claude uses a similar form of its own: <code>&lt;invoke name="read"&gt;&lt;parameter name="path"&gt;...&lt;/parameter&gt;&lt;/invoke&gt;</code>. <a href="https://vedicreader.github.io/urai/tags.html#parse_fn_tags"><code>parse_fn_tags</code></a> reads both.</p>
+<p><a href="https://vedicreader.github.io/urai/tags.html#parse_fn_tags"><code>parse_fn_tags</code></a> decodes a parameter value that spells a JSON number, boolean, <code>null</code>, object or array. Other values stay strings. The one newline that the template puts on each side of a value is removed. Only parameters with a closing <code>&lt;/parameter&gt;</code> are kept. A cut-off call returns its name and the parameters that finished.</p>
+<p><a href="https://vedicreader.github.io/urai/tags.html#parse_tool_tags"><code>parse_tool_tags</code></a> tries this XML form before JSON. It reads a <code>&lt;tool_call&gt;</code> block that contains <code>&lt;function=</code> as XML. Text inside a parameter value is never mistaken for the tool name.</p>
+<div id="3bc25fc8" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.323220+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.326158+00:00&quot;,&quot;total&quot;:0.002942223999994553}}" data-execution_count="16">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L197" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="parse_fn_tags" class="level3">
+<h3 class="anchored" data-anchor-id="parse_fn_tags">parse_fn_tags</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> parse_fn_tags(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    text</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Tool calls written in the <code>&lt;function=name&gt;</code> or <code>&lt;invoke name=...&gt;</code> XML form.</em></p>
+</section>
+</div>
+<div id="4cc24c49" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>tcs <span class="op">=</span> parse_fn_tags(<span class="st">'&lt;tool_call&gt;</span><span class="ch">\n</span><span class="st">&lt;function=read&gt;</span><span class="ch">\n</span><span class="st">&lt;parameter=path&gt;</span><span class="ch">\n</span><span class="st">a.txt</span><span class="ch">\n</span><span class="st">&lt;/parameter&gt;</span><span class="ch">\n</span><span class="st">&lt;/function&gt;</span><span class="ch">\n</span><span class="st">&lt;/tool_call&gt;'</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">len</span>(tcs), <span class="dv">1</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>test_eq(tcs[<span class="dv">0</span>][<span class="st">'function'</span>], {<span class="st">'name'</span>: <span class="st">'read'</span>, <span class="st">'arguments'</span>: {<span class="st">'path'</span>: <span class="st">'a.txt'</span>}})</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># one framing newline per side is removed. The value keeps its indentation.</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>tcs <span class="op">=</span> parse_fn_tags(<span class="st">'&lt;function=edit&gt;</span><span class="ch">\n</span><span class="st">&lt;parameter=old&gt;</span><span class="ch">\n</span><span class="st">    indented</span><span class="ch">\n</span><span class="st">&lt;/parameter&gt;</span><span class="ch">\n</span><span class="st">&lt;/function&gt;'</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>test_eq(tcs[<span class="dv">0</span>][<span class="st">'function'</span>][<span class="st">'arguments'</span>][<span class="st">'old'</span>], <span class="st">'    indented'</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># no closing tag: the name survives, the finished parameters do not run</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>test_eq([(t[<span class="st">'function'</span>][<span class="st">'name'</span>], t.get(<span class="st">'unread'</span>)) <span class="cf">for</span> t <span class="kw">in</span> parse_fn_tags(<span class="st">'&lt;function=edit&gt;</span><span class="ch">\n</span><span class="st">&lt;parameter=old&gt;</span><span class="ch">\n</span><span class="st">x</span><span class="ch">\n</span><span class="st">&lt;/parameter&gt;'</span>)], [(<span class="st">'edit'</span>, <span class="va">True</span>)])</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co"># an unclosed call does not borrow the closing tag of the next one: it is unread, and the next runs on its own arguments</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>txt <span class="op">=</span> <span class="st">'</span><span class="ch">\u003c</span><span class="st">function=a</span><span class="ch">\u003e\n\u003c</span><span class="st">parameter=x</span><span class="ch">\u003e\n</span><span class="st">1</span><span class="ch">\n\u003c</span><span class="st">/parameter</span><span class="ch">\u003e\n\u003c</span><span class="st">function=b</span><span class="ch">\u003e\n\u003c</span><span class="st">parameter=y</span><span class="ch">\u003e\n</span><span class="st">2</span><span class="ch">\n\u003c</span><span class="st">/parameter</span><span class="ch">\u003e\n\u003c</span><span class="st">/function</span><span class="ch">\u003e</span><span class="st">'</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>test_eq([(t[<span class="st">'function'</span>][<span class="st">'name'</span>], t[<span class="st">'function'</span>][<span class="st">'arguments'</span>], t.get(<span class="st">'unread'</span>)) <span class="cf">for</span> t <span class="kw">in</span> parse_fn_tags(txt)], [(<span class="st">'a'</span>, {}, <span class="va">True</span>), (<span class="st">'b'</span>, {<span class="st">'y'</span>: <span class="dv">2</span>}, <span class="va">None</span>)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Some models drop the tags and answer with only the call object. The object is sometimes inside a <code>```json</code> fence. <a href="https://vedicreader.github.io/urai/tags.html#lone_tag_tc"><code>lone_tag_tc</code></a> accepts it only when all of these hold. The object is the entire reply. The object has a <code>name</code> and an arguments field. When you pass <code>names</code>, the name is one of your tools. A reply that describes or quotes JSON fails one of these checks and does not become a call.</p>
+<div id="3626eb7f" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.328463+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.331243+00:00&quot;,&quot;total&quot;:0.0027847260000015694}}" data-execution_count="18">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L220" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="lone_tag_tc" class="level3">
+<h3 class="anchored" data-anchor-id="lone_tag_tc">lone_tag_tc</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> lone_tag_tc(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    text, names:NoneType<span class="op">=</span><span class="va">None</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>A tool call from a reply that is nothing but one untagged call object, or None.</em></p>
+</section>
+</div>
+<div id="ba5f0133" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>test_eq(lone_tag_tc(<span class="st">'{"name": "add", "arguments": {"a": 1</span><span class="sc">}}</span><span class="st">'</span>)[<span class="st">'function'</span>][<span class="st">'name'</span>], <span class="st">'add'</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>test_eq(lone_tag_tc(<span class="st">'```json</span><span class="ch">\n</span><span class="st">{"name": "add", "input": </span><span class="sc">{}</span><span class="st">}</span><span class="ch">\n</span><span class="st">```'</span>)[<span class="st">'function'</span>][<span class="st">'name'</span>], <span class="st">'add'</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>test_eq(lone_tag_tc(<span class="st">'Here is the call: {"name": "add", "arguments": </span><span class="sc">{}</span><span class="st">}'</span>), <span class="va">None</span>)  <span class="co"># not the whole reply</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>test_eq(lone_tag_tc(<span class="st">'{"name": "add"}'</span>), <span class="va">None</span>)                                    <span class="co"># no argument key</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>test_eq(lone_tag_tc(<span class="st">'{"a": 1}'</span>), <span class="va">None</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>test_eq(lone_tag_tc(<span class="st">''</span>), <span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>parse_tool_tags(text, names)</code> is the function that a backend calls on a finished reply. It returns the reply text with the tool blocks removed, and the list of calls. It reads <code>&lt;tool_call&gt;</code> blocks in JSON or XML form. It reads bare <code>&lt;function=...&gt;</code> and <code>&lt;invoke ...&gt;</code> blocks. It reads a final <code>&lt;tool_call&gt;</code> that the model opened and never closed. The bare-object fallback above runs only when no tagged call was found and no block failed.</p>
+<p>A model sometimes writes its own result markup, such as <code>&lt;tool_result&gt;42&lt;/tool_result&gt;</code>. <a href="https://vedicreader.github.io/urai/tags.html#parse_tool_tags"><code>parse_tool_tags</code></a> strips those tags. Their contents stay as ordinary text and never become a call.</p>
+<p>A damaged reply in the <code>&lt;invoke&gt;</code> form can leave <code>&lt;parameter&gt;</code> elements between its calls. When the reply holds an <code>&lt;invoke&gt;</code> or <code>&lt;function=...&gt;</code> call, <a href="https://vedicreader.github.io/urai/tags.html#parse_tool_tags"><code>parse_tool_tags</code></a> strips these stray parameters with their contents. A reply with no such call keeps any <code>&lt;parameter&gt;</code> text that it quotes.</p>
+<p><a href="https://vedicreader.github.io/urai/tags.html#parse_tool_tags_ex"><code>parse_tool_tags_ex</code></a> does the same and returns a third value, <code>failed</code>. <code>failed</code> is <code>True</code> when the reply held a tool block that nothing could read. Use it to tell the model that its call was lost.</p>
+<div id="c2af18c5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.336380+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.338857+00:00&quot;,&quot;total&quot;:0.002481658999997194}}" data-execution_count="20">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L289" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="parse_tool_tags" class="level3">
+<h3 class="anchored" data-anchor-id="parse_tool_tags">parse_tool_tags</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> parse_tool_tags(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    text, names:NoneType<span class="op">=</span><span class="va">None</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Parse tool calls out of <code>text</code>, returning <code>(clean_text, calls)</code>.</em></p>
+</section>
+</div>
+<div id="e3dc2232" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.338961+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.342616+00:00&quot;,&quot;total&quot;:0.0036582360000068093}}" data-execution_count="21">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L261" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="parse_tool_tags_ex" class="level3">
+<h3 class="anchored" data-anchor-id="parse_tool_tags_ex">parse_tool_tags_ex</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> parse_tool_tags_ex(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    text, names:NoneType<span class="op">=</span><span class="va">None</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Parse tool calls out of <code>text</code>, returning <code>(clean_text, calls, failed)</code>, where <code>failed</code> means a block could not be read.</em></p>
+</section>
+</div>
+<div id="a6325170" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.342706+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.345787+00:00&quot;,&quot;total&quot;:0.003085921999996799}}" data-execution_count="22">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L238" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="tool_blocks" class="level3">
+<h3 class="anchored" data-anchor-id="tool_blocks">tool_blocks</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tool_blocks(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    text</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>The <code>(start, end, body)</code> of each closed call block in <code>text</code>. A JSON body is read whole, so a closing tag quoted inside a string does not end the block.</em></p>
+</section>
+</div>
+<div id="53a12d7a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Claude's own form: `&lt;invoke name=...&gt;` with named `&lt;parameter&gt;` elements</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>inv <span class="op">=</span> <span class="st">'Reading both.</span><span class="ch">\n\n</span><span class="st">&lt;tool_call&gt;</span><span class="ch">\n</span><span class="st">&lt;invoke name="view_file"&gt;</span><span class="ch">\n</span><span class="st">&lt;parameter name="path"&gt;/a/CLAUDE.md&lt;/parameter&gt;</span><span class="ch">\n</span><span class="st">&lt;/invoke&gt;</span><span class="ch">\n</span><span class="st">&lt;/tool_call&gt;</span><span class="ch">\n</span><span class="st">&lt;tool_call&gt;</span><span class="ch">\n</span><span class="st">&lt;invoke name="view_file"&gt;</span><span class="ch">\n</span><span class="st">&lt;parameter name="path"&gt;/a/notes.md&lt;/parameter&gt;</span><span class="ch">\n</span><span class="st">&lt;/invoke&gt;</span><span class="ch">\n</span><span class="st">&lt;/tool_call&gt;'</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>txt, tcs, failed <span class="op">=</span> parse_tool_tags_ex(inv)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>test_eq((txt, [tc[<span class="st">'function'</span>][<span class="st">'arguments'</span>][<span class="st">'path'</span>] <span class="cf">for</span> tc <span class="kw">in</span> tcs], failed), (<span class="st">'Reading both.'</span>, [<span class="st">'/a/CLAUDE.md'</span>, <span class="st">'/a/notes.md'</span>], <span class="va">False</span>))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>bare <span class="op">=</span> <span class="st">'Looking.</span><span class="ch">\n</span><span class="st">&lt;function_calls&gt;</span><span class="ch">\n</span><span class="st">&lt;invoke name="grep"&gt;</span><span class="ch">\n</span><span class="st">&lt;parameter name="pattern"&gt;x&lt;/parameter&gt;</span><span class="ch">\n</span><span class="st">&lt;parameter name="regex"&gt;false&lt;/parameter&gt;</span><span class="ch">\n</span><span class="st">&lt;/invoke&gt;</span><span class="ch">\n</span><span class="st">&lt;/function_calls&gt;'</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>txt, tcs <span class="op">=</span> parse_tool_tags(bare)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>test_eq((txt, tcs[<span class="dv">0</span>][<span class="st">'function'</span>]), (<span class="st">'Looking.'</span>, {<span class="st">'name'</span>: <span class="st">'grep'</span>, <span class="st">'arguments'</span>: {<span class="st">'pattern'</span>: <span class="st">'x'</span>, <span class="st">'regex'</span>: <span class="va">False</span>}}))</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="co"># a damaged reply leaves `&lt;parameter&gt;` elements outside any call. They are markup, not prose.</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>inv1 <span class="op">=</span> <span class="st">'&lt;invoke name="ls"&gt;</span><span class="ch">\n</span><span class="st">&lt;parameter name="path"&gt;/a&lt;/parameter&gt;</span><span class="ch">\n</span><span class="st">&lt;/invoke&gt;</span><span class="ch">\n</span><span class="st">'</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>stray <span class="op">=</span> <span class="st">'Listing it.</span><span class="ch">\n</span><span class="st">'</span> <span class="op">+</span> inv1 <span class="op">+</span> <span class="st">'&lt;parameter name="1"&gt;</span><span class="ch">\n</span><span class="st">&lt;/parameter&gt;</span><span class="ch">\n</span><span class="st">'</span> <span class="op">+</span> inv1 <span class="op">+</span> <span class="st">'&lt;parameter name="c2"&gt;</span><span class="ch">\n</span><span class="st">&lt;parameter name="path"&gt;/b&lt;/parameter&gt;</span><span class="ch">\n</span><span class="st">&lt;/parameter&gt;'</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>txt, tcs <span class="op">=</span> parse_tool_tags(stray)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>test_eq((txt.strip(), <span class="bu">len</span>(tcs)), (<span class="st">'Listing it.'</span>, <span class="dv">2</span>))</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>test_eq(parse_tool_tags(<span class="st">'Write &lt;parameter name="x"&gt;v&lt;/parameter&gt; in the template.'</span>)[<span class="dv">0</span>], <span class="st">'Write &lt;parameter name="x"&gt;v&lt;/parameter&gt; in the template.'</span>)</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>mangled <span class="op">=</span> <span class="st">'Reading it.</span><span class="ch">\n</span><span class="st">&lt;tool_call&gt;{"name": "read", "arguments": {"path": "a"b.txt"</span><span class="sc">}}</span><span class="st">&lt;/tool_call&gt;'</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>txt, tcs <span class="op">=</span> parse_tool_tags(mangled)</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>test_eq((txt, tcs[<span class="dv">0</span>][<span class="st">'function'</span>]), (<span class="st">'Reading it.'</span>, {<span class="st">'name'</span>: <span class="st">'read'</span>, <span class="st">'arguments'</span>: {<span class="st">'path'</span>: <span class="st">'a"b.txt'</span>}}))</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>cut <span class="op">=</span> <span class="st">'&lt;tool_call&gt;{"name": "edit", "arguments": {"file": "x.py", "new": "def f(:'</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>_, tcs <span class="op">=</span> parse_tool_tags(cut)</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>test_eq(tcs[<span class="dv">0</span>][<span class="st">'function'</span>], {<span class="st">'name'</span>: <span class="st">'edit'</span>, <span class="st">'arguments'</span>: {}})   <span class="co"># the name without the half-written value</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>xml <span class="op">=</span> <span class="st">'&lt;tool_call&gt;</span><span class="ch">\n</span><span class="st">&lt;function=read&gt;</span><span class="ch">\n</span><span class="st">&lt;parameter=path&gt;</span><span class="ch">\n</span><span class="st">a.txt</span><span class="ch">\n</span><span class="st">&lt;/parameter&gt;</span><span class="ch">\n</span><span class="st">&lt;/function&gt;</span><span class="ch">\n</span><span class="st">&lt;/tool_call&gt;'</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>test_eq(parse_tool_tags(xml)[<span class="dv">1</span>][<span class="dv">0</span>][<span class="st">'function'</span>], {<span class="st">'name'</span>: <span class="st">'read'</span>, <span class="st">'arguments'</span>: {<span class="st">'path'</span>: <span class="st">'a.txt'</span>}})</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>strargs <span class="op">=</span> <span class="st">'&lt;tool_call&gt;{"name":"read","arguments":"{path: a.txt}"}&lt;/tool_call&gt;'</span></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>test_eq(parse_tool_tags(strargs)[<span class="dv">1</span>][<span class="dv">0</span>][<span class="st">'function'</span>][<span class="st">'arguments'</span>], {<span class="st">'path'</span>: <span class="st">'a.txt'</span>})</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a><span class="co"># a block that nothing can read sets `failed`</span></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>_, tcs, failed <span class="op">=</span> parse_tool_tags_ex(<span class="st">'&lt;tool_call&gt;{"totally": "unreadable"&lt;/tool_call&gt;'</span>)</span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>test_eq((tcs, failed), ([], <span class="va">True</span>))</span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>mixed <span class="op">=</span> xml <span class="op">+</span> <span class="st">'&lt;tool_call&gt;{"name": "ls", "arguments": </span><span class="sc">{}</span><span class="st">}&lt;/tool_call&gt;'</span></span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>test_eq([tc[<span class="st">'function'</span>][<span class="st">'name'</span>] <span class="cf">for</span> tc <span class="kw">in</span> parse_tool_tags(mixed)[<span class="dv">1</span>]], [<span class="st">'read'</span>, <span class="st">'ls'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="7e38b0b4" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>txt, tcs <span class="op">=</span> parse_tool_tags(<span class="st">'Let me look.</span><span class="ch">\n</span><span class="st">&lt;tool_call&gt;{"name": "ls", "arguments": </span><span class="sc">{}</span><span class="st">}&lt;/tool_call&gt;'</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>test_eq(txt, <span class="st">'Let me look.'</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>test_eq([t[<span class="st">'function'</span>][<span class="st">'name'</span>] <span class="cf">for</span> t <span class="kw">in</span> tcs], [<span class="st">'ls'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="a13cfc17" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>test_eq(parse_tool_tags(<span class="st">'just prose'</span>), (<span class="st">'just prose'</span>, []))</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>txt, tcs <span class="op">=</span> parse_tool_tags(<span class="st">'&lt;tool_call&gt;{"name":"a","arguments":</span><span class="sc">{}</span><span class="st">}&lt;/tool_call&gt;'</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                           <span class="st">'&lt;tool_call&gt;{"name":"b","arguments":</span><span class="sc">{}</span><span class="st">}&lt;/tool_call&gt;'</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>test_eq([t[<span class="st">'function'</span>][<span class="st">'name'</span>] <span class="cf">for</span> t <span class="kw">in</span> tcs], [<span class="st">'a'</span>, <span class="st">'b'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="74730959" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># invented result tags are removed. The text stays and no call is reported.</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>test_eq(parse_tool_tags(<span class="st">'done &lt;tool_result&gt;42&lt;/tool_result&gt;'</span>), (<span class="st">'done 42'</span>, []))</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>test_eq(parse_tool_tags(<span class="st">'{"name": "add", "arguments": {"a": 1</span><span class="sc">}}</span><span class="st">'</span>)[<span class="dv">1</span>][<span class="dv">0</span>][<span class="st">'function'</span>][<span class="st">'name'</span>], <span class="st">'add'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>A JSON call is read as JSON. When one of its string arguments quotes the XML form, for example a model writing a note about the <code>&lt;function=...&gt;</code> syntax, the quoted text is argument text. It neither invents a second call nor replaces the real one.</p>
+<div id="fc74c33f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>xml_note <span class="op">=</span> <span class="st">'Syntax: &lt;function=read&gt;&lt;parameter=path&gt;a.txt&lt;/parameter&gt;&lt;/function&gt;'</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>note_call <span class="op">=</span> <span class="st">'&lt;tool_call&gt;'</span> <span class="op">+</span> json.dumps({<span class="st">'name'</span>: <span class="st">'write'</span>, <span class="st">'arguments'</span>: {<span class="st">'text'</span>: xml_note}}) <span class="op">+</span> <span class="st">'&lt;/tool_call&gt;'</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>_, tcs <span class="op">=</span> parse_tool_tags(<span class="st">'Saving the note.</span><span class="ch">\n</span><span class="st">'</span> <span class="op">+</span> note_call)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>test_eq([(tc[<span class="st">'function'</span>][<span class="st">'name'</span>], tc[<span class="st">'function'</span>][<span class="st">'arguments'</span>]) <span class="cf">for</span> tc <span class="kw">in</span> tcs], [(<span class="st">'write'</span>, {<span class="st">'text'</span>: xml_note})])</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>L, R <span class="op">=</span> <span class="bu">chr</span>(<span class="dv">60</span>), <span class="bu">chr</span>(<span class="dv">62</span>)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>TC, TCE <span class="op">=</span> L <span class="op">+</span> <span class="st">'tool_call'</span> <span class="op">+</span> R, L <span class="op">+</span> <span class="st">'/tool_call'</span> <span class="op">+</span> R</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>FN <span class="op">=</span> L <span class="op">+</span> <span class="st">'function=evil'</span> <span class="op">+</span> R <span class="op">+</span> L <span class="op">+</span> <span class="st">'/function'</span> <span class="op">+</span> R</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>THE <span class="op">=</span> L <span class="op">+</span> <span class="st">'/think'</span> <span class="op">+</span> R</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>b1 <span class="op">=</span> TC <span class="op">+</span> json.dumps({<span class="st">'arguments'</span>: {<span class="st">'text'</span>: FN}}) <span class="op">+</span> TCE</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>b2 <span class="op">=</span> TC <span class="op">+</span> json.dumps({<span class="st">'name'</span>: <span class="st">'a'</span>, <span class="st">'arguments'</span>: {}}) <span class="op">+</span> TCE <span class="op">+</span> <span class="st">' '</span> <span class="op">+</span> L <span class="op">+</span> <span class="st">'function=b'</span> <span class="op">+</span> R <span class="op">+</span> L <span class="op">+</span> <span class="st">'/function'</span> <span class="op">+</span> R</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>b3 <span class="op">=</span> TC <span class="op">+</span> json.dumps({<span class="st">'name'</span>: <span class="st">'edit'</span>, <span class="st">'arguments'</span>: {<span class="st">'text'</span>: <span class="st">'x '</span> <span class="op">+</span> THE <span class="op">+</span> <span class="st">' y'</span>}}) <span class="op">+</span> TCE</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>test_eq(parse_tool_tags_ex(b1)[<span class="dv">1</span>:], ([], <span class="va">True</span>))</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>test_eq([tc[<span class="st">'function'</span>][<span class="st">'name'</span>] <span class="cf">for</span> tc <span class="kw">in</span> parse_tool_tags_ex(b2)[<span class="dv">1</span>]], [<span class="st">'a'</span>, <span class="st">'b'</span>])</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>test_eq([(tc[<span class="st">'function'</span>][<span class="st">'name'</span>], tc[<span class="st">'function'</span>][<span class="st">'arguments'</span>]) <span class="cf">for</span> tc <span class="kw">in</span> parse_tool_tags_ex(split_think(b3)[<span class="dv">0</span>])[<span class="dv">1</span>]], [(<span class="st">'edit'</span>, {<span class="st">'text'</span>: <span class="st">'x '</span> <span class="op">+</span> THE <span class="op">+</span> <span class="st">' y'</span>})])</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>parse_tool_tags_ex(b2)[<span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>A weak model sometimes narrates a call (“I will now call <code>{"name": "add", ...}</code>”) and produces no call that the parser accepts. <code>tag_call_shape(text, names)</code> returns <code>True</code> when the text still looks like a call after parsing. The text looks like a call when it contains a <code>&lt;tool_call</code> tag. It also looks like a call when it contains a <code>"name"</code> that names a tool, together with an arguments key. Pass <code>names</code> to count only tools that exist. Use the function to spot a model that does not follow the protocol.</p>
+<div id="c7643511" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.348875+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.351464+00:00&quot;,&quot;total&quot;:0.002591984999995134}}" data-execution_count="24">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L294" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="tag_call_shape" class="level3">
+<h3 class="anchored" data-anchor-id="tag_call_shape">tag_call_shape</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tag_call_shape(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    text, names:NoneType<span class="op">=</span><span class="va">None</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>True when <code>text</code> still looks like a tool call, optionally only for tools in <code>names</code>.</em></p>
+</section>
+</div>
+<div id="5dcb95b0" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>test_eq(tag_call_shape(<span class="st">'I would call &lt;tool_call&gt; here'</span>), <span class="va">True</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>test_eq(tag_call_shape(<span class="st">'maybe {"name": "add", "arguments": </span><span class="sc">{}</span><span class="st">}'</span>, [<span class="st">'add'</span>]), <span class="va">True</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>test_eq(tag_call_shape(<span class="st">'maybe {"name": "add", "arguments": </span><span class="sc">{}</span><span class="st">}'</span>, [<span class="st">'other'</span>]), <span class="va">False</span>)  <span class="co"># no such tool</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>test_eq(tag_call_shape(<span class="st">'plain prose'</span>), <span class="va">False</span>)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>test_eq(tag_call_shape(<span class="st">'{"name": "add"}'</span>), <span class="va">False</span>)   <span class="co"># no argument key, so not call-shaped</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="putting-schemas-in-the-prompt" class="level2">
+<h2 class="anchored" data-anchor-id="putting-schemas-in-the-prompt">Putting schemas in the prompt</h2>
+<p><code>tag_tools_sp(toolspecs, sp)</code> appends a tool section to the system prompt <code>sp</code>. The section lists the JSON schema of each tool inside <code>&lt;tools&gt;&lt;/tools&gt;</code>. It shows the <code>&lt;tool_call&gt;</code> format. It tells the model to send independent calls together, to stop after its last call, and to never make up a result. Results come back in the next message under a <code>## Tool result (name)</code> heading. With no tools, the function returns <code>sp</code> unchanged. Pass <code>template</code> to use different wording. The template must contain a <code>{tools}</code> placeholder. Write any other literal brace as <code>{{</code> or <code>}}</code>.</p>
+<div id="716e738b" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.352665+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.354792+00:00&quot;,&quot;total&quot;:0.0021302580000082116}}" data-execution_count="26">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L334" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="tag_tools_sp" class="level3">
+<h3 class="anchored" data-anchor-id="tag_tools_sp">tag_tools_sp</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tag_tools_sp(</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    toolspecs, sp:<span class="bu">str</span><span class="op">=</span><span class="st">''</span>,</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    template:<span class="bu">str</span><span class="op">=</span><span class="st">'</span><span class="ch">\n\n</span><span class="st"># Tools</span><span class="ch">\n\n</span><span class="st">You can call the functions below. Their signatures are given as JSON schemas inside &lt;tools&gt;&lt;/tools&gt;:</span><span class="ch">\n\n</span><span class="st">&lt;tools&gt;</span><span class="ch">\n</span><span class="sc">{tools}</span><span class="ch">\n</span><span class="st">&lt;/tools&gt;</span><span class="ch">\n\n</span><span class="st">To call one, emit a JSON object with the function</span><span class="ch">\'</span><span class="st">s name and its arguments inside &lt;tool_call&gt;&lt;/tool_call&gt;:</span><span class="ch">\n\n</span><span class="st">&lt;tool_call&gt;</span><span class="ch">\n</span><span class="sc">{{</span><span class="st">"name": "the_function_name", "arguments": </span><span class="sc">{{</span><span class="st">"first": "value"</span><span class="sc">}}}}</span><span class="ch">\n</span><span class="st">&lt;/tool_call&gt;</span><span class="ch">\n\n</span><span class="st">Calls that do not depend on each other</span><span class="ch">\'</span><span class="st">s results -- reading several files, running several searches -- go together in one message, each in its own &lt;tool_call&gt; block, one after another. A call that needs an earlier result waits for it.</span><span class="ch">\n\n</span><span class="st">After the last &lt;/tool_call&gt;, end your reply and wait. Nothing may follow it in the same message: not a comment, and not a guess at what a result will be.</span><span class="ch">\n\n</span><span class="st">Do not describe a call in prose as well as emitting it, and never invent a result -- the real ones come back in the next message, each under a "## Tool result (name)" heading. That heading is the only form a result ever takes: do not write result markup of your own, do not wrap a result in tags, and do not copy a result back into your reply. Say what you concluded from it, not what it said.'</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Append the tool schemas and the <code>&lt;tool_call&gt;</code> instructions to the system prompt <code>sp</code>.</em></p>
+</section>
+</div>
+<div id="21ff88f9" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>spec <span class="op">=</span> {<span class="st">'type'</span>: <span class="st">'function'</span>, <span class="st">'function'</span>: {<span class="st">'name'</span>: <span class="st">'add'</span>, <span class="st">'parameters'</span>: {}}}</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> tag_tools_sp([spec], <span class="st">'Be brief.'</span>)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> out.startswith(<span class="st">'Be brief.'</span>) <span class="kw">and</span> <span class="st">'"name": "add"'</span> <span class="kw">in</span> out <span class="kw">and</span> <span class="st">'&lt;tool_call&gt;'</span> <span class="kw">in</span> out</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>test_eq(tag_tools_sp([], <span class="st">'Be brief.'</span>), <span class="st">'Be brief.'</span>)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'one at a time'</span> <span class="kw">not</span> <span class="kw">in</span> out <span class="kw">and</span> <span class="st">'each in its own &lt;tool_call&gt; block'</span> <span class="kw">in</span> out   <span class="co"># independent calls share a message</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>two <span class="op">=</span> <span class="st">'Reading both.</span><span class="ch">\n</span><span class="st">&lt;tool_call&gt;{"name": "read", "arguments": {"path": "a.py"</span><span class="sc">}}</span><span class="st">&lt;/tool_call&gt;</span><span class="ch">\n</span><span class="st">&lt;tool_call&gt;{"name": "read", "arguments": {"path": "b.py"</span><span class="sc">}}</span><span class="st">&lt;/tool_call&gt;'</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>txt, tcs <span class="op">=</span> parse_tool_tags(two)</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>test_eq((txt, [tc[<span class="st">'function'</span>][<span class="st">'arguments'</span>][<span class="st">'path'</span>] <span class="cf">for</span> tc <span class="kw">in</span> tcs]), (<span class="st">'Reading both.'</span>, [<span class="st">'a.py'</span>, <span class="st">'b.py'</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="streaming" class="level2">
+<h2 class="anchored" data-anchor-id="streaming">Streaming</h2>
+<p>A tag can be split across two deltas of a streamed reply. A delta is one piece of streamed text. For example, one delta ends in <code>&lt;thi</code> and the next starts with <code>nk&gt;</code>. <a href="https://vedicreader.github.io/urai/tags.html#streamsplit"><code>StreamSplit</code></a> holds back the end of its buffer when that end could be the start of a tag. It decides when more text arrives.</p>
+<p>Call <code>feed(delta)</code> with each piece of text and call <code>finish()</code> at the end. Both yield chunk dicts. Thinking comes out as <code>{'channels': {'thought': ...}}</code> chunks. Answer text comes out as <code>{'content': [...]}</code> chunks. The raw JSON or XML of a tool call is never passed through as text. <a href="https://vedicreader.github.io/urai/tags.html#streamsplit"><code>StreamSplit</code></a> buffers it until the block closes. It then parses the block with <a href="https://vedicreader.github.io/urai/tags.html#parse_fn_tags"><code>parse_fn_tags</code></a> and <a href="https://vedicreader.github.io/urai/tags.html#mk_tag_tc"><code>mk_tag_tc</code></a>, which <a href="https://vedicreader.github.io/urai/tags.html#parse_tool_tags"><code>parse_tool_tags</code></a> also uses, and collects the result in <code>tool_calls</code>. The stream path does not apply the <a href="https://vedicreader.github.io/urai/tags.html#lone_tag_tc"><code>lone_tag_tc</code></a> fallback. After the stream ends, <code>text</code>, <a href="https://vedicreader.github.io/urai/core.html#thought"><code>thought</code></a> and <code>tool_calls</code> hold the whole reply. <code>failed</code> is <code>True</code> if a tool block could not be read.</p>
+<p>The hand-written cases on this page cannot cover everything that real models write. To collect real examples, set the environment variable <code>URAI_RAW_DUMP</code> to a file path. A <a href="https://vedicreader.github.io/urai/tags.html#streamsplit"><code>StreamSplit</code></a> then keeps the raw text it was fed. The tool loop appends each such reply from a chat with tools to that file. Each reply is one JSON line that holds the tool schemas and the raw reply. <code>tests/test_tool_traffic.py</code> replays captured replies through the parser. <code>tests/harvest_tool_traffic.py</code> merges a capture file into the replay corpus. <a href="https://vedicreader.github.io/urai/tags.html#raw_dump"><code>RAW_DUMP()</code></a> returns the path and reads the variable on each call. <a href="https://vedicreader.github.io/urai/tags.html#dump_raw"><code>dump_raw</code></a> appends one record. When the variable is unset, each reply costs one environment lookup.</p>
+<div id="ce0684b8" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.356112+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.358232+00:00&quot;,&quot;total&quot;:0.0021224460000013323}}" data-execution_count="28">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L345" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="dump_raw" class="level3">
+<h3 class="anchored" data-anchor-id="dump_raw">dump_raw</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dump_raw(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    toolspecs, raw, path:NoneType<span class="op">=</span><span class="va">None</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Append the tool schemas and one raw reply to the capture file as a JSON line.</em></p>
+</section>
+</div>
+<div id="eb34fcd1" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.358301+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.360301+00:00&quot;,&quot;total&quot;:0.00200314600000695}}" data-execution_count="29">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L341" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="raw_dump" class="level3">
+<h3 class="anchored" data-anchor-id="raw_dump">RAW_DUMP</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> RAW_DUMP():</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>The capture file path from <code>$URAI_RAW_DUMP</code>, or None.</em></p>
+</section>
+</div>
+<div id="1c27c61f" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.430624+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.434047+00:00&quot;,&quot;total&quot;:0.003426566000001685}}" data-execution_count="31">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L357" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="streamsplit" class="level3">
+<h3 class="anchored" data-anchor-id="streamsplit">StreamSplit</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> StreamSplit(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    keep_raw:NoneType<span class="op">=</span><span class="va">None</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Split a streamed reply into thinking chunks, text chunks and parsed tool calls.</em></p>
+</section>
+</div>
+<div id="e148136c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _run(deltas):</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Feed `deltas` through a fresh splitter and return it with the chunks it produced."</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> StreamSplit()</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    chunks <span class="op">=</span> [c <span class="cf">for</span> d <span class="kw">in</span> deltas <span class="cf">for</span> c <span class="kw">in</span> s.feed(d)] <span class="op">+</span> <span class="bu">list</span>(s.finish())</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> s, chunks</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>s, _ <span class="op">=</span> _run([<span class="st">'&lt;think&gt;'</span>, <span class="st">'wei'</span>, <span class="st">'ghing it'</span>, <span class="st">'&lt;/think&gt;'</span>, <span class="st">'the '</span>, <span class="st">'answer'</span>])</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>test_eq((s.thought, s.text), (<span class="st">'weighing it'</span>, <span class="st">'the answer'</span>))</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>ordered, _ <span class="op">=</span> _run([b2[i:i<span class="op">+</span><span class="dv">3</span>] <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(b2), <span class="dv">3</span>)])</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>test_eq([tc[<span class="st">'function'</span>][<span class="st">'name'</span>] <span class="cf">for</span> tc <span class="kw">in</span> ordered.tool_calls], [<span class="st">'a'</span>, <span class="st">'b'</span>])</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>ordered.tool_calls</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="6463e0b5" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>s, _ <span class="op">=</span> _run([<span class="st">'&lt;thi'</span>, <span class="st">'nk&gt;deep&lt;/th'</span>, <span class="st">'ink&gt;done'</span>])</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>test_eq((s.thought, s.text), (<span class="st">'deep'</span>, <span class="st">'done'</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="5da6ef7c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>unclosed <span class="op">=</span> <span class="st">'</span><span class="ch">\u003c</span><span class="st">function=a</span><span class="ch">\u003e\n\u003c</span><span class="st">parameter=x</span><span class="ch">\u003e\n</span><span class="st">1</span><span class="ch">\n\u003c</span><span class="st">/parameter</span><span class="ch">\u003e\n\u003c</span><span class="st">function=b</span><span class="ch">\u003e\n\u003c</span><span class="st">parameter=y</span><span class="ch">\u003e\n</span><span class="st">2</span><span class="ch">\n\u003c</span><span class="st">/parameter</span><span class="ch">\u003e\n\u003c</span><span class="st">/function</span><span class="ch">\u003e</span><span class="st">'</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>s, _ <span class="op">=</span> _run([unclosed[:<span class="dv">20</span>], unclosed[<span class="dv">20</span>:]])   <span class="co"># an unclosed call followed by a complete one reads as it does in `parse_fn_tags`</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>test_eq([(t[<span class="st">'function'</span>][<span class="st">'name'</span>], t[<span class="st">'function'</span>][<span class="st">'arguments'</span>], t.get(<span class="st">'unread'</span>)) <span class="cf">for</span> t <span class="kw">in</span> s.tool_calls], [(<span class="st">'a'</span>, {}, <span class="va">True</span>), (<span class="st">'b'</span>, {<span class="st">'y'</span>: <span class="dv">2</span>}, <span class="va">None</span>)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="53be5518" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>s, _ <span class="op">=</span> _run([<span class="st">'Looking.&lt;tool_call&gt;{"name": "ls", '</span>, <span class="st">'"arguments": </span><span class="sc">{}</span><span class="st">}&lt;/tool_call&gt;'</span>])</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>test_eq(s.text, <span class="st">'Looking.'</span>)                       <span class="co"># the JSON never reaches the caller as text</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>test_eq([t[<span class="st">'function'</span>][<span class="st">'name'</span>] <span class="cf">for</span> t <span class="kw">in</span> s.tool_calls], [<span class="st">'ls'</span>])</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>quoted <span class="op">=</span> {<span class="st">'text'</span>: <span class="st">'a &lt;/tool_call&gt; "b" &lt;/tool_call&gt; c'</span>}     <span class="co"># a closing tag inside a JSON string does not end the call</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>sq, _ <span class="op">=</span> _run(<span class="bu">list</span>(<span class="st">'go&lt;tool_call&gt;'</span> <span class="op">+</span> json.dumps({<span class="st">'name'</span>: <span class="st">'write'</span>, <span class="st">'arguments'</span>: quoted}) <span class="op">+</span> <span class="st">'&lt;/tool_call&gt;'</span>))   <span class="co"># one character per delta</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>test_eq(([tc[<span class="st">'function'</span>][<span class="st">'arguments'</span>] <span class="cf">for</span> tc <span class="kw">in</span> sq.tool_calls], sq.text, sq.failed), ([quoted], <span class="st">'go'</span>, <span class="va">False</span>))</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>sp, _ <span class="op">=</span> _run([inv[i:i<span class="op">+</span><span class="dv">7</span>] <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(inv), <span class="dv">7</span>)])   <span class="co"># Claude's dialect, cut mid-tag</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>test_eq(([tc[<span class="st">'function'</span>][<span class="st">'arguments'</span>][<span class="st">'path'</span>] <span class="cf">for</span> tc <span class="kw">in</span> sp.tool_calls], sp.text.strip(), sp.failed), ([<span class="st">'/a/CLAUDE.md'</span>, <span class="st">'/a/notes.md'</span>], <span class="st">'Reading both.'</span>, <span class="va">False</span>))</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>sp, _ <span class="op">=</span> _run([bare[i:i<span class="op">+</span><span class="dv">5</span>] <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(bare), <span class="dv">5</span>)])</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>test_eq(([tc[<span class="st">'function'</span>][<span class="st">'name'</span>] <span class="cf">for</span> tc <span class="kw">in</span> sp.tool_calls], sp.text.strip()), ([<span class="st">'grep'</span>], <span class="st">'Looking.'</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="4de65b78" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>s, _ <span class="op">=</span> _run([<span class="st">'&lt;think&gt;cut off mid-thought'</span>])       <span class="co"># unterminated: flushed by `finish`</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>test_eq((s.thought, s.text), (<span class="st">'cut off mid-thought'</span>, <span class="st">''</span>))</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>s, _ <span class="op">=</span> _run([<span class="st">'&lt;tool_call&gt;{"name": "ls", "arguments": </span><span class="sc">{}</span><span class="st">}'</span>])   <span class="co"># unclosed, but parseable</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>test_eq([t[<span class="st">'function'</span>][<span class="st">'name'</span>] <span class="cf">for</span> t <span class="kw">in</span> s.tool_calls], [<span class="st">'ls'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="2635d5be" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>_, chunks <span class="op">=</span> _run([<span class="st">'&lt;think&gt;why&lt;/think&gt;because'</span>])</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>test_eq(chunks, [{<span class="st">'channels'</span>: {<span class="st">'thought'</span>: <span class="st">'why'</span>}},</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>                 {<span class="st">'content'</span>: [{<span class="st">'type'</span>: <span class="st">'text'</span>, <span class="st">'text'</span>: <span class="st">'because'</span>}]}])</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>test_eq(_run([<span class="st">'plain text'</span>])[<span class="dv">0</span>].text, <span class="st">'plain text'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The stream follows the same two rules as the finished-reply parsers. A think tag opens thinking only before any answer text, and a JSON call is read as JSON even when an argument quotes the XML form. Either way the stream result equals the one that <a href="https://vedicreader.github.io/urai/tags.html#split_think"><code>split_think</code></a> and <a href="https://vedicreader.github.io/urai/tags.html#parse_tool_tags"><code>parse_tool_tags</code></a> give for the whole reply.</p>
+<div id="356fc429" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>note <span class="op">=</span> <span class="st">'Write &lt;think&gt; to open and &lt;/think&gt; to close.'</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>s, _ <span class="op">=</span> _run([note[i:i<span class="op">+</span><span class="dv">3</span>] <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(note), <span class="dv">3</span>)])</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>test_eq((s.text, s.thought), split_think(note))</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>s, _ <span class="op">=</span> _run([note_call[i:i<span class="op">+</span><span class="dv">4</span>] <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(note_call), <span class="dv">4</span>)])</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>test_eq([(tc[<span class="st">'function'</span>][<span class="st">'name'</span>], tc[<span class="st">'function'</span>][<span class="st">'arguments'</span>]) <span class="cf">for</span> tc <span class="kw">in</span> s.tool_calls], [(<span class="st">'write'</span>, {<span class="st">'text'</span>: xml_note})])</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>s.tool_calls[<span class="dv">0</span>][<span class="st">'function'</span>][<span class="st">'arguments'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Hosted APIs that support tools natively also stream them in pieces. OpenAI sends each tool call as a series of fragments. Each fragment has the <code>index</code> of its call. The first fragment holds the id and the name. Later fragments hold more of the arguments string. <code>acc_tc(acc, deltas)</code> adds the fragments of one delta to <code>acc</code>. After the last delta, <code>acc</code> holds one complete call for each index. The arguments stay a JSON string. The caller decodes it.</p>
+<div id="4d92ca19" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-24T19:55:19.437574+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-24T19:55:19.440573+00:00&quot;,&quot;total&quot;:0.0030022150000093006}}" data-execution_count="33">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/tags.py#L459" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="acc_tc" class="level3">
+<h3 class="anchored" data-anchor-id="acc_tc">acc_tc</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> acc_tc(</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    acc, deltas</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Add streamed OpenAI <code>tool_calls</code> fragments to <code>acc</code>, one entry per call index.</em></p>
+</section>
+</div>
+<div id="f4784d7e" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>acc <span class="op">=</span> []</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>acc_tc(acc, [{<span class="st">'index'</span>: <span class="dv">0</span>, <span class="st">'id'</span>: <span class="st">'c1'</span>, <span class="st">'function'</span>: {<span class="st">'name'</span>: <span class="st">'ad'</span>}}])</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>acc_tc(acc, [{<span class="st">'index'</span>: <span class="dv">0</span>, <span class="st">'function'</span>: {<span class="st">'name'</span>: <span class="st">'d'</span>, <span class="st">'arguments'</span>: <span class="st">'{"a":'</span>}}])</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>acc_tc(acc, [{<span class="st">'index'</span>: <span class="dv">0</span>, <span class="st">'function'</span>: {<span class="st">'arguments'</span>: <span class="st">' 1}'</span>}}])</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>test_eq(acc, [{<span class="st">'id'</span>: <span class="st">'c1'</span>, <span class="st">'type'</span>: <span class="st">'function'</span>, <span class="st">'function'</span>: {<span class="st">'name'</span>: <span class="st">'add'</span>, <span class="st">'arguments'</span>: <span class="st">'{"a": 1}'</span>}}])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="5787de4a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>acc <span class="op">=</span> []</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>acc_tc(acc, [{<span class="st">'index'</span>: <span class="dv">1</span>, <span class="st">'id'</span>: <span class="st">'c2'</span>, <span class="st">'function'</span>: {<span class="st">'name'</span>: <span class="st">'b'</span>}}])   <span class="co"># index 1 arrives first</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">len</span>(acc), <span class="dv">2</span>)</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>test_eq(acc[<span class="dv">0</span>][<span class="st">'function'</span>][<span class="st">'name'</span>], <span class="st">''</span>)       <span class="co"># index 0 is a placeholder until it arrives</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>test_eq(acc[<span class="dv">1</span>][<span class="st">'function'</span>][<span class="st">'name'</span>], <span class="st">'b'</span>)</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>acc_tc(acc, <span class="va">None</span>)</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">len</span>(acc), <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vedicreader\.github\.io\/urai");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vedicreader/urai/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
