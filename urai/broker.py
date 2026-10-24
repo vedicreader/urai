@@ -8,7 +8,7 @@ Docs: https://vedicreader.github.io/urai/broker.html.md"""
 __all__ = ['MAX_FRAME', 'ChatBroker', 'BrokerChat']
 
 # %% ../nbs/10_broker.ipynb #1e4919ce
-import json, os, socket, threading
+import json, os, socket, threading, time
 from fastcore.all import Path
 from .core import Resp
 
@@ -54,6 +54,7 @@ class ChatBroker:
         self.lock, self.state_lock = threading.Lock(), threading.Lock()
         self.listener, self.thread = None, None
         self.clients, self.handlers, self.stopping, self._bound = set(), set(), False, False
+        self.chats = set()   # the open conversations, so `close` can cancel a turn in flight
 
     def _mk_engine(self):
         "The shared engine from the backend's own `create_engine`."
@@ -119,12 +120,18 @@ class ChatBroker:
                     msgs = _brok_msgs(req)
                     with self.lock:
                         chat = self.chat_cls(engine=self.engine, messages=msgs, tools=())
+                    with self.state_lock:
+                        if self.stopping: raise EOFError   # `finally` closes the chat that was never registered
+                        self.chats.add(chat)
                     _send_json(conn, {'ok': True})
                 elif op == 'send':
                     if chat is None or not isinstance(req.get('msg'), str):
                         raise ValueError('invalid message')
                     limit = _brok_limit(req)
-                    with self.lock: res = chat(req['msg'], max_output_tokens=limit)
+                    with self.lock:
+                        with self.state_lock: stopping = self.stopping   # `close` may have run while this turn waited for the engine
+                        if stopping: raise EOFError
+                        res = chat(req['msg'], max_output_tokens=limit)
                     _send_json(conn, {'response': res})
                 else: _send_json(conn, {'ok': True}); break
         except (EOFError, OSError): pass
@@ -133,6 +140,7 @@ class ChatBroker:
             except OSError: pass
         finally:
             if chat is not None:
+                with self.state_lock: self.chats.discard(chat)
                 with self.lock: chat.close()
             conn.close()
             with self.state_lock:
@@ -154,16 +162,26 @@ class ChatBroker:
 
     def close(self, timeout=5):
         "Stop serving, disconnect every client, and release the engine if this broker built it."
+        deadline = time.monotonic() + timeout
         with self.state_lock:
             listener, thread, handlers = self.listener, self.thread, list(self.handlers)
-            clients, bound = list(self.clients), self._bound
+            clients, bound, chats = list(self.clients), self._bound, list(self.chats)
             self.stopping, self.listener, self.thread, self._bound = True, None, None, False
         if listener is not None: self._wake(); listener.close()
         for conn in clients: self._drop(conn)
-        for t in [thread, *handlers]:
-            # a handler wedged inside a turn must not hold shutdown up for ever
-            if t is not None and t is not threading.current_thread(): t.join(timeout)
-        with self.lock: self._shut_engine()
+        pending = [t for t in [thread, *handlers] if t is not None and t is not threading.current_thread()]
+        while True:
+            for chat in chats:
+                if cancel := getattr(chat, 'cancel', None): cancel()
+            pending = [t for t in pending if t.is_alive()]
+            remaining = max(0, deadline - time.monotonic())
+            if not pending or not remaining: break
+            for t in pending: t.join(min(0.01, max(0, deadline - time.monotonic())))
+            with self.state_lock: chats = list(self.chats)
+        # a turn that ignored `cancel` still holds the lock, and its engine is not ours to pull away
+        if self.lock.acquire(timeout=max(0, deadline - time.monotonic())):
+            try: self._shut_engine()
+            finally: self.lock.release()
         if bound: Path(self.address).unlink(missing_ok=True)   # never a socket it did not bind
 
     def __enter__(self): return self.start()

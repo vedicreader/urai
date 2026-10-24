@@ -13,6 +13,7 @@ from pathlib import Path
 import pytest
 
 from urai import coerce_args, coerce_tcs, parse_tool_tags_ex, split_think, toolspec_params
+from urai.tags import StreamSplit
 
 FIXTURE = Path(__file__).parent/'fixtures'/'tool_traffic.jsonl'
 #: markup that must never reach visible content, whichever family emitted it
@@ -111,6 +112,20 @@ def test_a_parsed_call_always_names_a_declared_tool_or_is_reported(tools, raw):
     for tc in tcs: assert tc['function']['name'] in names, f"undeclared tool {tc['function']['name']!r}"
     assert tcs or failed or text or thought or not raw.strip(), \
         'a reply became nothing at all: no text, no thought, no call, no report'
+
+
+def test_think_closer_in_argument_keeps_the_call():
+    closer = chr(60) + '/think' + chr(62)
+    recs = [json.loads(line) for line in FIXTURE.read_text().splitlines() if line.strip()]
+    record = next(d for d in recs if closer in d['raw'] and d['note'] == 'a think closer inside an argument')
+    raw = record['raw']
+    expected = json.loads(raw.split(chr(62), 1)[1].rsplit(chr(60), 1)[0])
+    batch = parsed(record['tools'], raw)[1]
+    stream = StreamSplit()
+    for i in range(0, len(raw), 3): list(stream.feed(raw[i:i+3]))
+    list(stream.finish())
+    for calls in (batch, stream.tool_calls):
+        assert [(tc['function']['name'], tc['function']['arguments']) for tc in calls] == [(expected['name'], expected['arguments'])]
 
 
 def test_the_corpus_covers_the_shapes_the_parse_chain_claims_to_handle():

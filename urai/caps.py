@@ -22,7 +22,7 @@ class Caps:
     inp: tuple = ('text',)      # modalities it accepts
     out: tuple = ('text',)      # modalities it returns unprompted
     tools: tuple = ()           # modalities it returns when given a server-side generation tool
-    source: str = 'default'     # where the answer came from: fastllm, mmproj, config, runtime, fallback, or default when nothing knew
+    source: str = 'default'     # where the answer came from: fastllm, mmproj, config, runtime, fallback, or default (unknown)
 
     @property
     def gen_image(self): return 'image' in self.out or 'image' in self.tools

@@ -2,12 +2,31 @@
 
 <!-- do not remove -->
 
+## 0.0.18
+
+- `split_think` reads only a reasoning block at the start of the text. A think tag that comes after answer text stays in the answer. Before, a quoted think tag anywhere cut the rest of the reply away as thought.
+- The prefill rule of `split_think` does not fire when a tool-call or function-equals opener comes before the closing think tag. Before, a closing think tag inside a tool argument removed the whole call.
+- A JSON call body is read as JSON only. A function-equals tag quoted inside its strings is never run. A JSON body that cannot be read is marked unread.
+- `parse_tool_tags_ex` returns calls in text order when a reply mixes JSON blocks and function-equals calls.
+- A function-equals call with no closing tag before the next call is marked unread. Before, it took the closing tag of the next call and ran with arguments from both.
+- `StreamSplit` finds the closing tool-call tag only outside JSON strings. Streamed and finished replies now give the same calls.
+- `coerce_args` keeps a string it cannot read as a number. Before, the value became `None`.
+- `ChatOpts.create` accepts a dict of options like keyword options. Aliases are normalized, unknown keys go to `extra`, keywords win over the dict, and an explicit `extra=` is merged.
+- `AsyncChat` passes `stream='raw'` through to the chat. `AsyncChat.__aexit__` runs `close` on a worker thread.
+- When the tool budget runs out, the assistant reply is added to `hist` once. Before, it was added twice, with tool calls that had no answers.
+- Closing a stream early closes the backend iterator.
+- Summary insertion keeps a tool call and its result together.
+- Parallel tool calls that have not started get `cancel_msg_` after `cancel()`, as sequential calls do.
+- `mk_obj` rebuilds dataclasses inside lists, tuples and `Optional` fields.
+- `CachedChat.structured` rebuilds nested dataclasses. A recording stores the full history after the turn. Old recordings still replay.
+- `Broker.close` cancels open chats until their turns end or the timeout passes, and it does not block on the engine lock. A turn that waits for the engine does not start after `close`.
+
 ## 0.0.17
 
 - A tool-call block with a stray empty tag, a doubled opening tag, or `arguments` before `name` parses to its real arguments. Before, the name was salvaged and the arguments dropped, so the call ran with `{}` and the tool raised `missing 1 required positional argument`.
-- A call that cannot be read is never run. Each such call is answered with `unread_msg_`; before, the second one in a turn was dispatched with empty arguments.
-- Identical calls (same name and arguments) in one reply run once; the repeats are answered with `dup_msg_`. A reply with 300 identical calls had run the tool 9 times.
-- A tool-call tag quoted inside a string argument no longer ends or starts a call: `tool_blocks` reads each block's JSON object whole before looking for the closing tag.
+- A call that cannot be read never runs. Each such call gets the answer `unread_msg_`. Before, the second unreadable call in a turn ran with empty arguments.
+- Identical calls (same name and arguments) in one reply run once. Each repeat gets the answer `dup_msg_`. Before, a reply with 300 identical calls ran the tool 9 times.
+- A tool-call tag quoted inside a string argument does not end or start a call. `tool_blocks` reads the whole JSON object of each block before it looks for the closing tag.
 
 ## 0.0.16
 
@@ -21,14 +40,14 @@
 
 ## 0.0.14
 
-- `mk_toolspec` describes a pydantic model by its own fields. It reads `model_json_schema`, inlines each `$ref` and drops the `title`s; `get_schema` read the model's `__init__(**data)` and handed the model one opaque `data` object, so `structured` with a pydantic schema came back empty or wrong. A tool loop calling such a class now passes its fields, not `data=`.
+- `mk_toolspec` describes a pydantic model by its own fields. It reads `model_json_schema`, inlines each `$ref` and drops the `title`s. Before, `get_schema` read the model's `__init__(**data)` and described one opaque `data` object. `structured` with a pydantic schema then returned an empty or wrong result. A tool loop that calls such a class passes its fields, not `data=`.
 - A `Literal` field or parameter becomes an `enum` with its JSON type, alone or inside `Optional`, a union or a list. `get_schema` wrote the type `"object[object, object]"`, which is not JSON Schema, and Gemini refused the whole request. `lit_schema` builds the `enum`.
 
 ## 0.0.13
 
-- README links to the docs again. nbdev takes `lib_name` from the distribution name `uraiyadal` and found no doc index under it; `strip_libs = "urai"` points it at the `urai` index.
-- The comment on `CHARS_PER_TOKEN` says why it is 3.25 when the measured models give 3.50: the lower figure keeps the estimate high.
-- The `tbl_caps` test reads `gpt-image-1`; fastllm 0.0.65 dropped the retired `dall-e-3` from its model table, which failed CI.
+- README links to the docs again. nbdev takes `lib_name` from the distribution name `uraiyadal` and found no doc index under it. `strip_libs = "urai"` points it at the `urai` index.
+- The comment on `CHARS_PER_TOKEN` says why the value is 3.25 and not the measured 3.50. The lower value keeps the estimate high.
+- The `tbl_caps` test reads `gpt-image-1`. fastllm 0.0.65 dropped the retired `dall-e-3` from its model table, and CI failed.
 
 ## 0.0.12
 
@@ -40,7 +59,7 @@
 
 ## 0.0.10
 
-- A tool can return pictures: `ToolMedia(str)`, or any result with a non-empty `.media` list. After a step's tool messages, one user message carries them with a note naming the tools. At most 8 pictures of 20 MB each per step.
+- A tool can return pictures with `ToolMedia(str)` or with any result that has a non-empty `.media` list. After the tool messages of a step, one user message holds the pictures and a note that names the tools. Each step sends at most 8 pictures of at most 20 MB each.
 - `Chat.media_in` decides whether pictures are sent; it defaults to the transport's `_media_ok`. When false, the note names the paths instead.
 - `strip_hist_media(hist)` swaps image parts for a placeholder, for checkpoints.
 

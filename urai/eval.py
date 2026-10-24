@@ -9,7 +9,8 @@ __all__ = ['qa_sp_', 'extract_fence', 'matches_', 'mk_obj']
 
 # %% ../nbs/07_eval.ipynb #dee025eb
 from dataclasses import is_dataclass, fields
-from typing import get_type_hints
+from types import NoneType, UnionType
+from typing import Union, get_args, get_origin, get_type_hints
 from fastcore.all import first, listify, patch, AttrDict
 from .chat import Chat
 
@@ -36,6 +37,15 @@ def classify(self:Chat, text, labels, sp='Reply with only the single best label 
 # %% ../nbs/07_eval.ipynb #5e31697f
 def mk_obj(schema, d):
     "Build `schema` from decoded JSON `d`, rebuilding nested dataclasses."
+    origin, args = get_origin(schema), get_args(schema)
+    if origin in (Union, UnionType):
+        args = [a for a in args if a is not NoneType]
+        return mk_obj(args[0], d) if len(args) == 1 else d
+    if isinstance(d, (list, tuple)):
+        if origin is list: return [mk_obj(args[0], o) for o in d]
+        if origin is tuple:
+            if len(args) == 2 and args[1] is Ellipsis: return tuple(mk_obj(args[0], o) for o in d)
+            return tuple(mk_obj(a, o) for a, o in zip(args, d))
     if not isinstance(d, dict): return d
     if is_dataclass(schema):
         hints = get_type_hints(schema)

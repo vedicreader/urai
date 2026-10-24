@@ -14,19 +14,18 @@ import json, os, re, uuid
 from fastcore.all import L
 
 # %% ../nbs/01_tags.ipynb #e99537e7
-_think_re = re.compile(r'<think>(.*?)</think>', re.DOTALL)
+_think_re = re.compile(r'\s*<think>(.*?)(?:</think>|\Z)', re.DOTALL)
 
 def split_think(text):
-    "Split `<think>...</think>` out of `text`, returning `(clean_text, thought)`."
-    text = text or ''
-    ths = [m.strip() for m in _think_re.findall(text)]
-    text = _think_re.sub('', text)
-    if '<think>' in text:            # unterminated, e.g. cut off at the token cap
-        text, _, rest = text.partition('<think>')
-        ths.append(rest.strip())
-    elif '</think>' in text:         # a template prefill opened it, so the tag never arrived
-        pre, _, text = text.partition('</think>')
-        ths.insert(0, pre.strip())
+    "Split the leading `<think>...</think>` block(s) out of `text`, returning `(clean_text, thought)`."
+    text, ths = text or '', []
+    while (m := _think_re.match(text)):      # an unterminated block, e.g. cut off at the token cap, runs to the end
+        ths.append(m.group(1).strip()); text = text[m.end():]
+    before_closer = text.partition(chr(60) + '/think' + chr(62))[0]
+    tool_before = any(opener in before_closer for opener in (chr(60) + 'tool_call' + chr(62), chr(60) + 'function='))
+    if not ths and not tool_before and '</think>' in text and '<think>' not in text.partition('</think>')[0]:
+        pre, _, text = text.partition('</think>')   # the chat template wrote the opening tag into the prompt
+        ths.append(pre.strip())
     return text.strip('\n'), '\n'.join(th for th in ths if th)
 
 # %% ../nbs/01_tags.ipynb #8f4aec56
@@ -53,15 +52,15 @@ def _loose_str(s, i, ends):
             j = _ws(s, i+1)
             if j >= n or s[j] in ends: return ''.join(out), i+1, True
             out.append(c); i += 1; continue      # an inner quote the model never escaped
-        out.append(c); i += 1                    # raw control bytes ride through as themselves
-    return ''.join(out), i, False                # ran off the end: truncated
+        out.append(c); i += 1                    # raw control characters are kept as they are
+    return ''.join(out), i, False                # the text ended inside the string
 
 _LITS = {'true': True, 'false': False, 'null': None, 'True': True, 'False': False, 'None': None}
 
 def _bare(tok):
     "A bare (unquoted) token as the value it spells, or as itself when it spells nothing else."
     if tok in _LITS: return _LITS[tok]
-    if len(tok) > 1 and tok[0] == tok[-1] == "'": return tok[1:-1]     # a single-quoted string
+    if len(tok) > 1 and tok[0] == tok[-1] == "'": return tok[1:-1]
     try: return int(tok)
     except ValueError: pass
     try: return float(tok)
@@ -100,7 +99,7 @@ def _loose_obj(s, i):
         i = _ws(s, i)
         if i < n and s[i] == ':': i += 1
         v, i, ok = _loose_val(s, i, ',}')
-        if not ok: return out, i, False        # the value was cut: it never lands in `out`
+        if not ok: return out, i, False        # a cut value is left out of `out`
         out[k] = v
 
 def _loose_arr(s, i):
@@ -119,7 +118,7 @@ def loose_json(s):
     "Parse `s` as a JSON object, tolerating common model mistakes, and return `(obj, complete)` or `(None, False)`."
     s = (s or '').strip()
     if not s.startswith('{'): return None, False
-    try: return json.loads(s), True                # strict wins, so conforming input is untouched
+    try: return json.loads(s), True                # strict parsing runs first. Valid JSON is never altered
     except json.JSONDecodeError: pass
     obj, _, ok = _loose_obj(s, 0)
     return (obj, ok) if isinstance(obj, dict) else (None, False)
@@ -156,7 +155,7 @@ def tag_args(d):
     keys = [k for k in TAG_ARG_KEYS if d.get(k) is not None]
     if not keys: return {k: v for k, v in d.items() if k not in _TC_KEYS}
     for v in (d[k] for k in keys):
-        if isinstance(v, str): v, ok = loose_json(v); v = v if ok else None   # a cut string ships nothing partial
+        if isinstance(v, str): v, ok = loose_json(v); v = v if ok else None   # a cut string gives no partial arguments
         if isinstance(v, dict): return v
     return None
 
@@ -167,7 +166,7 @@ def mk_tag_tc(s):
     if (m := _stray_re.match(s or '')): s = s[m.end():]      # empty stray tags before the object are not part of it
     d, ok = loose_json(s)
     if d is not None and d.get('name'):
-        # a cut object keeps only completed values, so an `arguments` that landed is whole
+        # a cut object keeps only completed values. An `arguments` that is present is whole.
         args = tag_args(d) if ok or any(k in d for k in TAG_ARG_KEYS) else None
         return mk_tc(d['name'], args) if args is not None else {**mk_tc(d['name']), 'unread': True}
     if (name := salvage_name(s or '')): return {**mk_tc(name), 'unread': True}
@@ -177,7 +176,7 @@ def mk_tag_tc(s):
 #: `<function=name>` (Qwen) or `<invoke name="name">` (Claude's own dialect)
 _fn_re   = re.compile(r'<(?:function\s*=\s*|invoke\s+name\s*=\s*")([A-Za-z_][\w.\-]*)"?\s*>', re.I)
 _fnend_re = re.compile(r'</(?:function|invoke)\s*>', re.I)
-#: only a CLOSED parameter is a complete one, so a cut call ships the name and whatever finished
+#: only a closed parameter is complete. A call with no closing tag keeps its name and is marked `unread`.
 _par_re  = re.compile(r'<parameter(?:\s*=\s*|\s+name\s*=\s*")([A-Za-z_][\w.\-]*)"?\s*>(.*?)</parameter\s*>', re.I | re.S)
 _num_re  = re.compile(r'-?\d+(?:\.\d+)?$')
 
@@ -200,7 +199,9 @@ def parse_fn_tags(text):
     out = []
     for m in _fn_re.finditer(text or ''):
         body = text[m.end():]
-        if (e := _fnend_re.search(body)): body = body[:e.start()]
+        if (n := _fn_re.search(body)): body = body[:n.start()]   # a call ends where the next one opens
+        if not (e := _fnend_re.search(body)): out.append({**mk_tc(m.group(1)), 'unread': True}); continue
+        body = body[:e.start()]
         args = {k: _spelled(_unframe(v)) for k, v in _par_re.findall(body)}
         if not args and (d := loose_json(body)[0]): args = d
         out.append(mk_tc(m.group(1), args))
@@ -223,7 +224,7 @@ def lone_tag_tc(text, names=None):
     d, ok = loose_json(s)
     if not ok or not isinstance(d, dict) or not d.get('name'): return None
     if not any(k in d for k in TAG_ARG_KEYS): return None
-    # inferred, not tagged: it must name a tool that exists, or it is the model talking about JSON
+    # with `names`, an untagged object must name a known tool. Otherwise the model is talking about JSON.
     if names is not None and d['name'] not in set(names): return None
     return mk_tc(d['name'], tag_args(d))
 
@@ -235,7 +236,7 @@ _lead_re = re.compile(r'\s*(?:<[^<>{}]*>\s*)*')
 _close_re = re.compile(r'\s*</tool_' + 'call>')
 
 def tool_blocks(text):
-    "The `(start, end, body)` of each closed call block in `text`; a JSON object is read whole, so a tag quoted in its strings ends nothing."
+    "The `(start, end, body)` of each closed call block in `text`. A JSON body is read whole, so a closing tag quoted inside a string does not end the block."
     out, i, dec = [], 0, json.JSONDecoder()
     while (o := _open_re.search(text, i)):
         a, j = o.start(), o.end(); k = _lead_re.match(text, j).end()
@@ -244,30 +245,45 @@ def tool_blocks(text):
                 _, e = dec.raw_decode(text, k)
                 if (c := _close_re.match(text, e)): out.append((a, c.end(), text[j:e].strip())); i = c.end(); continue
             except json.JSONDecodeError: pass
-        if not (m := _toolcall_re.match(text, a)): break      # no closer anywhere after: an opener left open
+        if not (m := _toolcall_re.match(text, a)): break      # no closing tag follows: the opener was left open
         out.append((a, m.end(), m.group(1))); i = m.end()
     return out
+
+def _block_calls(body):
+    "The calls in one call-block body. A body that opens a JSON object is a JSON call: its strings are never scanned for the XML form."
+    start = _stray_re.match(body)
+    head = body[start.end():] if start else body
+    if head.lstrip().startswith('{'):
+        return [tc] if (tc := mk_tag_tc(body)) else []
+    if (tcs := parse_fn_tags(body)): return tcs
+    return [tc] if (tc := mk_tag_tc(body)) else []
 
 def parse_tool_tags_ex(text, names=None):
     "Parse tool calls out of `text`, returning `(clean_text, calls, failed)`, where `failed` means a block could not be read."
     t = text or ''
-    tcs, failed = parse_fn_tags(t), False   # the XML dialect is read FIRST: a value never decides the call
-    blocks, rest, p = tool_blocks(t), '', 0
-    for a, e, _ in blocks: rest += t[p:a]; p = e
+    blocks, rest, p, positioned = tool_blocks(t), '', 0, []
+    for a, e, _ in blocks:
+        segment = t[p:a]
+        positioned += [(p + m.start(), tc) for m, tc in zip(_fn_re.finditer(segment), parse_fn_tags(segment))]
+        rest += segment; p = e
+    segment = t[p:]
+    if (opener := _open_re.search(segment)): segment = segment[:opener.start()]
+    positioned += [(p + m.start(), tc) for m, tc in zip(_fn_re.finditer(segment), parse_fn_tags(segment))]
     rest += t[p:]
-    for _, _, b in blocks:
-        if parse_fn_tags(b): continue
-        if (tc := mk_tag_tc(b)): tcs.append(tc)
-        else: failed = True             # a block nothing could read is a loss, never a silent deletion
-    if (k := rest.rfind('<tool_call>')) >= 0:   # an opener the model never closed: cut at the token cap
-        b = rest[k + len('<tool_call>'):]
-        if not parse_fn_tags(b):
-            if (tc := mk_tag_tc(b)): tcs.append(tc)
-            else: failed = True
-        rest = rest[:k]
+    tail = ''
+    if (k := rest.rfind('<tool_call>')) >= 0:   # an opener the model never closed, for example at the token cap
+        tail, rest = rest[k + len('<tool_call>'):], rest[:k]
+    failed = False
+    for a, _, b in blocks:
+        if (cs := _block_calls(b)): positioned += [(a, tc) for tc in cs]
+        else: failed = True             # an unreadable block sets `failed`
+    if k >= 0:
+        if (cs := _block_calls(tail)): positioned += [(len(t) - len(tail), tc) for tc in cs]
+        else: failed = True
+    tcs = [tc for _, tc in sorted(positioned, key=lambda item: item[0])]
     if not tcs and not failed and (tc := lone_tag_tc(t, names)): return '', [tc], False
     clean = _fnblk_re.sub('', _toolres_re.sub('', rest))
-    if _fn_re.search(t): clean = _strayp_re.sub('', clean)   # parameters a degenerate reply left between its calls
+    if _fn_re.search(t): clean = _strayp_re.sub('', clean)   # stray parameters that a damaged reply left between its calls
     return clean.strip('\n'), tcs, failed
 
 def parse_tool_tags(text, names=None):
@@ -344,6 +360,8 @@ class StreamSplit:
         self.buf, self.state, self.text, self.thought = '', 'text', '', ''
         self.tool_calls, self._tc_buf, self._strip = [], '', False
         self.failed, self._end = False, '</tool_call>'
+        self._scan, self._ins, self._esc, self._obj = 0, False, False, False
+        self._lead = True                      # no answer text or call yet: only now can a think tag open thinking
         self.raw = '' if (RAW_DUMP() if keep_raw is None else keep_raw) else None
 
     def _held(self):
@@ -355,18 +373,35 @@ class StreamSplit:
         return len(suf) if any(t.startswith(suf) for t in _tags) else 0
 
     def _emit_text(self, out):
-        out = _toolres_re.sub('', out)       # invented result markup: the streamed path never
-        if self._strip: out = out.lstrip('\n')   # reaches `parse_tool_tags`, so it is dropped here
+        out = _toolres_re.sub('', out)       # `parse_tool_tags` does not run on the stream path, so drop invented result markup here
+        if self._strip: out = out.lstrip('\n')
         if not out: return None
         self._strip = False; self.text += out
+        if out.strip(): self._lead = False
         return {'content': [{'type': 'text', 'text': out}]}
 
     def _close_tool(self):
         "Run the buffered tool block through the same ladder the non-streaming path uses."
         buf, self._tc_buf = self._tc_buf, ''
-        if (tcs := parse_fn_tags(buf)): self.tool_calls += tcs
-        elif (tc := mk_tag_tc(buf)): self.tool_calls.append(tc)
+        if (tcs := _block_calls(buf)): self.tool_calls += tcs
         elif buf.strip(): self.failed = True
+
+    def _tool_end(self):
+        "Index in `buf` of the closing tag outside any JSON string, or -1. `_scan` keeps where the last look stopped."
+        b, e = self.buf, self._end
+        if e != '</tool_call>': return b.find(e)
+        i = self._scan
+        while i < len(b):
+            c = b[i]
+            if self._ins: self._ins, self._esc = not (c == '"' and not self._esc), c == '\\' and not self._esc
+            elif c == '"' and self._obj: self._ins = True
+            elif c == '{': self._obj = True
+            elif c == '<':
+                if b.startswith(e, i): return i
+                if e.startswith(b[i:]): break          # a cut tag: look again when more arrives
+            i += 1
+        self._scan = i
+        return -1
 
     def feed(self, s):
         "Consume a text delta and yield chunk dicts."
@@ -374,10 +409,8 @@ class StreamSplit:
         self.buf += s
         while True:
             if self.state == 'text':
-                cands = [(k, t) for k, t in ((self.buf.find('<think>'), '<think>'),
-                                             (self.buf.find('<tool_call>'), '<tool_call>'),
-                                             (self.buf.find('<function='), '<function='),
-                                             (self.buf.find('<invoke '), '<invoke ')) if k >= 0]
+                ks = [(self.buf.find(t), t) for t in ('<think>', '<tool_call>', '<function=', '<invoke ')]
+                cands = [(k, t) for k, t in ks if k >= 0 and (t != '<think>' or self._lead and not self.buf[:k].strip())]
                 if not cands:
                     n = self._held()
                     out, self.buf = self.buf[:len(self.buf) - n], self.buf[len(self.buf) - n:]
@@ -387,9 +420,11 @@ class StreamSplit:
                 out, self.buf = self.buf[:k], self.buf[k + len(tag):]
                 if tag == '<think>': self.state = 'think'
                 else:
+                    self._lead = False
                     self.state, self._end = 'tool', {'<tool_call>': '</tool_call>', '<function=': '</function>'}.get(tag, '</invoke>')
-                    # the opener is part of the block the XML parser reads, so it goes in the buffer
+                    # the XML parser reads the opener as part of the block, so the buffer keeps it
                     self._tc_buf = '' if tag == '<tool_call>' else tag
+                    self._scan, self._ins, self._esc, self._obj = 0, False, False, False
                 if (c := self._emit_text(out)): yield c
             elif self.state == 'think':
                 k = self.buf.find('</think>')
@@ -401,10 +436,10 @@ class StreamSplit:
                 out, self.buf, self.state, self._strip = self.buf[:k], self.buf[k + len('</think>'):], 'text', True
                 if out: self.thought += out; yield {'channels': {'thought': out}}
             else:                                    # inside a tool call
-                k = self.buf.find(self._end)
+                k = self._tool_end()
                 if k < 0:
                     n = self._held()
-                    self._tc_buf += self.buf[:len(self.buf) - n]; self.buf = self.buf[len(self.buf) - n:]
+                    self._tc_buf += self.buf[:len(self.buf) - n]; self.buf, self._scan = self.buf[len(self.buf) - n:], 0
                     return
                 self._tc_buf += self.buf[:k] + (self._end if self._end != '</tool_call>' else '')
                 self.buf, self.state, self._strip = self.buf[k + len(self._end):], 'text', True

@@ -91,8 +91,8 @@ class ToolLoopMixin:
 
     def call_tool(self, tc):
         "Run tool call `tc` and return its result, or the error as a string if it raised."
-        if tc.get('server'): return '(run by the provider)'   # the provider's to run, not ours
-        if tc.get('id') in self._unread_ids: return unread_msg_   # its arguments were lost: answered, never run
+        if tc.get('server'): return '(run by the provider)'
+        if tc.get('id') in self._unread_ids: return unread_msg_
         try: return call_func(tc_name(tc), (tc.get('function') or {}).get('arguments') or {}, ns=self.ns)
         except Exception as e: return f'{type(e).__name__}: {e}'
 
@@ -135,11 +135,11 @@ class ToolLoopMixin:
         if not isinstance(allowed, bool): allowed = set(allowed or ())
         can_par = len(todo) > 1 and bool(allowed) and all(allowed is True or tc_name(tc) in allowed
                                                           for tc in todo)
+        run = lambda tc: cancel_msg_ if self.cancelled else self.call_tool(tc)
         if can_par:
             n = min(len(todo), self.max_parallel_tools or len(todo))
-            with ThreadPoolExecutor(max_workers=n, thread_name_prefix='urai-tool') as ex:
-                outs = list(ex.map(self.call_tool, todo))
-        else: outs = [cancel_msg_ if self.cancelled else self.call_tool(tc) for tc in todo]
+            with ThreadPoolExecutor(max_workers=n, thread_name_prefix='urai-tool') as ex: outs = list(ex.map(run, todo))
+        else: outs = [run(tc) for tc in todo]
         outs = iter(outs)
         for tc, (ok, denial) in zip(tcs, oks): self._record_tool(tc, next(outs) if ok else denial)
         self._media_msg()
@@ -185,17 +185,16 @@ unread_msg_ = ("That tool call could not be read, so it was not run. Send the ca
 
 dup_msg_ = "This call was collapsed: it repeats an identical call earlier in the same reply, which ran once."
 
-class ToolCallError(ValueError): "A tool call the model could not get through whole, after it was asked once to resend one."
+class ToolCallError(ValueError): "A tool call was lost again after the model was asked once to send it again."
 
 @patch
 def _fix_step(self:ToolLoopMixin, res):
-    "The ONE place a step's calls are repaired. Returns True when the turn should ask for the call again."
+    "Repair the tool calls of one step. Return True when the loop must ask the model to send the call again."
     toolspecs = getattr(self, 'toolspecs', ())
     if (raw := res.pop('raw', None)) and toolspecs: dump_raw(toolspecs, raw)
     lost = res.pop('lost', None)        # a backend's account of why the call was lost
     if (tcs := res.get('tool_calls')):
         unread = [tc.pop('unread', False) for tc in tcs]
-        # a call whose arguments were lost is never run: it is answered with the error, and the reply asked for again once
         self._unread_ids = frozenset(tc.get('id') for tc, u in zip(tcs, unread) if u)
         if not any(unread) or (self._reparse_asked and not lost): coerce_tcs(tcs, toolspecs); return False
         res.pop('tool_calls'); res['tool_parse_failed'] = True
@@ -218,19 +217,19 @@ def _send(self:ToolLoopMixin, msg, **kw):
     self._check_media()
     for _ in run_cbs(self, 'before_send'): pass
     if self.turn_msg is not None: self.hist.append(self.turn_msg)
-    us, recorded = [], False
+    us = []
     while True:
+        recorded = False
         try: res = self._model_step(**kw)
         except Exception as e:
             if not is_ctx_error(self, e): raise
             res = self.recover_context(e, **kw)
         us.append(res.get('usage'))
-        if self._fix_step(res): continue            # a call was emitted but unreadable: ask once more
+        if self._fix_step(res): continue
         if not res.get('tool_calls') or self._budget_exceeded: break
         if self.cancelled: self._refuse_tools(res); recorded = True; break
-        self._run_tools(res)
-        if self.cancelled: recorded = True; break
-        if self._budget_exceeded: break
+        self._run_tools(res); recorded = True
+        if self.cancelled or self._budget_exceeded: break
     self._finish_turn(res, us, recorded)
     for _ in run_cbs(self, 'after_response'): pass
     return self.turn_res
@@ -263,9 +262,9 @@ def _stream(self:ToolLoopMixin, msg, cbs=None, **kw):
         self._check_media()
         for _ in run_cbs(self, 'before_send'): pass
         if self.turn_msg is not None: self.hist.append(self.turn_msg)
-        fmt, us, recorded, cut = StreamFormatter(), [], False, False
+        fmt, us = StreamFormatter(), []
         while True:
-            said, thought_, announced = [], [], False
+            said, thought_, announced, recorded, cut = [], [], False, False, False
             step = self._stream_step(**kw)
             try:
                 for o in step:
@@ -279,7 +278,7 @@ def _stream(self:ToolLoopMixin, msg, cbs=None, **kw):
                 yield self._emit(res, StreamFormatter())
                 us.append(res.get('usage')); break
             finally:
-                if cut: step.close()
+                if hasattr(step, 'close'): step.close()
             if fmt._inthink and not self._stream_raw: fmt._inthink = False; yield '\n\n'
             if cut:
                 res = self._cut_res(''.join(said), ''.join(thought_))
@@ -287,7 +286,7 @@ def _stream(self:ToolLoopMixin, msg, cbs=None, **kw):
                 break
             res = self._step_res
             us.append(res.get('usage'))
-            if self._fix_step(res): continue        # a call was emitted but unreadable: ask once more
+            if self._fix_step(res): continue
             if not res.get('tool_calls') or self._budget_exceeded: break
             if not announced:
                 for tc in res['tool_calls']:
@@ -295,12 +294,11 @@ def _stream(self:ToolLoopMixin, msg, cbs=None, **kw):
                                       'arguments': (tc.get('function') or {}).get('arguments', {})}]}
                     if (s := self._emit(o, fmt)): yield s
             if self.cancelled: self._refuse_tools(res); recorded = True; break
-            self._run_tools(res)
-            if self.cancelled: recorded = True; break
-            if self._budget_exceeded: break
+            self._run_tools(res); recorded = True
+            if self.cancelled or self._budget_exceeded: break
         self._finish_turn(res, us, recorded)
         yield from run_cbs(self, 'after_response')
-        return self.turn_res    # captured by `SaveReturn` and `AsyncChat`'s `.value`
+        return self.turn_res
     finally: self._streaming = prev; self.remove_cbs(added)
 
 # %% ../nbs/06_loop.ipynb #987040b7
@@ -353,9 +351,10 @@ class SlidingWindowCallback(ChatCallback):
         if not dropped: return
         if self.summarize and (s := self._summary(dropped)):
             # a user/assistant pair, so message alternation survives the splice
-            kept = (kept[:self.keep_first] +
+            n = sum(len(g) for g in msg_groups(c.hist)[:self.keep_first])
+            kept = (kept[:n] +
                     [{'role': 'user', 'content': f'[Summary of earlier conversation]\n{s}'},
-                     {'role': 'assistant', 'content': 'Understood.'}] + kept[self.keep_first:])
+                     {'role': 'assistant', 'content': 'Understood.'}] + kept[n:])
         c.hist[:] = kept
         c.evicted = getattr(c, 'evicted', 0) + len(dropped)
         c._recreate_conv()

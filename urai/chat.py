@@ -148,10 +148,9 @@ def remove_cbs(self:Chat, cbs):
 # %% ../nbs/05_chat.ipynb #ce88eb0f
 @patch
 def __call__(self:Chat, msg=None, stream=False, cbs=None, **kw):
-    """Run one chat turn.
+    """Run one chat turn and return the reply.
 
-    `stream=True` yields markdown. `stream='raw'` yields chunk dicts. Keyword options apply
-    only to this turn. One `Chat` instance is mutable and not safe for concurrent turns."""
+    `stream=True` returns a generator of markdown. `stream='raw'` returns a generator of chunk dicts. Keyword options apply only to this turn. A `Chat` instance is mutable. It is not safe to run two turns on one instance at the same time."""
     self.use, self._steps, self._budget_exceeded, self._final_sent = UsageStats(), 0, False, False
     self._cancel.clear()
     self._stream_raw = stream == 'raw'
@@ -274,20 +273,20 @@ class AsyncChat(GetAttr):
 
     async def __call__(self, msg=None, stream=False, cbs=None, **kw):
         "Run one chat turn and return the reply, or an async chunk iterator when `stream` is set."
-        if stream: return self._astream(msg, cbs, **kw)
+        if stream: return self._astream(msg, cbs, stream=stream, **kw)
         return await asyncio.to_thread(lambda: self.chat(msg, False, cbs, **kw))
 
     @asave_iter
-    async def _astream(it, self, msg, cbs=None, **kw):
+    async def _astream(it, self, msg, cbs=None, stream=True, **kw):
         "Run the chat's stream in a worker thread, leaving the final `Resp` on the iterator's `.value`."
-        g = SaveReturn(self.chat(msg, stream=True, cbs=cbs, **kw))
+        g = SaveReturn(self.chat(msg, stream=stream, cbs=cbs, **kw))
         gi, done = iter(g), object()
         while (o := await asyncio.to_thread(next, gi, done)) is not done: yield o
         it.value = g.value
 
     def close(self): self.chat.close()
     async def __aenter__(self): return self
-    async def __aexit__(self, *exc): self.close()
+    async def __aexit__(self, *exc): await asyncio.to_thread(self.close)
 
 async def adisplay_stream(chunks):
     "Show an async markdown stream live in a notebook and return the full markdown."

@@ -99,7 +99,7 @@ def lit_schema(vals):
     return {'type': ts[0] if len(ts) == 1 else ts, 'enum': vals}
 
 def _lits(sc, t):
-    "`sc`, the schema `get_schema` made for hint `t`, with each `Literal` in it, through unions and containers, as an `enum`."
+    "Schema `sc` that `get_schema` made for hint `t`, with each `Literal` replaced by an `enum`, including inside unions and lists."
     o, args = get_origin(t), get_args(t)
     if o is Literal: return {**{k: v for k, v in sc.items() if k in ('description', 'default')}, **lit_schema(args)}
     if o in (typing.Union, types.UnionType) and len(sc.get('anyOf', ())) == len(args):
@@ -108,7 +108,7 @@ def _lits(sc, t):
     return sc
 
 def _plain(s, defs, seen=()):
-    "Pydantic schema `s` with each `$ref` inlined from `defs` and no `title`s, which strict providers refuse or ignore."
+    "Pydantic schema `s` with each `$ref` inlined from `defs` and every `title` key removed."
     if isinstance(s, list): return [_plain(x, defs, seen) for x in s]
     if not isinstance(s, dict): return s
     if (ref := s.get('$ref')):
@@ -199,7 +199,8 @@ def _as_type(v, t, sch):
     if t in ('integer', 'number'):
         if isinstance(v, bool) or v is None: return v
         if isinstance(v, str):
-            if not isinstance(v := _try_json(v.strip()), (int, float)) or isinstance(v, bool): return v
+            if not isinstance(n := _try_json(v.strip()), (int, float)) or isinstance(n, bool): return v
+            v = n
         if not isinstance(v, (int, float)): return v
         return int(v) if t == 'integer' and float(v).is_integer() else v
     if t == 'boolean':
@@ -310,14 +311,14 @@ def sum_usage(us):
     return out
 
 # %% ../nbs/02_msgs.ipynb #12cff266
-#: ornith-1.5:9b and qwen3:0.6b measure 3.50 on English prose; the lower figure keeps the estimate high, so a prompt sized to a window fits it
+#: Characters per token. ornith-1.5:9b and qwen3:0.6b measure 3.50 on English prose. 3.25 is lower, so `est_tokens` errs high.
 CHARS_PER_TOKEN = 3.25
 
 def est_tokens(text):
     "Estimate the token count of `text` from its length."
     return max(1, math.ceil(len(text) / CHARS_PER_TOKEN)) if text else 0
 
-#: How each role is titled when a conversation is rendered as one block of text.
+#: Heading for each message role in `render_prompt`.
 ROLE_NAMES = {'user': 'User', 'assistant': 'Assistant', 'tool': 'Tool result', 'system': 'System'}
 
 def render_prompt(hist, sp=''):

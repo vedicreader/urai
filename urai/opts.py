@@ -164,12 +164,14 @@ class ChatOpts:
     @classmethod
     def create(cls, opts=None, **kw):
         "Build a `ChatOpts` from an existing one or a dict plus keyword overrides."
-        if opts is None: opts = cls()
-        elif isinstance(opts, dict): opts = cls(**opts)
-        if not kw: return opts
         kw = {ALIASES.get(k, k): v for k, v in kw.items()}
+        if opts is None: opts = cls()
+        elif isinstance(opts, dict):
+            d = {ALIASES.get(k, k): v for k, v in opts.items()}
+            opts, kw = cls(), {**d, **kw, 'extra': {**d.get('extra', {}), **kw.get('extra', {})}}
+        if not kw: return opts
         known = {f.name for f in fields(cls)}
-        extra = {**opts.extra, **{k: v for k, v in kw.items() if k not in known}}
+        extra = {**opts.extra, **kw.pop('extra', {}), **{k: v for k, v in kw.items() if k not in known}}
         return replace(opts, **{k: v for k, v in kw.items() if k in known}, extra=extra)
 
     @property

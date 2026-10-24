@@ -14,6 +14,7 @@ from fastcore.all import L, Path, store_attr, ifnone, listify, str2bool
 from .core import Resp, UsageStats, resp_text
 from .msgs import is_media, tool_rows
 from .chat import Chat
+from .eval import mk_obj
 from .opts import resolve_runtime
 
 # %% ../nbs/09_record.ipynb #43700c29
@@ -34,6 +35,8 @@ def is_transient(e):
     return isinstance(e, (ConnectionError, TimeoutError, OSError)) or bool(_transient_re.search(str(e)))
 
 # %% ../nbs/09_record.ipynb #1734deca
+_MISS = object()
+
 class RecordCache:
     "Record what a call returned the first time and replay it on later calls with the same key."
     def __init__(self,
@@ -53,10 +56,15 @@ class RecordCache:
 
     def __call__(self, key, f, what=''):
         "Replay the recording for `key`, else run `f()` and record its result or its error."
-        if key in self.cache:
-            got, val = self.cache[key]
-            if got == 'exc': raise RuntimeError(val)
-            return val
+        return self.run(key, f, what)[0]
+
+    def run(self, key, f, what=''):
+        "Like calling the cache, but return `(value, replayed)`."
+        got = self.cache.get(key, _MISS)
+        if got is not _MISS:
+            kind, val = got
+            if kind == 'exc': raise RuntimeError(val)
+            return val, True
         if not self.record: raise KeyError(
             f'no recording for {what or key[:16]} - set {self.env}=1 and re-run to record it')
         try: val = f()
@@ -64,7 +72,7 @@ class RecordCache:
             if not is_transient(e): self.cache[key] = ('exc', f'{type(e).__name__}: {e}')
             raise
         self.cache[key] = ('ok', val)
-        return val
+        return val, False
 
     def forget(self, key):
         "Delete the recording for `key`, returning True if there was one."
@@ -87,7 +95,7 @@ def canon_msg(m):
 
 # %% ../nbs/09_record.ipynb #1284922e
 class CachedChat:
-    "A `Chat` stand-in that records replies to disk and replays them without building a model."
+    "A `Chat` stand-in that records replies to disk and replays them without loading a model."
     def __init__(self,
                  model=None,   # anything `Chat` takes; part of the key
                  path=None,    # the diskcache directory; None uses `CHAT_CACHE`
@@ -118,7 +126,7 @@ class CachedChat:
 
     @property
     def chat(self):
-        "The real `Chat`, built only when something actually has to be asked."
+        "The real `Chat`, built on the first request that has no recording."
         if self._chat is None:
             self._chat = Chat(self.model, sp=self.sp, tools=list(self.tools),
                               messages=self.hist, **self.kw)
@@ -143,7 +151,7 @@ class CachedChat:
         return self.use
 
     def _key(self, kind, *args, hist=True):
-        "What a reply is recorded under. `hist=False` is for asks that are stateless by definition."
+        "The key of a recording. `hist=False` leaves the conversation out of the key."
         return self.rec.key(self.model, kind, self.sp, self.kw,
                             [getattr(t, '__name__', str(t)) for t in self.tools],
                             [canon_msg(m) for m in self.hist] if hist else [], *args)
@@ -155,20 +163,20 @@ class CachedChat:
         return self.rec(self._key(kind, *args, hist=hist), f, what)
 
     def __call__(self, prompt, **kw):
-        "One turn, replayed if it has been asked before. `hist` ends up as the real turn left it."
+        "Run one turn, or replay it if it has a recording. `hist` ends the same either way."
         key = self._key('call', prompt, kw)
-        hit = key in self.rec.cache
         what = f'call for {self.model} after {len(self.hist)} messages: {str(prompt)[:80]}'
         def _live():
-            n = len(self.chat.hist)
             r = self.chat(prompt, **kw)
-            return dict(resp=as_resp(r), hist=[dict(m) for m in self.chat.hist[n:]],
+            return dict(resp=as_resp(r), full=[dict(m) for m in self.chat.hist],
                         ctx=getattr(self.chat, 'token_count', 0))
-        rec = self.rec(key, _live, what)
+        rec, hit = self.rec.run(key, _live, what)
         self._fold(rec['resp'].get('usage'), rec.get('ctx'))
         # a stopped turn is a truncated one, and a recording would replay the truncation forever
         if not hit and self.cancelled: self.rec.forget(key)
-        self.hist += [dict(m) for m in rec['hist']]
+        # a turn can drop or edit old messages, so the recording holds the whole history. Older
+        # recordings hold only the messages the turn appended
+        self.hist = [dict(m) for m in rec['full']] if 'full' in rec else self.hist + [dict(m) for m in rec['hist']]
         # a replayed turn never reached the live chat, so hand it the history it missed
         if hit and self._chat is not None:
             self._chat.hist = list(self.hist)
@@ -184,21 +192,21 @@ class CachedChat:
                          f=lambda: self.chat.classify(text, labels, **kw))
 
     def structured(self, prompt, schema, sp=None):
-        "A schema-shaped reply, recorded as a dict: a schema built at runtime cannot be pickled."
+        "A reply built from `schema`, recorded as a dict. Pickle cannot save a schema built at runtime."
         from dataclasses import asdict, fields, is_dataclass
         flds = [f.name for f in fields(schema)]
         d = self._ask('structured', [prompt, sp, schema.__name__, flds], hist=False,
                       f=lambda: (lambda o: asdict(o) if is_dataclass(o) else dict(o))(
                           self.chat.structured(prompt, schema, sp=sp)))
-        return schema(**d)
+        return mk_obj(schema, d)
 
     @property
     def runtime(self):
-        "Which runtime would answer, asked of the id rather than an engine a replay never builds."
+        "The runtime that would answer, read from the model id. A replay builds no engine."
         return resolve_runtime(self.model, self.kw.get('runtime'), self.kw.get('model_path'))[0]
 
     def reconfigure(self, sp=None, tools=None):
-        "Change `sp` or `tools` for the asks that follow. Both are in the key, so a replay stays honest."
+        "Change `sp` or `tools` for later requests. Both are part of the key."
         if sp is not None: self.sp = sp
         if tools is not None: self.tools = L(tools)
         if self._chat is not None: self._chat.reconfigure(sp=sp, tools=tools)

@@ -66,7 +66,7 @@ class UsageStats:
 
 # %% ../nbs/00_core.ipynb #19d8025c
 class ChatCallback(GetAttr):
-    "Base class for chat callbacks; attributes it lacks are read from the chat, so `self.turn_msg` is `chat.turn_msg`."
+    "Base class for chat callbacks. A callback reads attributes it lacks from the chat, for example `self.turn_msg`."
     order, _default, chat, run = 0, 'chat', None, True
     def __repr__(self): return type(self).__name__
 
