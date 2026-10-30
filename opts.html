@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Portable model names and options.">
+
+<title>opts – uraiyadal</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-66a38d7287321bc50e069add96f8c30e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="opts – uraiyadal">
+<meta property="og:description" content="Portable model names and options.">
+<meta property="og:site_name" content="uraiyadal">
+<meta name="twitter:title" content="opts – uraiyadal">
+<meta name="twitter:description" content="Portable model names and options.">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">uraiyadal</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-end">
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./opts.html">opts</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">urai</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./core.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">core</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./tags.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">tags</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./msgs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">msgs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./caps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">caps</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./opts.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">opts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chat.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">chat</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./loop.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">loop</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./eval.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">eval</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sandbox.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">sandbox</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./record.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">record</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./broker.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">broker</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-runtime-registry" id="toc-the-runtime-registry" class="nav-link active" data-scroll-target="#the-runtime-registry">The runtime registry</a></li>
+  <li><a href="#naming-a-model" id="toc-naming-a-model" class="nav-link" data-scroll-target="#naming-a-model">Naming a model</a></li>
+  <li><a href="#a-resolved-model" id="toc-a-resolved-model" class="nav-link" data-scroll-target="#a-resolved-model">A resolved model</a></li>
+  <li><a href="#capabilities" id="toc-capabilities" class="nav-link" data-scroll-target="#capabilities">Capabilities</a></li>
+  <li><a href="#options" id="toc-options" class="nav-link" data-scroll-target="#options">Options</a></li>
+  <li><a href="#translating-for-a-backend" id="toc-translating-for-a-backend" class="nav-link" data-scroll-target="#translating-for-a-backend">Translating for a backend</a></li>
+  <li><a href="#one-turn-at-a-time" id="toc-one-turn-at-a-time" class="nav-link" data-scroll-target="#one-turn-at-a-time">One turn at a time</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/vedicreader/urai/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="opts.html.md"><i class="bi bi-file-code"></i>Markdown</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">opts</h1>
+</div>
+
+<div>
+  <div class="description">
+    Portable model names and options.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<section id="the-runtime-registry" class="level2">
+<h2 class="anchored" data-anchor-id="the-runtime-registry">The runtime registry</h2>
+<p>A runtime is one backend. It is an engine such as llama.cpp, or a hosted API, together with the <a href="https://vedicreader.github.io/urai/chat.html#chat"><code>Chat</code></a> subclass that talks to it. urai contains no runtimes. A backend package such as rishi calls <a href="https://vedicreader.github.io/urai/opts.html#register_runtime"><code>register_runtime</code></a> with a <a href="https://vedicreader.github.io/urai/opts.html#runtime"><code>Runtime</code></a> for each one. The <code>cls</code> field is a dotted path string, or the class itself for a backend that you define in your own code. A dotted path is not imported until a chat for that runtime is built.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th><a href="https://vedicreader.github.io/urai/opts.html#runtime"><code>Runtime</code></a> field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>name</code></td>
+<td>The name of the runtime</td>
+</tr>
+<tr class="even">
+<td><code>cls</code></td>
+<td>The <a href="https://vedicreader.github.io/urai/chat.html#chat"><code>Chat</code></a> subclass that implements the runtime</td>
+</tr>
+<tr class="odd">
+<td><code>pats</code></td>
+<td>Substrings that mark a model name as belonging to the runtime, such as <code>.gguf</code> for llama.cpp</td>
+</tr>
+<tr class="even">
+<td><code>optional</code></td>
+<td><code>True</code> for a backend that needs a pip extra</td>
+</tr>
+<tr class="odd">
+<td><code>extra</code></td>
+<td>The pip extra that installs the backend. The default is <code>name</code></td>
+</tr>
+<tr class="even">
+<td><code>local</code></td>
+<td><code>True</code> when the runtime runs on this machine</td>
+</tr>
+<tr class="odd">
+<td><code>caps</code></td>
+<td>A function <code>caps(model, model_path)</code> that returns the <a href="https://vedicreader.github.io/urai/caps.html#caps"><code>Caps</code></a> of a model, or its dotted path</td>
+</tr>
+<tr class="even">
+<td><code>ctx</code></td>
+<td>A fixed context window, for a runtime whose models all have the same window</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>install</code> property of a <a href="https://vedicreader.github.io/urai/opts.html#runtime"><code>Runtime</code></a> is the pip command that installs the backend. A caller can show it when the backend is missing. <code>register_runtime(rt, dflt=True)</code> also makes <code>rt</code> the runtime that a bare <a href="https://vedicreader.github.io/urai/chat.html#chat"><code>Chat()</code></a> uses.</p>
+<p>Runtimes are tried in the order of registration. Ollama names a Hugging Face GGUF repository as <code>hf.co/...-GGUF</code>. This name also contains <code>gguf</code>. Register Ollama before llama.cpp. Otherwise llama.cpp takes every such name for a local file. The example registers three placeholder runtimes, so the rest of this page runs without a real backend.</p>
+<div id="36f511f1" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.425430+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.434881+00:00&quot;,&quot;total&quot;:0.009455694000003234}}" data-execution_count="4">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/opts.py#L40" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="register_runtime" class="level3">
+<h3 class="anchored" data-anchor-id="register_runtime">register_runtime</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> register_runtime(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    rt, dflt:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Add <code>rt</code> to the registry, and with <code>dflt=True</code> make it the runtime a bare <a href="https://vedicreader.github.io/urai/chat.html#chat"><code>Chat()</code></a> uses.</em></p>
+</section>
+</div>
+<div id="9bd36950" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.435022+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.438988+00:00&quot;,&quot;total&quot;:0.003970880000004229}}" data-execution_count="5">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/opts.py#L21" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="runtime" class="level3">
+<h3 class="anchored" data-anchor-id="runtime">Runtime</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> Runtime(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    name:<span class="bu">str</span>, cls:<span class="bu">object</span>, pats:<span class="bu">tuple</span><span class="op">=</span>(), optional:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, extra:<span class="bu">str</span><span class="op">=</span><span class="st">''</span>, local:<span class="bu">bool</span><span class="op">=</span><span class="va">True</span>, caps:<span class="bu">object</span><span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    ctx:<span class="bu">int</span><span class="op">=</span><span class="dv">0</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>One registered backend: the <a href="https://vedicreader.github.io/urai/chat.html#chat"><code>Chat</code></a> class that runs it and the name patterns that select it.</em></p>
+</section>
+</div>
+</section>
+<section id="naming-a-model" class="level2">
+<h2 class="anchored" data-anchor-id="naming-a-model">Naming a model</h2>
+<p>Three rules say which runtime a model needs. They apply in this order.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rule</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>An explicit <code>runtime=</code> argument</td>
+<td><code>runtime='llama'</code></td>
+</tr>
+<tr class="even">
+<td>A runtime name as a prefix of the model name</td>
+<td><code>llama/qwen3-4b</code></td>
+</tr>
+<tr class="odd">
+<td>A match between the model name and the <code>pats</code> of a runtime</td>
+<td><code>qwen3-4b.gguf</code></td>
+</tr>
+</tbody>
+</table>
+<p><a href="https://vedicreader.github.io/urai/opts.html#split_runtime"><code>split_runtime</code></a> removes a prefix only when the prefix names a registered runtime. The name <code>openai/gpt-5.1</code> keeps its vendor prefix. <a href="https://vedicreader.github.io/urai/opts.html#infer_runtime"><code>infer_runtime</code></a> returns the first registered runtime whose <code>pats</code> match the name. It returns <code>None</code> when none match.</p>
+<p><code>resolve_runtime(model, runtime, model_path)</code> applies the three rules and returns <code>(runtime, model)</code>. When the model name gives no match, it tries <code>model_path</code> against the <code>pats</code>. When neither <code>model</code> nor <code>model_path</code> is given, it returns the default runtime. When it cannot decide, it raises <code>ValueError</code>. The message lists all three ways to name the runtime.</p>
+<div id="80e5732d" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.443018+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.447971+00:00&quot;,&quot;total&quot;:0.0049580420000054914}}" data-execution_count="7">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/opts.py#L63" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="resolve_runtime" class="level3">
+<h3 class="anchored" data-anchor-id="resolve_runtime">resolve_runtime</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> resolve_runtime(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    model:NoneType<span class="op">=</span><span class="va">None</span>, runtime:NoneType<span class="op">=</span><span class="va">None</span>, model_path:NoneType<span class="op">=</span><span class="va">None</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Work out <code>(runtime, model)</code> from an explicit <code>runtime</code>, a <code>runtime/</code> prefix, or the name’s shape.</em></p>
+</section>
+</div>
+<div id="bfc3ee18" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.448096+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.452208+00:00&quot;,&quot;total&quot;:0.004117463000000043}}" data-execution_count="8">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/opts.py#L57" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="infer_runtime" class="level3">
+<h3 class="anchored" data-anchor-id="infer_runtime">infer_runtime</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> infer_runtime(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    model</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>The first registered runtime whose patterns match <code>model</code>, else None.</em></p>
+</section>
+</div>
+<div id="85a7e16a" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.452347+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.456360+00:00&quot;,&quot;total&quot;:0.004017126000000815}}" data-execution_count="9">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/opts.py#L50" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="split_runtime" class="level3">
+<h3 class="anchored" data-anchor-id="split_runtime">split_runtime</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> split_runtime(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    model</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Split <code>'runtime/model'</code> into <code>(runtime, model)</code> when the prefix names a registered runtime.</em></p>
+</section>
+</div>
+<div id="eb0a7258" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>test_eq(split_runtime(<span class="st">'llama/qwen3-4b'</span>), (<span class="st">'llama'</span>, <span class="st">'qwen3-4b'</span>))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>test_eq(split_runtime(<span class="st">'openai/gpt-5.1'</span>), (<span class="va">None</span>, <span class="st">'openai/gpt-5.1'</span>))   <span class="co"># 'openai' is not a runtime</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>test_eq(split_runtime(<span class="st">'plain'</span>), (<span class="va">None</span>, <span class="st">'plain'</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="d9008024" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>test_eq(infer_runtime(<span class="st">'qwen3-4b.gguf'</span>), <span class="st">'llama'</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>test_eq(infer_runtime(<span class="st">'hf.co/unsloth/qwen3-GGUF'</span>), <span class="st">'ollama'</span>)  <span class="co"># registered first, so it wins</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>test_eq(infer_runtime(<span class="st">'gpt-5.1'</span>), <span class="st">'remote'</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>test_eq(infer_runtime(<span class="st">'mystery-model'</span>), <span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="b68e3def" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>test_eq(resolve_runtime(<span class="st">'gpt-5.1'</span>), (<span class="st">'remote'</span>, <span class="st">'gpt-5.1'</span>))</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>test_eq(resolve_runtime(<span class="st">'llama/anything'</span>), (<span class="st">'llama'</span>, <span class="st">'anything'</span>))</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>test_eq(resolve_runtime(<span class="st">'anything'</span>, runtime<span class="op">=</span><span class="st">'llama'</span>), (<span class="st">'llama'</span>, <span class="st">'anything'</span>))</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>test_eq(resolve_runtime(), (<span class="st">'remote'</span>, <span class="va">None</span>))                   <span class="co"># nothing named: the default</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>test_eq(resolve_runtime(<span class="va">None</span>, model_path<span class="op">=</span><span class="st">'/m/x.gguf'</span>), (<span class="st">'llama'</span>, <span class="va">None</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="bc75a7ff" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>test_fail(<span class="kw">lambda</span>: resolve_runtime(<span class="st">'mystery'</span>), contains<span class="op">=</span><span class="st">"Can't tell which backend"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>test_fail(<span class="kw">lambda</span>: resolve_runtime(<span class="st">'x'</span>, runtime<span class="op">=</span><span class="st">'nope'</span>), contains<span class="op">=</span><span class="st">'Unknown runtime'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="a-resolved-model" class="level2">
+<h2 class="anchored" data-anchor-id="a-resolved-model">A resolved model</h2>
+<p><code>resolve(name, runtime, model_path, ctx, **opts)</code> works out what is known about a model without loading it. It returns a <a href="https://vedicreader.github.io/urai/opts.html#modelspec"><code>ModelSpec</code></a>.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th><a href="https://vedicreader.github.io/urai/opts.html#modelspec"><code>ModelSpec</code></a> field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>name</code></td>
+<td>The name that the caller typed. It falls back to the model id, then the runtime name</td>
+</tr>
+<tr class="even">
+<td><code>runtime</code></td>
+<td>The name of the runtime</td>
+</tr>
+<tr class="odd">
+<td><code>model_id</code></td>
+<td>The id that the backend receives</td>
+</tr>
+<tr class="even">
+<td><code>ctx</code></td>
+<td>The context window in tokens</td>
+</tr>
+<tr class="odd">
+<td><code>note</code></td>
+<td>Text about how the model was resolved. It is empty when the window is known</td>
+</tr>
+<tr class="even">
+<td><code>opts</code></td>
+<td>The keyword options that were passed to <a href="https://vedicreader.github.io/urai/opts.html#resolve"><code>resolve</code></a></td>
+</tr>
+</tbody>
+</table>
+<p>The <code>local</code> property of a <a href="https://vedicreader.github.io/urai/opts.html#modelspec"><code>ModelSpec</code></a> is <code>True</code> when the runtime runs on this machine.</p>
+<p>The <code>ctx</code> argument decides the window first. When you do not pass it, <a href="https://vedicreader.github.io/urai/opts.html#resolve"><code>resolve</code></a> takes the window from the first rule in this table that applies.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Rule</th>
+<th><code>ctx</code></th>
+<th><code>note</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>The runtime sets <code>ctx</code></td>
+<td>The <code>ctx</code> of the runtime</td>
+<td><code>''</code></td>
+</tr>
+<tr class="even">
+<td>The runtime is local</td>
+<td><code>DFLT_CTX</code> (128,000)</td>
+<td><code>''</code></td>
+</tr>
+<tr class="odd">
+<td>The runtime is hosted</td>
+<td>The first value of the pair that <a href="https://vedicreader.github.io/urai/caps.html#hosted_ctx"><code>hosted_ctx</code></a> returns</td>
+<td>The second value of that pair. It says when the window is assumed</td>
+</tr>
+</tbody>
+</table>
+<p>A <a href="https://vedicreader.github.io/urai/opts.html#modelspec"><code>ModelSpec</code></a> is frozen. You can cache it, compare it and pass it between parts of a program. Pass it to <a href="https://vedicreader.github.io/urai/chat.html#mk_chat"><code>mk_chat</code></a> or <a href="https://vedicreader.github.io/urai/chat.html#chat"><code>Chat</code></a>. The <code>opts</code> field does not take part in comparisons. Two specs for the same model compare equal when only their <code>opts</code> differ.</p>
+<div id="c30de7fc" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.462256+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.466986+00:00&quot;,&quot;total&quot;:0.00473405299999996}}" data-execution_count="11">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/opts.py#L91" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="resolve" class="level3">
+<h3 class="anchored" data-anchor-id="resolve">resolve</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> resolve(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    name:NoneType<span class="op">=</span><span class="va">None</span>, runtime:NoneType<span class="op">=</span><span class="va">None</span>, model_path:NoneType<span class="op">=</span><span class="va">None</span>, ctx:NoneType<span class="op">=</span><span class="va">None</span>, <span class="op">**</span>opts</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Resolve <code>name</code> to a <a href="https://vedicreader.github.io/urai/opts.html#modelspec"><code>ModelSpec</code></a> without loading the model.</em></p>
+</section>
+</div>
+<div id="1e896b0a" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.467139+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.470841+00:00&quot;,&quot;total&quot;:0.0037058250000043813}}" data-execution_count="12">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/opts.py#L76" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="modelspec" class="level3">
+<h3 class="anchored" data-anchor-id="modelspec">ModelSpec</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ModelSpec(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    name:<span class="bu">str</span>, runtime:<span class="bu">str</span>, model_id:<span class="bu">str</span>, ctx:<span class="bu">int</span><span class="op">=</span><span class="dv">128000</span>, note:<span class="bu">str</span><span class="op">=</span><span class="st">''</span>, opts:<span class="bu">dict</span><span class="op">=&lt;</span>factory<span class="op">&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>A resolved model: its runtime, the id the backend is given, and its context window.</em></p>
+</section>
+</div>
+<div id="f0a1ec8b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> resolve(<span class="st">'gpt-5.1'</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>test_eq((s.name, s.runtime, s.model_id, s.local), (<span class="st">'gpt-5.1'</span>, <span class="st">'remote'</span>, <span class="st">'gpt-5.1'</span>, <span class="va">False</span>))</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> s.ctx <span class="op">&gt;</span> <span class="dv">100_000</span> <span class="kw">and</span> s.note <span class="op">==</span> <span class="st">''</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">str</span>(s), <span class="st">'gpt-5.1 (gpt-5.1)'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="254ae632" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> resolve(<span class="st">'llama/qwen3-4b'</span>, ctx<span class="op">=</span><span class="dv">8192</span>, n_gpu_layers<span class="op">=</span><span class="dv">99</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>test_eq((s.runtime, s.model_id, s.ctx, s.opts), (<span class="st">'llama'</span>, <span class="st">'qwen3-4b'</span>, <span class="dv">8192</span>, {<span class="st">'n_gpu_layers'</span>: <span class="dv">99</span>}))</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>test_eq(s.local, <span class="va">True</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>test_eq(resolve(<span class="st">'unknown-hosted'</span>, runtime<span class="op">=</span><span class="st">'remote'</span>).note,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">'context window unknown, assuming 128k'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="73800a0b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># `opts` is out of the comparison: the same model twice is the same model</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>test_eq(resolve(<span class="st">'gpt-5.1'</span>, temp<span class="op">=</span><span class="fl">0.1</span>), resolve(<span class="st">'gpt-5.1'</span>, temp<span class="op">=</span><span class="fl">0.9</span>))</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>test_eq(resolve(<span class="st">'gpt-5.1'</span>) <span class="op">==</span> resolve(<span class="st">'gpt-4o'</span>), <span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="capabilities" class="level2">
+<h2 class="anchored" data-anchor-id="capabilities">Capabilities</h2>
+<p><code>model_caps(model, runtime, model_path)</code> returns the <a href="https://vedicreader.github.io/urai/caps.html#caps"><code>Caps</code></a> of a model without loading the model. It resolves the runtime and calls the <code>caps</code> function of that runtime when one is registered. The table shows the other cases.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Case</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>The runtime cannot be resolved, or is not registered</td>
+<td><code>hosted_caps(model)</code></td>
+</tr>
+<tr class="even">
+<td>A hosted runtime with no <code>caps</code> function</td>
+<td><code>hosted_caps(model)</code></td>
+</tr>
+<tr class="odd">
+<td>A local runtime with no <code>caps</code> function</td>
+<td>An unknown <a href="https://vedicreader.github.io/urai/caps.html#caps"><code>Caps()</code></a></td>
+</tr>
+<tr class="even">
+<td>The <code>caps</code> function raises an error or returns nothing</td>
+<td>An unknown <a href="https://vedicreader.github.io/urai/caps.html#caps"><code>Caps()</code></a></td>
+</tr>
+</tbody>
+</table>
+<p><a href="https://vedicreader.github.io/urai/opts.html#model_caps"><code>model_caps</code></a> never raises, so a failed check does not stop a chat from starting. <a href="https://vedicreader.github.io/urai/opts.html#load_ref"><code>load_ref</code></a> imports an object from a dotted path such as <code>'pkg.mod.name'</code>. It returns a value that is not a string unchanged.</p>
+<div id="bbce411b" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.474366+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.479212+00:00&quot;,&quot;total&quot;:0.004850490999999124}}" data-execution_count="14">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/opts.py#L108" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="model_caps" class="level3">
+<h3 class="anchored" data-anchor-id="model_caps">model_caps</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model_caps(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    model:NoneType<span class="op">=</span><span class="va">None</span>, runtime:NoneType<span class="op">=</span><span class="va">None</span>, model_path:NoneType<span class="op">=</span><span class="va">None</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>The <a href="https://vedicreader.github.io/urai/caps.html#caps"><code>Caps</code></a> of <code>model</code>, from its runtime’s own check or the hosted table, without loading it.</em></p>
+</section>
+</div>
+<div id="fd012a97" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.479339+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.483264+00:00&quot;,&quot;total&quot;:0.003929281999994316}}" data-execution_count="15">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/opts.py#L102" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="load_ref" class="level3">
+<h3 class="anchored" data-anchor-id="load_ref">load_ref</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_ref(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    o</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Import and return the object at dotted path <code>o</code>, or return <code>o</code> if it is not a string.</em></p>
+</section>
+</div>
+<div id="ca444e9e" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>test_eq(model_caps(<span class="st">'gpt-5.1'</span>).source, <span class="st">'fastllm'</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>test_eq(model_caps(<span class="st">'qwen3-4b.gguf'</span>).source, <span class="st">'default'</span>)     <span class="co"># local, no prober registered</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>test_eq(model_caps(<span class="st">'gpt-5.1'</span>, runtime<span class="op">=</span><span class="st">'nope'</span>).source, <span class="st">'fastllm'</span>)  <span class="co"># unknown runtime, still asked</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="options" class="level2">
+<h2 class="anchored" data-anchor-id="options">Options</h2>
+<p><a href="https://vedicreader.github.io/urai/opts.html#chatopts"><code>ChatOpts</code></a> holds every setting that a chat can take. Each setting has one portable name that all runtimes share. The fields fall into four groups.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Group</th>
+<th>Fields</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Conversation</td>
+<td><code>sp</code> (system prompt), <code>tools</code>, <code>messages</code> (history to start from)</td>
+</tr>
+<tr class="even">
+<td>Tool loop</td>
+<td><code>approve</code>, <code>max_steps</code>, <code>tool_max_len</code>, <code>parallel_tools</code>, <code>max_parallel_tools</code>, <code>final_prompt</code>, <code>cbs</code>, <code>default_cbs</code></td>
+</tr>
+<tr class="odd">
+<td>Generation</td>
+<td><code>ctx</code>, <code>max_output_tokens</code>, <code>temp</code>, <code>top_k</code>, <code>top_p</code>, <code>seed</code>, <code>think</code>, <code>effort</code>, <code>tool_mode</code></td>
+</tr>
+<tr class="even">
+<td>Credentials</td>
+<td><code>api_key</code>, <code>api_key_env</code>, <code>base_url</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>approve</code> is a function that takes a tool call and returns <code>True</code> when the call may run. The default <code>None</code> runs every call. <code>max_steps</code> is the number of tool calls that one turn can use. <code>final_prompt</code> is sent to the model when that budget runs out. <code>api_key_env</code> names an environment variable that holds the key. A saved configuration can then omit the key. The <code>extra</code> field holds options that no portable field covers.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>think</code></td>
+<td><code>False</code> asks a reasoning model not to deliberate. The default <code>None</code> leaves the option unset.</td>
+</tr>
+<tr class="even">
+<td><code>effort</code></td>
+<td>How much a reasoning model deliberates, such as <code>'low'</code>, <code>'medium'</code> or <code>'high'</code>, for models that grade it. The default <code>''</code> leaves the option unset.</td>
+</tr>
+<tr class="odd">
+<td><code>tool_mode</code></td>
+<td>How tool schemas reach the model. <code>'native'</code> sends them as part of the request. <code>'tags'</code> writes them into the prompt.</td>
+</tr>
+<tr class="even">
+<td><code>cbs</code></td>
+<td>Callbacks that the chat attaches, after the default callbacks.</td>
+</tr>
+<tr class="odd">
+<td><code>default_cbs</code></td>
+<td>When <code>True</code>, the chat first attaches the callbacks that its backend lists in <code>_dflt_cbs</code>. The default is <code>True</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><code>ChatOpts.create(opts, **kw)</code> builds a <a href="https://vedicreader.github.io/urai/opts.html#chatopts"><code>ChatOpts</code></a> from an existing <a href="https://vedicreader.github.io/urai/opts.html#chatopts"><code>ChatOpts</code></a> or a dict, plus keyword overrides. <code>ALIASES</code> translates the older names that backends used.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Older name</th>
+<th>Portable name</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>reasoning_effort</code></td>
+<td><code>effort</code></td>
+</tr>
+<tr class="even">
+<td><code>temperature</code></td>
+<td><code>temp</code></td>
+</tr>
+<tr class="odd">
+<td><code>max_tokens</code></td>
+<td><code>max_output_tokens</code></td>
+</tr>
+<tr class="even">
+<td><code>ctx_limit</code>, <code>n_ctx</code></td>
+<td><code>ctx</code></td>
+</tr>
+<tr class="odd">
+<td><code>system</code></td>
+<td><code>sp</code></td>
+</tr>
+</tbody>
+</table>
+<p>A keyword with no field of its own goes into <code>extra</code>. A backend receives <code>extra</code> unchanged. Backend-only settings such as <code>n_gpu_layers</code> are passed through <code>extra</code>.</p>
+<p><code>set()</code> returns a dict of the fields whose value differs from the default, without <code>extra</code>. A field that you set to its default value does not appear. <code>set()</code> cannot tell it from a field that you did not set. The <code>key</code> property returns <code>api_key</code>, or the value of the environment variable that <code>api_key_env</code> names. It stores nothing on the object.</p>
+<div id="216d300d" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.494617+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.499171+00:00&quot;,&quot;total&quot;:0.004558445999997218}}" data-execution_count="17">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/opts.py#L132" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="chatopts" class="level3">
+<h3 class="anchored" data-anchor-id="chatopts">ChatOpts</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ChatOpts(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    sp:<span class="bu">str</span><span class="op">=</span><span class="st">''</span>, tools:<span class="bu">tuple</span><span class="op">=</span>(), messages:<span class="bu">tuple</span><span class="op">=</span>(), approve:<span class="bu">object</span><span class="op">=</span><span class="va">None</span>, max_steps:<span class="bu">int</span><span class="op">=</span><span class="dv">10</span>, tool_max_len:<span class="bu">int</span><span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    parallel_tools:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, max_parallel_tools:<span class="bu">int</span><span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    final_prompt:<span class="bu">str</span><span class="op">=</span><span class="st">"You've reached the tool-call budget for this turn. Stop calling tools and answer with what you already have."</span>,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    cbs:<span class="bu">tuple</span><span class="op">=</span>(), default_cbs:<span class="bu">bool</span><span class="op">=</span><span class="va">True</span>, ctx:<span class="bu">int</span><span class="op">=</span><span class="dv">0</span>, max_output_tokens:<span class="bu">int</span><span class="op">=</span><span class="dv">0</span>, temp:<span class="bu">float</span><span class="op">=</span><span class="va">None</span>, top_k:<span class="bu">int</span><span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    top_p:<span class="bu">float</span><span class="op">=</span><span class="va">None</span>, seed:<span class="bu">int</span><span class="op">=</span><span class="va">None</span>, think:<span class="bu">bool</span><span class="op">=</span><span class="va">None</span>, effort:<span class="bu">str</span><span class="op">=</span><span class="st">''</span>, tool_mode:<span class="bu">str</span><span class="op">=</span><span class="st">''</span>, api_key:<span class="bu">str</span><span class="op">=</span><span class="st">''</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    api_key_env:<span class="bu">str</span><span class="op">=</span><span class="st">''</span>, base_url:<span class="bu">str</span><span class="op">=</span><span class="st">''</span>, extra:<span class="bu">dict</span><span class="op">=&lt;</span>factory<span class="op">&gt;</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Every chat setting under the portable name all runtimes share.</em></p>
+</section>
+</div>
+<div id="cfee9fc4" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>o <span class="op">=</span> ChatOpts.create(sp<span class="op">=</span><span class="st">'Be brief.'</span>, temp<span class="op">=</span><span class="fl">0.2</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>test_eq((o.sp, o.temp, o.max_steps), (<span class="st">'Be brief.'</span>, <span class="fl">0.2</span>, <span class="dv">10</span>))</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>test_eq(o.<span class="bu">set</span>(), {<span class="st">'sp'</span>: <span class="st">'Be brief.'</span>, <span class="st">'temp'</span>: <span class="fl">0.2</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="b7cf7854" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>o <span class="op">=</span> ChatOpts.create(temp<span class="op">=</span><span class="fl">0.2</span>, n_gpu_layers<span class="op">=</span><span class="dv">99</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>test_eq(o.extra, {<span class="st">'n_gpu_layers'</span>: <span class="dv">99</span>})</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts.create(o, temp<span class="op">=</span><span class="fl">0.9</span>).temp, <span class="fl">0.9</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts.create(o, seed<span class="op">=</span><span class="dv">1</span>).extra, {<span class="st">'n_gpu_layers'</span>: <span class="dv">99</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="a77bc3b9" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.500091+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.501811+00:00&quot;,&quot;total&quot;:0.0017239069999988033}}" data-execution_count="18">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>os.environ[<span class="st">'DEMO_KEY'</span>] <span class="op">=</span> <span class="st">'sk-secret'</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts.create(api_key_env<span class="op">=</span><span class="st">'DEMO_KEY'</span>).key, <span class="st">'sk-secret'</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts.create(api_key<span class="op">=</span><span class="st">'explicit'</span>, api_key_env<span class="op">=</span><span class="st">'DEMO_KEY'</span>).key, <span class="st">'explicit'</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts.create(api_key_env<span class="op">=</span><span class="st">'NOT_SET_ANYWHERE'</span>).key, <span class="va">None</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts().key, <span class="va">None</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> os.environ[<span class="st">'DEMO_KEY'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="d0095680" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts.create(reasoning_effort<span class="op">=</span><span class="st">'high'</span>).effort, <span class="st">'high'</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts.create(temperature<span class="op">=</span><span class="fl">0.2</span>).temp, <span class="fl">0.2</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts.create(max_tokens<span class="op">=</span><span class="dv">512</span>).max_output_tokens, <span class="dv">512</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts.create(ctx_limit<span class="op">=</span><span class="dv">8192</span>).ctx, <span class="dv">8192</span>)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts.create(n_ctx<span class="op">=</span><span class="dv">8192</span>).ctx, <span class="dv">8192</span>)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts.create(system<span class="op">=</span><span class="st">'Be brief.'</span>).sp, <span class="st">'Be brief.'</span>)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts.create(reasoning_effort<span class="op">=</span><span class="st">'high'</span>).extra, {})   <span class="co"># aliased, not shunted into extra</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="59b3cfa9" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts.create({<span class="st">'sp'</span>: <span class="st">'from a dict'</span>}).sp, <span class="st">'from a dict'</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>o <span class="op">=</span> ChatOpts.create({<span class="st">'temperature'</span>: <span class="fl">0.5</span>, <span class="st">'custom'</span>: <span class="dv">1</span>, <span class="st">'extra'</span>: {<span class="st">'a'</span>: <span class="dv">2</span>}}, extra<span class="op">=</span>{<span class="st">'b'</span>: <span class="dv">3</span>}, temp<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>test_eq((o.temp, o.extra), (<span class="fl">0.7</span>, {<span class="st">'a'</span>: <span class="dv">2</span>, <span class="st">'b'</span>: <span class="dv">3</span>, <span class="st">'custom'</span>: <span class="dv">1</span>}))   <span class="co"># dicts take aliases and extras like keywords</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts.create({<span class="st">'temp'</span>: <span class="fl">.2</span>, <span class="st">'temperature'</span>: <span class="fl">.3</span>}, temp<span class="op">=</span><span class="fl">.9</span>).temp, <span class="fl">.9</span>)   <span class="co"># keywords win even through an alias</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts.create(), ChatOpts())</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>test_eq(ChatOpts().<span class="bu">set</span>(), {})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="translating-for-a-backend" class="level2">
+<h2 class="anchored" data-anchor-id="translating-for-a-backend">Translating for a backend</h2>
+<p>A backend translates the portable names with two class attributes on its <a href="https://vedicreader.github.io/urai/chat.html#chat"><code>Chat</code></a> subclass.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Attribute</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>_opt_map</code></td>
+<td>A dict from a portable name to the name that the backend uses</td>
+</tr>
+<tr class="even">
+<td><code>_opt_skip</code></td>
+<td>The options that the backend cannot use</td>
+</tr>
+</tbody>
+</table>
+<p><a href="https://vedicreader.github.io/urai/chat.html#chat.map_opts"><code>Chat.map_opts</code></a>, on the <a href="chat.html">chat</a> page, applies both. It drops a skipped option without a warning. It renames every other option and passes it on. A target name with a dot in it is nested. The entry <code>{'ctx': 'eng_kw.max_num_tokens'}</code> sends the window as <code>eng_kw={'max_num_tokens': ...}</code>. <a href="https://vedicreader.github.io/urai/opts.html#set_dotted"><code>set_dotted</code></a> builds the nested dict.</p>
+<div id="a4c31def" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.504265+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.508342+00:00&quot;,&quot;total&quot;:0.004081276000000855}}" data-execution_count="20">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/opts.py#L193" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="set_dotted" class="level3">
+<h3 class="anchored" data-anchor-id="set_dotted">set_dotted</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> set_dotted(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    d, path, v</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Set <code>d['a']['b'] = v</code> for <code>path='a.b'</code>, creating the dicts in between.</em></p>
+</section>
+</div>
+<div id="ccc56fb3" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>test_eq(set_dotted({}, <span class="st">'eng_kw.max_num_tokens'</span>, <span class="dv">8192</span>), {<span class="st">'eng_kw'</span>: {<span class="st">'max_num_tokens'</span>: <span class="dv">8192</span>}})</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>test_eq(set_dotted({<span class="st">'eng_kw'</span>: {<span class="st">'a'</span>: <span class="dv">1</span>}}, <span class="st">'eng_kw.b'</span>, <span class="dv">2</span>), {<span class="st">'eng_kw'</span>: {<span class="st">'a'</span>: <span class="dv">1</span>, <span class="st">'b'</span>: <span class="dv">2</span>}})</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>test_eq(set_dotted({}, <span class="st">'plain'</span>, <span class="dv">1</span>), {<span class="st">'plain'</span>: <span class="dv">1</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="one-turn-at-a-time" class="level2">
+<h2 class="anchored" data-anchor-id="one-turn-at-a-time">One turn at a time</h2>
+<p>Some settings can change between two calls without a new chat. Examples are a higher <code>effort</code> for a hard question and <code>temp=0</code> for an extraction. <code>GEN_OPTS</code> lists these settings: <code>max_output_tokens</code>, <code>temp</code>, <code>top_k</code>, <code>top_p</code>, <code>seed</code>, <code>think</code>, <code>effort</code> and <code>tool_mode</code>.</p>
+<p><code>turn_kw(opts, **kw)</code> builds a <a href="https://vedicreader.github.io/urai/opts.html#chatopts"><code>ChatOpts</code></a> from <code>opts</code> and <code>kw</code>. It returns the fields of <code>GEN_OPTS</code> that differ from their defaults, and all <code>extra</code> options. It leaves out the other fields, such as the system prompt <code>sp</code>, which apply to the whole chat.</p>
+<div id="86ce5591" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.510058+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.513779+00:00&quot;,&quot;total&quot;:0.003722954999993533}}" data-execution_count="22">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/opts.py#L201" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="turn_kw" class="level3">
+<h3 class="anchored" data-anchor-id="turn_kw">turn_kw</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> turn_kw(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    opts:NoneType<span class="op">=</span><span class="va">None</span>, <span class="op">**</span>kw</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>The settings in <code>opts</code> and <code>kw</code> that can apply to a single turn, plus any <code>extra</code> options.</em></p>
+</section>
+</div>
+<div id="fa058321" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>test_eq(turn_kw(temp<span class="op">=</span><span class="fl">0.9</span>, effort<span class="op">=</span><span class="st">'high'</span>), {<span class="st">'temp'</span>: <span class="fl">0.9</span>, <span class="st">'effort'</span>: <span class="st">'high'</span>})</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>test_eq(turn_kw(temp<span class="op">=</span><span class="fl">0.9</span>, sp<span class="op">=</span><span class="st">'ignored here'</span>), {<span class="st">'temp'</span>: <span class="fl">0.9</span>})</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>test_eq(turn_kw(), {})</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>test_eq(turn_kw(ChatOpts(temp<span class="op">=</span><span class="fl">0.1</span>), temp<span class="op">=</span><span class="fl">0.9</span>), {<span class="st">'temp'</span>: <span class="fl">0.9</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vedicreader\.github\.io\/urai");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vedicreader/urai/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

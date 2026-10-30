@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Tool execution and context-window management.">
+
+<title>loop – uraiyadal</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-66a38d7287321bc50e069add96f8c30e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="loop – uraiyadal">
+<meta property="og:description" content="Tool execution and context-window management.">
+<meta property="og:site_name" content="uraiyadal">
+<meta name="twitter:title" content="loop – uraiyadal">
+<meta name="twitter:description" content="Tool execution and context-window management.">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">uraiyadal</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-end">
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./loop.html">loop</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">urai</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./core.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">core</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./tags.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">tags</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./msgs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">msgs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./caps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">caps</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./opts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">opts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chat.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">chat</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./loop.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">loop</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./eval.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">eval</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sandbox.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">sandbox</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./record.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">record</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./broker.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">broker</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#two-more-stock-callbacks" id="toc-two-more-stock-callbacks" class="nav-link active" data-scroll-target="#two-more-stock-callbacks">Two more stock callbacks</a></li>
+  <li><a href="#the-loop" id="toc-the-loop" class="nav-link" data-scroll-target="#the-loop">The loop</a>
+  <ul class="collapse">
+  <li><a href="#sending" id="toc-sending" class="nav-link" data-scroll-target="#sending">Sending</a></li>
+  <li><a href="#a-backend-to-test-against" id="toc-a-backend-to-test-against" class="nav-link" data-scroll-target="#a-backend-to-test-against">A backend to test against</a></li>
+  <li><a href="#the-budget" id="toc-the-budget" class="nav-link" data-scroll-target="#the-budget">The budget</a></li>
+  <li><a href="#why-a-call-was-refused" id="toc-why-a-call-was-refused" class="nav-link" data-scroll-target="#why-a-call-was-refused">Why a call was refused</a></li>
+  <li><a href="#running-calls-at-the-same-time" id="toc-running-calls-at-the-same-time" class="nav-link" data-scroll-target="#running-calls-at-the-same-time">Running calls at the same time</a></li>
+  <li><a href="#cancelling" id="toc-cancelling" class="nav-link" data-scroll-target="#cancelling">Cancelling</a></li>
+  <li><a href="#when-the-window-fills-mid-turn" id="toc-when-the-window-fills-mid-turn" class="nav-link" data-scroll-target="#when-the-window-fills-mid-turn">When the window fills mid-turn</a></li>
+  <li><a href="#streaming" id="toc-streaming" class="nav-link" data-scroll-target="#streaming">Streaming</a></li>
+  </ul></li>
+  <li><a href="#keeping-the-window-from-filling" id="toc-keeping-the-window-from-filling" class="nav-link" data-scroll-target="#keeping-the-window-from-filling">Keeping the window from filling</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/vedicreader/urai/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="loop.html.md"><i class="bi bi-file-code"></i>Markdown</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">loop</h1>
+</div>
+
+<div>
+  <div class="description">
+    Tool execution and context-window management.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<section id="two-more-stock-callbacks" class="level2">
+<h2 class="anchored" data-anchor-id="two-more-stock-callbacks">Two more stock callbacks</h2>
+<p>A callback is an object that the chat calls at fixed points in a turn. A backend attaches these two callbacks by listing them in <code>_dflt_cbs</code>. The <a href="https://vedicreader.github.io/urai/chat.html#chat"><code>Chat</code></a> base class lists none, and <code>default_cbs=False</code> turns the list off.</p>
+<p><a href="https://vedicreader.github.io/urai/loop.html#usagecallback"><code>UsageCallback</code></a> adds the token usage of a turn to <code>chat.use</code>. The usage is the sum over all model requests in the turn.</p>
+<p><a href="https://vedicreader.github.io/urai/loop.html#toolremindercallback"><code>ToolReminderCallback</code></a> appends <code>tool_reminder_</code> to each message the user sends while the chat has tools. The text asks the model to summarize each tool result before it calls the next tool.</p>
+<div id="9a14023d" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.598577+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.650066+00:00&quot;,&quot;total&quot;:0.051494505999997386}}" data-execution_count="4">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/loop.py#L37" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="toolremindercallback" class="level3">
+<h3 class="anchored" data-anchor-id="toolremindercallback">ToolReminderCallback</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ToolReminderCallback(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    tool_reminder:<span class="bu">str</span><span class="op">=</span><span class="st">'</span><span class="ch">\n</span><span class="st">&lt;system-reminder&gt;After every tool call result, briefly summarise in prose what you found before continuing or calling another tool.&lt;/system-reminder&gt;'</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Append <code>tool_reminder</code> to each outgoing message while the chat has tools.</em></p>
+</section>
+</div>
+<div id="221dd7b4" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.650249+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.654264+00:00&quot;,&quot;total&quot;:0.004019290000002229}}" data-execution_count="5">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/loop.py#L26" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="usagecallback" class="level3">
+<h3 class="anchored" data-anchor-id="usagecallback">UsageCallback</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> UsageCallback(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>args, <span class="op">**</span>kwargs</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Add the token usage reported for each turn to <code>chat.use</code>.</em></p>
+</section>
+</div>
+</section>
+<section id="the-loop" class="level2">
+<h2 class="anchored" data-anchor-id="the-loop">The loop</h2>
+<p><code>call_tool(tc)</code> runs one tool call <code>tc</code> against the chat’s tools. It applies argument hoisting and type conversion before checking the schema. A call missing required fields returns an error that lists every missing field. The tool does not run. This check applies to direct native calls too. A call marked <code>unread</code> returns <code>unread_msg_</code> without running. If the tool raises an exception, the turn continues. The result is the exception as a string, for example <code>ValueError: nope</code>. The model reads this string and can try again.</p>
+<p>A tool call that has the key <code>server</code> was already run by the provider. <code>call_tool</code> does not run it again. The result is <code>(run by the provider)</code>.</p>
+<p><code>token_count</code> is the number of tokens in the conversation after the last turn. <a href="https://vedicreader.github.io/urai/chat.html#chat.pct_full"><code>Chat.pct_full</code></a> divides <code>token_count</code> by <code>ctx_limit</code> to give the fraction of the context window in use.</p>
+<p>In one step, the loop checks every call for approval before it runs any of them. <a href="https://vedicreader.github.io/urai/loop.html#media_note"><code>media_note</code></a> writes the text that goes with pictures that tools return. The section on pictures below describes it.</p>
+<div id="c6ac9225" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.670318+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.674382+00:00&quot;,&quot;total&quot;:0.00406821100000343}}" data-execution_count="7">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/loop.py#L75" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="toolloopmixin" class="level3">
+<h3 class="anchored" data-anchor-id="toolloopmixin">ToolLoopMixin</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ToolLoopMixin(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>args, <span class="op">**</span>kwargs</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>The tool loop for backends that receive tool calls as data.</em></p>
+</section>
+</div>
+<div id="04695816" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.674522+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.678870+00:00&quot;,&quot;total&quot;:0.004352029999999729}}" data-execution_count="8">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/loop.py#L64" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="media_note" class="level3">
+<h3 class="anchored" data-anchor-id="media_note">media_note</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> media_note(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    names, sent:<span class="bu">int</span><span class="op">=</span><span class="dv">0</span>, left:<span class="bu">tuple</span><span class="op">=</span>(), media_in:<span class="bu">bool</span><span class="op">=</span><span class="va">True</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>The note sent with the pictures that a step’s tools returned, or in place of them.</em></p>
+</section>
+</div>
+<section id="sending" class="level3">
+<h3 class="anchored" data-anchor-id="sending">Sending</h3>
+<div id="e8ed7014" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.682735+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.686320+00:00&quot;,&quot;total&quot;:0.003588324999995507}}" data-execution_count="10">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/loop.py#L200" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="toolcallerror" class="level3">
+<h3 class="anchored" data-anchor-id="toolcallerror">ToolCallError</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ToolCallError(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>args, <span class="op">**</span>kwargs</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>A tool call was lost again after the model was asked once to send it again.</em></p>
+</section>
+</div>
+<p>Every model reply passes through one repair step before the loop acts on it. The step uses <a href="https://vedicreader.github.io/urai/msgs.html#coerce_tcs"><code>coerce_tcs</code></a> to convert the arguments of each call to the types that the schema of its tool declares.</p>
+<p>A reply can contain a tool call that the loop cannot read, because its arguments were lost or are not valid. The loop never runs such a call. It does not end the turn either. It drops the tool calls of that reply and sends <code>reparse_msg_</code> to the model. The message asks the model to send the call again as one clean <code>&lt;tool_call&gt;</code> block.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reply</th>
+<th>Message sent to the model</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A reply with a call that the loop cannot read</td>
+<td><code>reparse_msg_</code></td>
+</tr>
+<tr class="even">
+<td>A reply with a call that the loop cannot read, and <code>truncated=True</code></td>
+<td><code>cut_msg_</code>, which asks for the call in smaller pieces</td>
+</tr>
+<tr class="odd">
+<td>A reply with the key <code>reparse</code></td>
+<td>The text of <code>reparse</code>, which a backend sets. It replaces both messages above.</td>
+</tr>
+<tr class="even">
+<td>A call that is still unreadable after the retry</td>
+<td><code>unread_msg_</code>, as the result of that call</td>
+</tr>
+</tbody>
+</table>
+<p>The loop asks for the call again at most once in each <code>_send</code> or <code>_stream</code> call. A turn that runs out of tool-call budget makes a second such call for <code>final_prompt</code>, and that call has its own retry. A backend that knows why a call was lost puts the reason in the key <code>lost</code> of the reply.</p>
+<p>The loop checks the second reply as follows. If the second reply fails to parse and <code>lost</code> is not empty, the loop raises <a href="https://vedicreader.github.io/urai/loop.html#toolcallerror"><code>ToolCallError</code></a> with the text of <code>lost</code>. If <code>lost</code> is empty or missing, the loop stops asking. A reply without tool calls ends the turn. A reply that still holds unreadable calls gets a tool-result message for each of them, with the text of <code>unread_msg_</code>, and the loop continues with the next request to the model.</p>
+<p><code>_send(msg)</code> is the loop for a turn that is not streamed. If a model request fails because the context window is full, <code>_send</code> calls <code>recover_context</code> and continues with the reply that <code>recover_context</code> returns.</p>
+</section>
+<section id="a-backend-to-test-against" class="level3">
+<h3 class="anchored" data-anchor-id="a-backend-to-test-against">A backend to test against</h3>
+<p><code>_ScriptChat</code> is a test backend. Its replies come from a fixed list, one reply for each model request. The tests need no real model.</p>
+<p><code>_mk(script, **kw)</code> makes a chat that uses <code>_ScriptChat</code> and replies from the list <code>script</code>. Each item in <code>script</code> is the reply to one model request. The chat has two tools. <code>add</code> returns the sum of two numbers. <code>boom</code> always raises <code>ValueError</code>.</p>
+<p>The cells below run these cases:</p>
+<ul>
+<li>a turn without tools</li>
+<li>a turn with one tool call</li>
+<li>arguments that arrive as strings</li>
+<li>a call that the loop could not parse</li>
+<li>a tool that raises</li>
+<li>a call that the provider ran</li>
+</ul>
+<div id="87427cae" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> _ScriptChat(ToolLoopMixin, Chat):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"A backend whose replies are scripted, for testing the loop itself."</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    _runtime, ctx_limit, token_count <span class="op">=</span> <span class="st">'script'</span>, <span class="dv">8192</span>, <span class="dv">0</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, model<span class="op">=</span><span class="va">None</span>, <span class="op">*</span>, script<span class="op">=</span>(), fail<span class="op">=</span><span class="va">None</span>, <span class="op">**</span>kw):</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.script, <span class="va">self</span>.fail, <span class="va">self</span>.steps, <span class="va">self</span>.step_kw <span class="op">=</span> <span class="bu">list</span>(script), fail, <span class="dv">0</span>, []</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        o <span class="op">=</span> ChatOpts.create(kw.pop(<span class="st">'opts'</span>, <span class="va">None</span>), <span class="op">**</span>kw)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._setup(model, o)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._set_tools(<span class="va">self</span>.tools)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _next(<span class="va">self</span>, kw):</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.step_kw.append(kw)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.fail <span class="kw">and</span> <span class="va">self</span>.steps <span class="op">==</span> <span class="va">self</span>.fail[<span class="dv">0</span>]: <span class="va">self</span>.steps <span class="op">+=</span> <span class="dv">1</span><span class="op">;</span> <span class="cf">raise</span> <span class="va">self</span>.fail[<span class="dv">1</span>]</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        r <span class="op">=</span> <span class="va">self</span>.script[<span class="bu">min</span>(<span class="va">self</span>.steps, <span class="bu">len</span>(<span class="va">self</span>.script) <span class="op">-</span> <span class="dv">1</span>)]</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.steps <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> Resp({<span class="st">'role'</span>: <span class="st">'assistant'</span>, <span class="st">'usage'</span>: {<span class="st">'total_tokens'</span>: <span class="dv">10</span>}, <span class="op">**</span>r})</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _model_step(<span class="va">self</span>, <span class="op">**</span>kw): <span class="cf">return</span> <span class="va">self</span>._next(kw)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _stream_step(<span class="va">self</span>, <span class="op">**</span>kw):</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._step_res <span class="op">=</span> r <span class="op">=</span> <span class="va">self</span>._next(kw)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (th <span class="op">:=</span> thought(r)): <span class="cf">yield</span> {<span class="st">'channels'</span>: {<span class="st">'thought'</span>: th}}</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (t <span class="op">:=</span> resp_text(r)): <span class="cf">yield</span> {<span class="st">'content'</span>: [{<span class="st">'type'</span>: <span class="st">'text'</span>, <span class="st">'text'</span>: t}]}</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>register_runtime(Runtime(<span class="st">'script'</span>, _ScriptChat, (<span class="st">'script-'</span>,)))</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(a: <span class="bu">int</span>, b: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Add two numbers."</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> boom() <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Always fails."</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'nope'</span>)</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _call(name, <span class="op">**</span>args): <span class="cf">return</span> <span class="bu">dict</span>(ToolCall(name, args))</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _mk(script, <span class="op">**</span>kw): <span class="cf">return</span> Chat(<span class="st">'script-1'</span>, runtime<span class="op">=</span><span class="st">'script'</span>, script<span class="op">=</span>script, tools<span class="op">=</span>[add, boom], <span class="op">**</span>kw)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="92c65137" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">'no tools needed'</span>}])</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>test_eq(resp_text(c(<span class="st">'hi'</span>)), <span class="st">'no tools needed'</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'role'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist], [<span class="st">'user'</span>, <span class="st">'assistant'</span>])</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>test_eq(c.steps, <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="1e2899da" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'add'</span>, a<span class="op">=</span><span class="dv">1</span>, b<span class="op">=</span><span class="dv">2</span>)]}, {<span class="st">'content'</span>: <span class="st">'It is 3.'</span>}])</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>test_eq(resp_text(c(<span class="st">'what is 1+2?'</span>)), <span class="st">'It is 3.'</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'role'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist], [<span class="st">'user'</span>, <span class="st">'assistant'</span>, <span class="st">'tool'</span>, <span class="st">'assistant'</span>])</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>test_eq(c.hist[<span class="dv">2</span>][<span class="st">'content'</span>], <span class="st">'3'</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>test_eq(c.steps, <span class="dv">2</span>)                        <span class="co"># asked again once the result was in</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="75dc608d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the schema decides the argument types, wherever the backend got the call from</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'add'</span>, a<span class="op">=</span><span class="st">'1'</span>, b<span class="op">=</span><span class="st">'2'</span>)]}, {<span class="st">'content'</span>: <span class="st">'It is 3.'</span>}])</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>test_eq(resp_text(c(<span class="st">'what is 1+2?'</span>)), <span class="st">'It is 3.'</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>test_eq(c.hist[<span class="dv">1</span>][<span class="st">'tool_calls'</span>][<span class="dv">0</span>][<span class="st">'function'</span>][<span class="st">'arguments'</span>], {<span class="st">'a'</span>: <span class="dv">1</span>, <span class="st">'b'</span>: <span class="dv">2</span>})</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>test_eq(c.hist[<span class="dv">2</span>][<span class="st">'content'</span>], <span class="st">'3'</span>)          <span class="co"># and so the call actually ran</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Direct dispatch checks required arguments after hoisting and type conversion. This check also applies when a backend bypasses the repair step.</p>
+<div id="dispatch-required" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>boundary <span class="op">=</span> _mk([])</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>missing_result <span class="op">=</span> boundary.call_tool(_call(<span class="st">'add'</span>))</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> missing_result.startswith(<span class="st">'Tool call not run:'</span>), missing_result</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'a, b'</span> <span class="kw">in</span> missing_result, missing_result</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>test_eq(boundary.call_tool(_call(<span class="st">'add'</span>, payload<span class="op">=</span>{<span class="st">'a'</span>: <span class="st">'1'</span>, <span class="st">'b'</span>: <span class="st">'2'</span>})), <span class="dv">3</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>test_eq(boundary.call_tool({<span class="st">'function'</span>: {<span class="st">'name'</span>: <span class="st">'add'</span>, <span class="st">'arguments'</span>: <span class="dv">7</span>}}), unread_msg_)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>missing_result</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>A name-only JSON call cannot run a tool with required arguments.</p>
+<div id="name-only-required" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>name_only <span class="op">=</span> mk_tag_tc(<span class="st">'{"name":"add"}'</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>name_result <span class="op">=</span> boundary.call_tool(name_only)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> name_result.startswith(<span class="st">'Tool call not run:'</span>), name_result</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'a, b'</span> <span class="kw">in</span> name_result</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>name_result</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="55ba1116" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># a reply whose call nothing could parse asks once for the call again, rather than ending the turn</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">'Reading it.'</span>, <span class="st">'tool_parse_failed'</span>: <span class="va">True</span>},</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>         {<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'add'</span>, a<span class="op">=</span><span class="dv">1</span>, b<span class="op">=</span><span class="dv">2</span>)]}, {<span class="st">'content'</span>: <span class="st">'It is 3.'</span>}])</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>test_eq(resp_text(c(<span class="st">'what is 1+2?'</span>)), <span class="st">'It is 3.'</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'role'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist], [<span class="st">'user'</span>, <span class="st">'assistant'</span>, <span class="st">'user'</span>, <span class="st">'assistant'</span>, <span class="st">'tool'</span>, <span class="st">'assistant'</span>])</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'could not read'</span> <span class="kw">in</span> c.hist[<span class="dv">2</span>][<span class="st">'content'</span>]</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co"># it is asked exactly once: a model that keeps failing ends the turn instead of looping</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">'Reading it.'</span>, <span class="st">'tool_parse_failed'</span>: <span class="va">True</span>}])</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'what is 1+2?'</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>test_eq(c.steps, <span class="dv">2</span>)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co"># a call whose arguments were lost is asked for again rather than run as `add()`; once only</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [{<span class="op">**</span>_call(<span class="st">'add'</span>), <span class="st">'unread'</span>: <span class="va">True</span>}]},</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>         {<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'add'</span>, a<span class="op">=</span><span class="dv">1</span>, b<span class="op">=</span><span class="dv">2</span>)]}, {<span class="st">'content'</span>: <span class="st">'It is 3.'</span>}])</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>test_eq(resp_text(c(<span class="st">'what is 1+2?'</span>)), <span class="st">'It is 3.'</span>)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'role'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist], [<span class="st">'user'</span>, <span class="st">'assistant'</span>, <span class="st">'user'</span>, <span class="st">'assistant'</span>, <span class="st">'tool'</span>, <span class="st">'assistant'</span>])</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'tool_calls'</span> <span class="kw">not</span> <span class="kw">in</span> c.hist[<span class="dv">1</span>] <span class="kw">and</span> <span class="st">'could not read'</span> <span class="kw">in</span> c.hist[<span class="dv">2</span>][<span class="st">'content'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="af4f32b2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># a reply cut off at the output limit asks for smaller calls; a backend's own `reparse` message wins, and stays out of `hist`</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_parse_failed'</span>: <span class="va">True</span>, <span class="st">'truncated'</span>: <span class="va">True</span>},</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>         {<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'add'</span>, a<span class="op">=</span><span class="dv">1</span>, b<span class="op">=</span><span class="dv">2</span>)]}, {<span class="st">'content'</span>: <span class="st">'It is 3.'</span>}])</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>test_eq(resp_text(c(<span class="st">'what is 1+2?'</span>)), <span class="st">'It is 3.'</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>test_eq(c.hist[<span class="dv">2</span>][<span class="st">'content'</span>], cut_msg_)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_parse_failed'</span>: <span class="va">True</span>, <span class="st">'reparse'</span>: <span class="st">'Not JSON at char 3. Send it again.'</span>}, {<span class="st">'content'</span>: <span class="st">'ok'</span>}])</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'hi'</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>test_eq(c.hist[<span class="dv">2</span>][<span class="st">'content'</span>], <span class="st">'Not JSON at char 3. Send it again.'</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'reparse'</span> <span class="kw">not</span> <span class="kw">in</span> c.hist[<span class="dv">1</span>]</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># a lost call the backend explains raises the second time, outside the context-recovery path, with the reason</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_parse_failed'</span>: <span class="va">True</span>, <span class="st">'truncated'</span>: <span class="va">True</span>, <span class="st">'lost'</span>: <span class="st">'cut off at the 4096-token output limit'</span>}])</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>test_fail(<span class="kw">lambda</span>: c(<span class="st">'hi'</span>), contains<span class="op">=</span><span class="st">'cut off at the 4096-token output limit'</span>)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>test_eq(c.steps, <span class="dv">2</span>)</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>_cut <span class="op">=</span> <span class="kw">lambda</span>: {<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [{<span class="op">**</span>_call(<span class="st">'add'</span>), <span class="st">'unread'</span>: <span class="va">True</span>}], <span class="st">'truncated'</span>: <span class="va">True</span>, <span class="st">'lost'</span>: <span class="st">'cut off'</span>}</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([_cut(), _cut()])</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>test_fail(<span class="kw">lambda</span>: c(<span class="st">'hi'</span>), contains<span class="op">=</span><span class="st">'cut off'</span>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>test_eq(c.steps, <span class="dv">2</span>)                          <span class="co"># and the unread call never reached `add`</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co"># an unexplained one still ends the turn quietly</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">'Reading it.'</span>, <span class="st">'tool_parse_failed'</span>: <span class="va">True</span>, <span class="st">'truncated'</span>: <span class="va">True</span>}])</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'hi'</span>)<span class="op">;</span> test_eq(c.steps, <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="7145b1c5" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># a tool that raises is reported to the model, not propagated to the caller</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'boom'</span>)]}, {<span class="st">'content'</span>: <span class="st">'That failed.'</span>}])</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'try it'</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>test_eq(c.hist[<span class="dv">2</span>][<span class="st">'content'</span>], <span class="st">'ValueError: nope'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="4adb9dea" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># a provider-side call is recorded but never run</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [<span class="bu">dict</span>(ToolCall(<span class="st">'web_search'</span>, {}, server<span class="op">=</span><span class="va">True</span>))]},</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>         {<span class="st">'content'</span>: <span class="st">'Found it.'</span>}])</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'search'</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>test_eq(c.hist[<span class="dv">2</span>][<span class="st">'content'</span>], <span class="st">'(run by the provider)'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="the-budget" class="level3">
+<h3 class="anchored" data-anchor-id="the-budget">The budget</h3>
+<p>A turn has a budget of tool calls.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>max_steps</code></td>
+<td>10</td>
+<td>The number of tool calls that one turn can use</td>
+</tr>
+</tbody>
+</table>
+<p>When the budget is used up, the loop refuses each further call. The result of a refused call is <code>budget_msg_</code>. The loop then stops running tools, and the chat sends <code>final_prompt</code> as one more message. The model answers with the results that it already has.</p>
+<p>In the first example, <code>max_steps=1</code>. The first <code>add</code> runs, the second is refused, and the closing round produces the answer. The next example shows that the loop asks for approval of every call in a step before it runs any of them.</p>
+<div id="0cba5e63" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>call_add <span class="op">=</span> {<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'add'</span>, a<span class="op">=</span><span class="dv">1</span>, b<span class="op">=</span><span class="dv">2</span>)]}</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([call_add, call_add, {<span class="st">'content'</span>: <span class="st">'Enough.'</span>}], max_steps<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>test_eq(resp_text(c(<span class="st">'go'</span>)), <span class="st">'Enough.'</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>test_eq(c._budget_exceeded, <span class="va">True</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'content'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist <span class="cf">if</span> m[<span class="st">'role'</span>] <span class="op">==</span> <span class="st">'tool'</span>], [<span class="st">'3'</span>, budget_msg_])</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>test_eq(c.hist[<span class="op">-</span><span class="dv">2</span>][<span class="st">'content'</span>], c.final_prompt)   <span class="co"># the closing round was actually sent</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'role'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist].count(<span class="st">'assistant'</span>), <span class="dv">3</span>)   <span class="co"># each reply is recorded once</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="a3007418" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># approval is asked for every call before any of them runs</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>seen <span class="op">=</span> []</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'add'</span>, a<span class="op">=</span><span class="dv">1</span>, b<span class="op">=</span><span class="dv">2</span>), _call(<span class="st">'add'</span>, a<span class="op">=</span><span class="dv">3</span>, b<span class="op">=</span><span class="dv">4</span>)]},</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>         {<span class="st">'content'</span>: <span class="st">'done'</span>}],</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>        approve<span class="op">=</span><span class="kw">lambda</span> tc: seen.append(tc.get(<span class="st">'function'</span>, {}).get(<span class="st">'arguments'</span>)) <span class="kw">or</span> <span class="bu">len</span>(seen) <span class="op">==</span> <span class="dv">1</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'go'</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">len</span>(seen), <span class="dv">2</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'content'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist <span class="cf">if</span> m[<span class="st">'role'</span>] <span class="op">==</span> <span class="st">'tool'</span>], [<span class="st">'3'</span>, <span class="st">'Denied by human operator'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="why-a-call-was-refused" class="level3">
+<h3 class="anchored" data-anchor-id="why-a-call-was-refused">Why a call was refused</h3>
+<p>An approval function takes a tool call and returns a value. The value decides whether the call runs and what the result is if it does not.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Approval function returns</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A true value</td>
+<td>The tool runs.</td>
+</tr>
+<tr class="even">
+<td>A false object that has a <code>reply()</code> method</td>
+<td>The text of <code>reply()</code>, so the model learns why the call was refused. The tool does not run.</td>
+</tr>
+<tr class="odd">
+<td>A plain <code>False</code> or <code>None</code></td>
+<td><code>Denied by human operator</code>. The tool does not run.</td>
+</tr>
+<tr class="even">
+<td>Not called, because the budget is used up</td>
+<td><code>budget_msg_</code></td>
+</tr>
+</tbody>
+</table>
+<p>The last example shows <code>tool_max_len</code>. A tool result that is longer than <code>tool_max_len</code> characters is cut to that length and ends with <code>...[truncated]</code>. The loop measures the length of the string that the model will see. A large list and a long string of the same length count the same.</p>
+<div id="4e47c8ac" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># a denial that can say why passes its reason on, and the tool never runs</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> _Refusal:</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"What an approver returns when it said no and can say why."</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__bool__</span>(<span class="va">self</span>): <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> reply(<span class="va">self</span>): <span class="cf">return</span> <span class="st">'Denied by human operator. Reason given: no answer after 300s'</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>called <span class="op">=</span> []</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> spy() <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Record that it ran."</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    called.append(<span class="dv">1</span>)<span class="op">;</span> <span class="cf">return</span> <span class="st">'ran'</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> Chat(<span class="st">'script-1'</span>, runtime<span class="op">=</span><span class="st">'script'</span>, script<span class="op">=</span>[{<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'spy'</span>)]}, {<span class="st">'content'</span>: <span class="st">'ok'</span>}],</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>         tools<span class="op">=</span>[spy], approve<span class="op">=</span><span class="kw">lambda</span> tc: _Refusal())</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'go'</span>)</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'content'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist <span class="cf">if</span> m[<span class="st">'role'</span>] <span class="op">==</span> <span class="st">'tool'</span>],</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>        [<span class="st">'Denied by human operator. Reason given: no answer after 300s'</span>])</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>test_eq(called, [])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="6ef67a27" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># a plain falsy answer keeps the old wording</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> no <span class="kw">in</span> (<span class="va">False</span>, <span class="va">None</span>):</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    c <span class="op">=</span> _mk([call_add, {<span class="st">'content'</span>: <span class="st">'ok'</span>}], approve<span class="op">=</span><span class="kw">lambda</span> tc: no)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    c(<span class="st">'go'</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    test_eq([m[<span class="st">'content'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist <span class="cf">if</span> m[<span class="st">'role'</span>] <span class="op">==</span> <span class="st">'tool'</span>], [<span class="st">'Denied by human operator'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="6f4f21f7" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the budget speaks before the approver, whatever the approver would have said</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([call_add, {<span class="st">'content'</span>: <span class="st">'ok'</span>}], max_steps<span class="op">=</span><span class="dv">0</span>, approve<span class="op">=</span><span class="kw">lambda</span> tc: _Refusal())</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'go'</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'content'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist <span class="cf">if</span> m[<span class="st">'role'</span>] <span class="op">==</span> <span class="st">'tool'</span>], [budget_msg_])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="2f0e92bd" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'add'</span>, a<span class="op">=</span><span class="dv">1</span>, b<span class="op">=</span><span class="dv">2</span>)]}, {<span class="st">'content'</span>: <span class="st">'ok'</span>}],</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>        tool_max_len<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'go'</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>test_eq(c.hist[<span class="dv">2</span>][<span class="st">'content'</span>], <span class="st">'3'</span>)          <span class="co"># exactly at the limit, so untouched</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'add'</span>, a<span class="op">=</span><span class="dv">100</span>, b<span class="op">=</span><span class="dv">200</span>)]}, {<span class="st">'content'</span>: <span class="st">'ok'</span>}],</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>        tool_max_len<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'go'</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>test_eq(c.hist[<span class="dv">2</span>][<span class="st">'content'</span>], <span class="st">'3 ...[truncated]'</span>)   <span class="co"># an int result is measured as the model sees it</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="e7a126af" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># turn options reach every model step of the turn</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([call_add, {<span class="st">'content'</span>: <span class="st">'ok'</span>}])</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'go'</span>, temp<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>test_eq(c.step_kw, [{<span class="st">'temp'</span>: <span class="fl">0.3</span>}, {<span class="st">'temp'</span>: <span class="fl">0.3</span>}])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="running-calls-at-the-same-time" class="level3">
+<h3 class="anchored" data-anchor-id="running-calls-at-the-same-time">Running calls at the same time</h3>
+<p>By default the calls in one step run one after another. Two options change this:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Option</th>
+<th>Value</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>parallel_tools</code></td>
+<td><code>True</code></td>
+<td>The approved calls of a step run at the same time, each in its own thread.</td>
+</tr>
+<tr class="even">
+<td><code>parallel_tools</code></td>
+<td>A list of tool names</td>
+<td>The calls run at the same time only when every approved call in the step is to a tool in the list. Otherwise they run one after another.</td>
+</tr>
+<tr class="odd">
+<td><code>max_parallel_tools</code></td>
+<td>An integer</td>
+<td>The most threads that run at the same time.</td>
+</tr>
+</tbody>
+</table>
+<p>A step with only one approved call always runs that call alone. You name the tools yourself, because only you know which tools are safe to run at the same time. The loop records the results in the order of the calls in both modes.</p>
+<div id="f3e1432e" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.698218+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.698911+00:00&quot;,&quot;total&quot;:0.0006962500000042837}}" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="bc84e57a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> slow(n: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Sleep briefly, then return n."</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="fl">0.05</span>)<span class="op">;</span> <span class="cf">return</span> n</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>two <span class="op">=</span> {<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'slow'</span>, n<span class="op">=</span><span class="dv">1</span>), _call(<span class="st">'slow'</span>, n<span class="op">=</span><span class="dv">2</span>)]}</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> Chat(<span class="st">'script-1'</span>, runtime<span class="op">=</span><span class="st">'script'</span>, script<span class="op">=</span>[two, {<span class="st">'content'</span>: <span class="st">'ok'</span>}], tools<span class="op">=</span>[slow])</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> time.time()<span class="op">;</span> c(<span class="st">'go'</span>)<span class="op">;</span> serial <span class="op">=</span> time.time() <span class="op">-</span> t</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'content'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist <span class="cf">if</span> m[<span class="st">'role'</span>] <span class="op">==</span> <span class="st">'tool'</span>], [<span class="st">'1'</span>, <span class="st">'2'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="45c0d72d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> Chat(<span class="st">'script-1'</span>, runtime<span class="op">=</span><span class="st">'script'</span>, script<span class="op">=</span>[two, {<span class="st">'content'</span>: <span class="st">'ok'</span>}], tools<span class="op">=</span>[slow],</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>         parallel_tools<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> time.time()<span class="op">;</span> c(<span class="st">'go'</span>)<span class="op">;</span> par <span class="op">=</span> time.time() <span class="op">-</span> t</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'content'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist <span class="cf">if</span> m[<span class="st">'role'</span>] <span class="op">==</span> <span class="st">'tool'</span>], [<span class="st">'1'</span>, <span class="st">'2'</span>])   <span class="co"># order preserved</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> par <span class="op">&lt;</span> serial</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="9dc2f219" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># a name list allows only those tools; anything else falls back to running them one at a time</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> Chat(<span class="st">'script-1'</span>, runtime<span class="op">=</span><span class="st">'script'</span>, script<span class="op">=</span>[two, {<span class="st">'content'</span>: <span class="st">'ok'</span>}], tools<span class="op">=</span>[slow],</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>         parallel_tools<span class="op">=</span>[<span class="st">'something_else'</span>])</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> time.time()<span class="op">;</span> c(<span class="st">'go'</span>)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> time.time() <span class="op">-</span> t <span class="op">&gt;=</span> serial <span class="op">*</span> <span class="fl">0.8</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><a href="https://vedicreader.github.io/urai/msgs.html#toolmedia"><code>ToolMedia</code></a> is a string subclass from <code>urai.msgs</code>. It holds the text of a tool result and a list of pictures in <code>media</code>. Each picture is a file path or bytes.</p>
+<p>When a tool returns <a href="https://vedicreader.github.io/urai/msgs.html#toolmedia"><code>ToolMedia</code></a>, the text goes in the tool message as usual. The loop sends the pictures in a separate message:</p>
+<ol type="1">
+<li>The loop records the results of every call in the step.</li>
+<li>The loop adds one user message after the last result.</li>
+<li>The message starts with a note from <a href="https://vedicreader.github.io/urai/loop.html#media_note"><code>media_note</code></a> that names the tools. The pictures follow the note.</li>
+</ol>
+<p>The pictures come after all results so that each tool message stays directly after its call. OpenAI-style histories require this order.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Limit</th>
+<th>Name</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Pictures in one step</td>
+<td><code>max_media_</code></td>
+<td>8</td>
+</tr>
+<tr class="even">
+<td>Size of one picture</td>
+<td><code>max_media_bytes_</code></td>
+<td>20 MB</td>
+</tr>
+</tbody>
+</table>
+<p>The note names each picture that the loop left out. A picture is left out when it is over a limit, missing, or not an image. If the chat has <code>media_in=False</code>, the model cannot see images. The loop then sends the note alone, and the note says that the pictures could not be sent.</p>
+<div id="4668ee97" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.700323+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.701033+00:00&quot;,&quot;total&quot;:0.0007139519999981303}}" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> base64 <span class="im">import</span> b64decode</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> urai.msgs <span class="im">import</span> ToolMedia, is_media</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="34d02c61" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>tiny_png <span class="op">=</span> b64decode(<span class="st">'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>png_path <span class="op">=</span> Path(os.environ.get(<span class="st">'TMPDIR'</span>, <span class="st">'/tmp'</span>))<span class="op">/</span><span class="st">'urai_test_shot.png'</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>png_path.write_bytes(tiny_png)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> shot(n: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"A screenshot whose text names the file."</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ToolMedia(<span class="ss">f'saved </span><span class="sc">{</span>png_path<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">)'</span> <span class="op">+</span> <span class="st">'x'</span><span class="op">*</span><span class="dv">50</span>, [png_path <span class="cf">if</span> n <span class="op">==</span> <span class="dv">1</span> <span class="cf">else</span> tiny_png])</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>shots <span class="op">=</span> {<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'shot'</span>, n<span class="op">=</span><span class="dv">1</span>), _call(<span class="st">'shot'</span>, n<span class="op">=</span><span class="dv">2</span>)]}</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> Chat(<span class="st">'script-1'</span>, runtime<span class="op">=</span><span class="st">'script'</span>, script<span class="op">=</span>[shots, {<span class="st">'content'</span>: <span class="st">'I see it'</span>}], tools<span class="op">=</span>[shot], parallel_tools<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'look'</span>)</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'role'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist], [<span class="st">'user'</span>, <span class="st">'assistant'</span>, <span class="st">'tool'</span>, <span class="st">'tool'</span>, <span class="st">'user'</span>, <span class="st">'assistant'</span>])</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'content'</span>].startswith(<span class="st">'saved'</span>) <span class="cf">for</span> m <span class="kw">in</span> c.hist[<span class="dv">2</span>:<span class="dv">4</span>]], [<span class="va">True</span>, <span class="va">True</span>])</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> c.hist[<span class="dv">4</span>][<span class="st">'content'</span>]</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>test_eq([p[<span class="st">'type'</span>] <span class="cf">for</span> p <span class="kw">in</span> m], [<span class="st">'text'</span>, <span class="st">'image_url'</span>, <span class="st">'image_url'</span>])</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'`shot`'</span> <span class="kw">in</span> m[<span class="dv">0</span>][<span class="st">'text'</span>] <span class="kw">and</span> <span class="st">'continue the task'</span> <span class="kw">in</span> m[<span class="dv">0</span>][<span class="st">'text'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="639a7b34" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># a model that cannot take pictures gets the note naming them, and no picture</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> Chat(<span class="st">'script-1'</span>, runtime<span class="op">=</span><span class="st">'script'</span>, script<span class="op">=</span>[shots, {<span class="st">'content'</span>: <span class="st">'ok'</span>}], tools<span class="op">=</span>[shot])</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>c.media_in <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'look'</span>)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> c.hist[<span class="dv">4</span>][<span class="st">'content'</span>]</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">isinstance</span>(n, <span class="bu">str</span>) <span class="kw">and</span> <span class="st">'could not be sent'</span> <span class="kw">in</span> n <span class="kw">and</span> <span class="bu">str</span>(png_path) <span class="kw">in</span> n <span class="kw">and</span> <span class="st">'`shot`'</span> <span class="kw">in</span> n</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="kw">not</span> <span class="bu">any</span>(is_media(p) <span class="cf">for</span> x <span class="kw">in</span> c.hist <span class="cf">if</span> <span class="bu">isinstance</span>(x[<span class="st">'content'</span>], <span class="bu">list</span>) <span class="cf">for</span> p <span class="kw">in</span> x[<span class="st">'content'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="df1dda1a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># truncation measures the text only: the pictures still go</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> Chat(<span class="st">'script-1'</span>, runtime<span class="op">=</span><span class="st">'script'</span>, script<span class="op">=</span>[shots, {<span class="st">'content'</span>: <span class="st">'ok'</span>}], tools<span class="op">=</span>[shot], tool_max_len<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'look'</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> c.hist[<span class="dv">2</span>][<span class="st">'content'</span>].endswith(<span class="st">'[truncated]'</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">sum</span>(is_media(p) <span class="cf">for</span> p <span class="kw">in</span> c.hist[<span class="dv">4</span>][<span class="st">'content'</span>]), <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="c1e1fc6f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># at most `max_media_` pictures a step, and none over `max_media_bytes_`; the rest are named</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>big <span class="op">=</span> <span class="st">b'</span><span class="ch">\x89</span><span class="st">PNG</span><span class="ch">\r\n\x1a\n</span><span class="st">'</span> <span class="op">+</span> <span class="bu">bytes</span>(max_media_bytes_)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> many() <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Too many pictures."</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ToolMedia(<span class="st">'many'</span>, [tiny_png]<span class="op">*</span><span class="dv">9</span> <span class="op">+</span> [big])</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> Chat(<span class="st">'script-1'</span>, runtime<span class="op">=</span><span class="st">'script'</span>, script<span class="op">=</span>[{<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'many'</span>)]}, {<span class="st">'content'</span>: <span class="st">'ok'</span>}], tools<span class="op">=</span>[many])</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'look'</span>)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> c.hist[<span class="dv">3</span>][<span class="st">'content'</span>]</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">sum</span>(is_media(p) <span class="cf">for</span> p <span class="kw">in</span> m), max_media_)</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'Not attached: 8 bytes'</span> <span class="kw">not</span> <span class="kw">in</span> m[<span class="dv">0</span>][<span class="st">'text'</span>] <span class="kw">and</span> m[<span class="dv">0</span>][<span class="st">'text'</span>].count(<span class="st">'bytes'</span>) <span class="op">==</span> <span class="dv">2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="cancelling" class="level3">
+<h3 class="anchored" data-anchor-id="cancelling">Cancelling</h3>
+<p><code>chat.cancel()</code> stops a turn that is running. The loop does not ask the model again after the call.</p>
+<p>Each approved tool call that has not started gets <code>cancel_msg_</code> as its result and does not run. This holds in sequential and in parallel mode. A call that is already running finishes.</p>
+<p>In the example, a callback calls <code>cancel()</code> before the first tool call runs.</p>
+<div id="5614518a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([call_add, {<span class="st">'content'</span>: <span class="st">'ok'</span>}])</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>c.cbs <span class="op">=</span> L(c.cbs)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> _CancelAfterFirst(ChatCallback):</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> before_tool_calls(<span class="va">self</span>): <span class="va">self</span>.chat.cancel()</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>c.add_cb(_CancelAfterFirst)</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'go'</span>)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>test_eq(c.hist[<span class="dv">2</span>][<span class="st">'content'</span>], cancel_msg_)    <span class="co"># approved, but not run</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>test_eq(c.steps, <span class="dv">1</span>)                           <span class="co"># ...and the model was not asked again</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>With <code>parallel_tools=True</code> the same cancellation leaves every call of the step unrun:</p>
+<div id="85983323" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> Chat(<span class="st">'script-1'</span>, runtime<span class="op">=</span><span class="st">'script'</span>, script<span class="op">=</span>[two, {<span class="st">'content'</span>: <span class="st">'ok'</span>}], tools<span class="op">=</span>[slow], parallel_tools<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>c.add_cb(_CancelAfterFirst)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'go'</span>)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>tools_out <span class="op">=</span> [m[<span class="st">'content'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist <span class="cf">if</span> m[<span class="st">'role'</span>] <span class="op">==</span> <span class="st">'tool'</span>]</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>test_eq(tools_out, [cancel_msg_, cancel_msg_])</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>tools_out</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="when-the-window-fills-mid-turn" class="level3">
+<h3 class="anchored" data-anchor-id="when-the-window-fills-mid-turn">When the window fills mid-turn</h3>
+<p>Tool results can be long. A turn with several long results can fill the context window before the turn ends. A model request that fails because the window is full raises a context error. The loop then calls <code>recover_context</code>, which does four things:</p>
+<ol type="1">
+<li>It cuts each older tool result that is longer than <code>mx</code> characters to <code>mx</code> characters, and ends the result with <code>...[truncated to recover context]</code>. The newest <code>keep_last</code> tool results are not cut.</li>
+<li>It calls <code>_recreate_conv</code> to rebuild the backend’s state from the history.</li>
+<li>It stops further tool calls in this turn.</li>
+<li>It adds <code>final_prompt</code> to the history and asks the model once more for an answer.</li>
+</ol>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>mx</code></td>
+<td>500</td>
+<td>The length, in characters, that a long result is cut to</td>
+</tr>
+<tr class="even">
+<td><code>keep_last</code></td>
+<td>4</td>
+<td>The number of newest tool results that stay whole</td>
+</tr>
+</tbody>
+</table>
+<p>If the last request fails too, <code>recover_context</code> raises <a href="https://vedicreader.github.io/urai/chat.html#contextwindowexceedederror"><code>ContextWindowExceededError</code></a>. The loop raises any other error without a recovery attempt.</p>
+<div id="7dd8d466" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.707093+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.712529+00:00&quot;,&quot;total&quot;:0.005439860999999269}}" data-execution_count="15">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/loop.py#L251" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="toolloopmixin.recover_context" class="level3">
+<h3 class="anchored" data-anchor-id="toolloopmixin.recover_context">ToolLoopMixin.recover_context</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> recover_context(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    err, keep_last:<span class="bu">int</span><span class="op">=</span><span class="dv">4</span>, mx:<span class="bu">int</span><span class="op">=</span><span class="dv">500</span>, <span class="op">**</span>kw</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Recover from a full window by shortening older tool results and asking the model for a final answer.</em></p>
+</section>
+</div>
+<div id="4530080e" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([call_add, {<span class="st">'content'</span>: <span class="st">'recovered'</span>}], fail<span class="op">=</span>(<span class="dv">1</span>, <span class="pp">RuntimeError</span>(<span class="st">'n_ctx exceeded'</span>)))</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>c.hist[:] <span class="op">=</span> [{<span class="st">'role'</span>: <span class="st">'tool'</span>, <span class="st">'tool_call_id'</span>: <span class="ss">f'old</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">'</span>, <span class="st">'name'</span>: <span class="st">'add'</span>, <span class="st">'content'</span>: <span class="st">'x'</span> <span class="op">*</span> <span class="dv">900</span>}</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>             <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">6</span>)]</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>test_eq(resp_text(c(<span class="st">'go'</span>)), <span class="st">'recovered'</span>)     <span class="co"># answered, rather than raising</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'content'</span>].endswith(<span class="st">'...[truncated to recover context]'</span>) <span class="cf">for</span> m <span class="kw">in</span> c.hist[:<span class="dv">6</span>]],</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>        [<span class="va">True</span>, <span class="va">True</span>, <span class="va">True</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>])   <span class="co"># `keep_last` spares the newest results</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>test_eq(c._budget_exceeded, <span class="va">True</span>)            <span class="co"># no more tools this turn</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>test_eq(c.hist[<span class="op">-</span><span class="dv">2</span>][<span class="st">'content'</span>], c.final_prompt)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="f94b3ced" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">'closed'</span>}])</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>c.hist[:] <span class="op">=</span> [{<span class="st">'role'</span>: <span class="st">'tool'</span>, <span class="st">'tool_call_id'</span>: <span class="st">'a'</span>, <span class="st">'name'</span>: <span class="st">'add'</span>, <span class="st">'content'</span>: <span class="st">'y'</span> <span class="op">*</span> <span class="dv">900</span>}]</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>c.recover_context(<span class="pp">RuntimeError</span>(<span class="st">'full'</span>), keep_last<span class="op">=</span><span class="dv">0</span>)   <span class="co"># keep_last=0 shrinks every result</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> c.hist[<span class="dv">0</span>][<span class="st">'content'</span>].endswith(<span class="st">'...[truncated to recover context]'</span>)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">len</span>(c.hist[<span class="dv">0</span>][<span class="st">'content'</span>]), <span class="dv">500</span> <span class="op">+</span> <span class="bu">len</span>(<span class="st">' ...[truncated to recover context]'</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="524c61b4" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">'never reached'</span>}], fail<span class="op">=</span>(<span class="dv">0</span>, <span class="pp">RuntimeError</span>(<span class="st">'n_ctx exceeded'</span>)))</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>c.script <span class="op">=</span> []          <span class="co"># nothing to fall back on, so recovery fails too</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>test_fail(<span class="kw">lambda</span>: c(<span class="st">'go'</span>), contains<span class="op">=</span><span class="st">'could not recover'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="38b093e0" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># an error that is not a context overflow is still an error</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">'x'</span>}], fail<span class="op">=</span>(<span class="dv">0</span>, <span class="pp">RuntimeError</span>(<span class="st">'connection reset'</span>)))</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>test_fail(<span class="kw">lambda</span>: c(<span class="st">'go'</span>), contains<span class="op">=</span><span class="st">'connection reset'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="streaming" class="level3">
+<h3 class="anchored" data-anchor-id="streaming">Streaming</h3>
+<p><code>_stream</code> is the tool loop for a streamed turn. It follows the same rules as <code>_send</code> for tools, the budget, approval and recovery.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Call</th>
+<th>What <code>_stream</code> yields</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>stream=True</code></td>
+<td>Each chunk as markdown</td>
+</tr>
+<tr class="even">
+<td><code>stream='raw'</code></td>
+<td>Each chunk as a dict</td>
+</tr>
+</tbody>
+</table>
+<p>At the end of each step, <code>_stream</code> closes an open thinking block, unless the stream is raw. If a backend returns a tool call without a chunk for it, <code>_stream</code> yields one chunk for each such call. The caller sees every call.</p>
+<p>If the turn is cancelled during a stream, the text received so far becomes the reply. If no text arrived, the reply is <code>cancelled_reply_</code>.</p>
+<p>The final reply is the return value of the generator. <code>SaveReturn</code> and <a href="https://vedicreader.github.io/urai/chat.html#asyncchat"><code>AsyncChat</code></a> store it in <code>.value</code>.</p>
+<div id="05032456" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># a lost call the backend explains raises the second time when streamed, too</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>test_fail(<span class="kw">lambda</span>: <span class="st">''</span>.join(_mk([{<span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_parse_failed'</span>: <span class="va">True</span>, <span class="st">'lost'</span>: <span class="st">'cut off'</span>}])(<span class="st">'hi'</span>, stream<span class="op">=</span><span class="va">True</span>)), contains<span class="op">=</span><span class="st">'cut off'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cc1de0be" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">'streamed plainly'</span>}])</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="st">''</span>.join(c(<span class="st">'hi'</span>, stream<span class="op">=</span><span class="va">True</span>)), <span class="st">'streamed plainly'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="b9a9ad7a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">'Let me add.'</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'add'</span>, a<span class="op">=</span><span class="dv">1</span>, b<span class="op">=</span><span class="dv">2</span>)]},</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>         {<span class="st">'content'</span>: <span class="st">'It is 3.'</span>}])</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> <span class="st">''</span>.join(c(<span class="st">'go'</span>, stream<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>test_eq(out, <span class="st">'Let me add.It is 3.'</span>)</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'content'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist <span class="cf">if</span> m[<span class="st">'role'</span>] <span class="op">==</span> <span class="st">'tool'</span>], [<span class="st">'3'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="ae5baeff" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># in raw mode the caller gets the chunk dicts, including the announced call</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">'thinking about it'</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'add'</span>, a<span class="op">=</span><span class="dv">1</span>, b<span class="op">=</span><span class="dv">2</span>)]},</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>         {<span class="st">'content'</span>: <span class="st">'done'</span>}])</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>kinds <span class="op">=</span> [p[<span class="st">'type'</span>] <span class="cf">for</span> o <span class="kw">in</span> c(<span class="st">'go'</span>, stream<span class="op">=</span><span class="st">'raw'</span>) <span class="cf">for</span> p <span class="kw">in</span> (o.get(<span class="st">'content'</span>) <span class="kw">or</span> [])]</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>test_eq(kinds, [<span class="st">'text'</span>, <span class="st">'tool_call'</span>, <span class="st">'text'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="10d0a5b5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.721325+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.721864+00:00&quot;,&quot;total&quot;:0.0005411899999998582}}" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fastcore.<span class="bu">all</span> <span class="im">import</span> SaveReturn</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="db2fde5f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">'the end'</span>}])</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> SaveReturn(c(<span class="st">'hi'</span>, stream<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">list</span>(g), [<span class="st">'the end'</span>])</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>test_eq(resp_text(g.value), <span class="st">'the end'</span>)       <span class="co"># the final Resp, once drained</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>test_eq(g.value[<span class="st">'usage'</span>][<span class="st">'total_tokens'</span>], <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="ce56c89f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># closing a stream early closes the backend's own iterator</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>closed_ <span class="op">=</span> []</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _held_step():</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> {<span class="st">'content'</span>: [{<span class="st">'type'</span>: <span class="st">'text'</span>, <span class="st">'text'</span>: <span class="st">'one'</span>}]}</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> {<span class="st">'content'</span>: [{<span class="st">'type'</span>: <span class="st">'text'</span>, <span class="st">'text'</span>: <span class="st">'two'</span>}]}</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">finally</span>: closed_.append(<span class="va">True</span>)</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>held <span class="op">=</span> _held_step()</span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">'unused'</span>}])</span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>c._stream_step <span class="op">=</span> <span class="kw">lambda</span> <span class="op">**</span>kw: held</span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> c(<span class="st">'go'</span>, stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a><span class="bu">next</span>(s)<span class="op">;</span> s.close()</span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a>test_eq(closed_, [<span class="va">True</span>])</span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a>closed_</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="4ecc7395" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># a streamed turn that hits the tool budget records each reply once, too</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([call_add, call_add, {<span class="st">'content'</span>: <span class="st">'Enough.'</span>}], max_steps<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="co">''</span>.join(c(<span class="st">'go'</span>, stream<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'role'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist].count(<span class="st">'assistant'</span>), <span class="dv">3</span>)</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>[m[<span class="st">'role'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="keeping-the-window-from-filling" class="level2">
+<h2 class="anchored" data-anchor-id="keeping-the-window-from-filling">Keeping the window from filling</h2>
+<p><code>recover_context</code> acts after the window has filled. The tools in this section act before a turn starts. They remove old messages so that the window does not fill.</p>
+<p>The loop cannot remove messages one at a time. An assistant message that calls tools must stay with the tool results that answer it. If they are separated, the provider rejects the history.</p>
+<p><code>msg_groups(hist)</code> splits a history into groups. A group is one message, or one assistant message with its tool calls and the tool results that follow it.</p>
+<p><code>evict_middle(hist, keep_first, keep_last)</code> removes whole groups from the middle of the history and returns <code>(new_hist, dropped)</code>. It keeps the first <code>keep_first</code> groups, which usually state the task. It also keeps the last <code>keep_last</code> groups, which hold the current work. The defaults are 2 and 8.</p>
+<div id="3193ed63" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.724438+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.727343+00:00&quot;,&quot;total&quot;:0.002907364000002133}}" data-execution_count="19">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/loop.py#L330" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="evict_middle" class="level3">
+<h3 class="anchored" data-anchor-id="evict_middle">evict_middle</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> evict_middle(</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>    hist, keep_first:<span class="bu">int</span><span class="op">=</span><span class="dv">2</span>, keep_last:<span class="bu">int</span><span class="op">=</span><span class="dv">8</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Drop whole message groups from the middle of <code>hist</code>, returning <code>(new_hist, dropped)</code>.</em></p>
+</section>
+</div>
+<div id="24b42f5d" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.727431+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.730237+00:00&quot;,&quot;total&quot;:0.0028093319999982214}}" data-execution_count="20">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/loop.py#L317" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="msg_groups" class="level3">
+<h3 class="anchored" data-anchor-id="msg_groups">msg_groups</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> msg_groups(</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>    hist</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Split <code>hist</code> into groups that keep each tool-calling message with its results.</em></p>
+</section>
+</div>
+<div id="3e6fa10c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>hist <span class="op">=</span> [{<span class="st">'role'</span>: <span class="st">'user'</span>, <span class="st">'content'</span>: <span class="st">'q'</span>},</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'role'</span>: <span class="st">'assistant'</span>, <span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [_call(<span class="st">'add'</span>, a<span class="op">=</span><span class="dv">1</span>, b<span class="op">=</span><span class="dv">2</span>)]},</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'role'</span>: <span class="st">'tool'</span>, <span class="st">'content'</span>: <span class="st">'3'</span>},</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'role'</span>: <span class="st">'assistant'</span>, <span class="st">'content'</span>: <span class="st">'a'</span>}]</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>test_eq([[m[<span class="st">'role'</span>] <span class="cf">for</span> m <span class="kw">in</span> g] <span class="cf">for</span> g <span class="kw">in</span> msg_groups(hist)],</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>        [[<span class="st">'user'</span>], [<span class="st">'assistant'</span>, <span class="st">'tool'</span>], [<span class="st">'assistant'</span>]])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="aeec28b7" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>plain <span class="op">=</span> [{<span class="st">'role'</span>: <span class="st">'user'</span>, <span class="st">'content'</span>: <span class="bu">str</span>(i)} <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)]</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>kept, dropped <span class="op">=</span> evict_middle(plain, keep_first<span class="op">=</span><span class="dv">2</span>, keep_last<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'content'</span>] <span class="cf">for</span> m <span class="kw">in</span> kept], [<span class="st">'0'</span>, <span class="st">'1'</span>, <span class="st">'7'</span>, <span class="st">'8'</span>, <span class="st">'9'</span>])</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">len</span>(dropped), <span class="dv">5</span>)</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>test_eq(evict_middle(plain[:<span class="dv">4</span>], <span class="dv">2</span>, <span class="dv">3</span>), (plain[:<span class="dv">4</span>], []))    <span class="co"># short enough, so nothing goes</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="ae660231" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># a call and its result are one group, so eviction can never split them</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>mixed <span class="op">=</span> plain[:<span class="dv">2</span>] <span class="op">+</span> hist[<span class="dv">1</span>:<span class="dv">3</span>] <span class="op">+</span> plain[<span class="dv">2</span>:<span class="dv">5</span>]</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>kept, dropped <span class="op">=</span> evict_middle(mixed, keep_first<span class="op">=</span><span class="dv">1</span>, keep_last<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'role'</span>] <span class="cf">for</span> m <span class="kw">in</span> dropped], [<span class="st">'user'</span>, <span class="st">'assistant'</span>, <span class="st">'tool'</span>, <span class="st">'user'</span>, <span class="st">'user'</span>])</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'content'</span>] <span class="cf">for</span> m <span class="kw">in</span> kept], [<span class="st">'0'</span>, <span class="st">'4'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><a href="https://vedicreader.github.io/urai/loop.html#slidingwindowcallback"><code>SlidingWindowCallback</code></a> calls <a href="https://vedicreader.github.io/urai/loop.html#evict_middle"><code>evict_middle</code></a> before each turn. It does the following:</p>
+<ol type="1">
+<li>It reads <code>chat.pct_full</code>, the fraction of the window in use.</li>
+<li>If the fraction is at or above <code>threshold</code>, it removes the middle of the history and rebuilds the backend’s state.</li>
+<li>It adds the number of removed messages to <code>chat.evicted</code>.</li>
+</ol>
+<p>If <code>summarize=True</code>, the callback also makes one <code>oneshot</code> call that summarizes the removed messages. It puts the summary in their place as a user message and an assistant message. If the summary call fails, the callback removes the messages without a summary.</p>
+<p>The callback does nothing when the chat has no <code>ctx_limit</code>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>threshold</code></td>
+<td>0.9</td>
+<td>The fraction of the window in use at which eviction starts</td>
+</tr>
+<tr class="even">
+<td><code>keep_first</code></td>
+<td>2</td>
+<td>Message groups kept at the start of the history</td>
+</tr>
+<tr class="odd">
+<td><code>keep_last</code></td>
+<td>8</td>
+<td>Message groups kept at the end of the history</td>
+</tr>
+<tr class="even">
+<td><code>summarize</code></td>
+<td><code>False</code></td>
+<td>Whether one <code>oneshot</code> call replaces the removed messages with a summary</td>
+</tr>
+<tr class="odd">
+<td><code>mx</code></td>
+<td>4000</td>
+<td>Characters of removed conversation sent to the summarizer</td>
+</tr>
+</tbody>
+</table>
+<div id="5fd7ecbc" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.734174+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.737876+00:00&quot;,&quot;total&quot;:0.0037060049999979583}}" data-execution_count="22">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/loop.py#L341" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="slidingwindowcallback" class="level3">
+<h3 class="anchored" data-anchor-id="slidingwindowcallback">SlidingWindowCallback</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> SlidingWindowCallback(</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>    threshold:<span class="bu">float</span><span class="op">=</span><span class="fl">0.9</span>, <span class="co"># evict once the context is this full</span></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>    keep_first:<span class="bu">int</span><span class="op">=</span><span class="dv">2</span>, <span class="co"># message groups to keep at the start, usually the task</span></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>    keep_last:<span class="bu">int</span><span class="op">=</span><span class="dv">8</span>, <span class="co"># message groups to keep at the end</span></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>    summarize:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, <span class="co"># spend one model call replacing the dropped middle with a summary</span></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>    mx:<span class="bu">int</span><span class="op">=</span><span class="dv">4000</span>, <span class="co"># characters of dropped conversation to feed the summarizer</span></span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Drop the middle of the history before a turn once the window passes <code>threshold</code>.</em></p>
+</section>
+</div>
+<div id="242f25f1" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">'ok'</span>}], cbs<span class="op">=</span>[SlidingWindowCallback(threshold<span class="op">=</span><span class="fl">0.5</span>, keep_first<span class="op">=</span><span class="dv">1</span>, keep_last<span class="op">=</span><span class="dv">1</span>)])</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>c.hist[:] <span class="op">=</span> <span class="bu">list</span>(plain)</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>c.token_count <span class="op">=</span> <span class="dv">0</span>                       <span class="co"># not full yet</span></span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'go'</span>)</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">getattr</span>(c, <span class="st">'evicted'</span>, <span class="dv">0</span>), <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="2cb085a5" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">'ok'</span>}], cbs<span class="op">=</span>[SlidingWindowCallback(threshold<span class="op">=</span><span class="fl">0.5</span>, keep_first<span class="op">=</span><span class="dv">1</span>, keep_last<span class="op">=</span><span class="dv">1</span>)])</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>c.hist[:] <span class="op">=</span> <span class="bu">list</span>(plain)</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>c.token_count <span class="op">=</span> <span class="dv">8192</span>                    <span class="co"># full</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'go'</span>)</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>test_eq(c.evicted, <span class="dv">8</span>)</span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'content'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist[:<span class="dv">2</span>]], [<span class="st">'0'</span>, <span class="st">'9'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="e12e3e6b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the summary goes after whole groups, so a tool call keeps its result beside it</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">'ok'</span>}], cbs<span class="op">=</span>[SlidingWindowCallback(threshold<span class="op">=</span><span class="fl">0.5</span>, keep_first<span class="op">=</span><span class="dv">1</span>, keep_last<span class="op">=</span><span class="dv">1</span>, summarize<span class="op">=</span><span class="va">True</span>)])</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>c.oneshot <span class="op">=</span> <span class="kw">lambda</span> <span class="op">*</span>a, <span class="op">**</span>k: <span class="st">'earlier talk'</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>c.hist[:] <span class="op">=</span> hist[<span class="dv">1</span>:<span class="dv">3</span>] <span class="op">+</span> <span class="bu">list</span>(plain)</span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>c.token_count <span class="op">=</span> <span class="dv">8192</span></span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'go'</span>)</span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>test_eq([m[<span class="st">'role'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist[:<span class="dv">2</span>]], [<span class="st">'assistant'</span>, <span class="st">'tool'</span>])</span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>[m[<span class="st">'role'</span>] <span class="cf">for</span> m <span class="kw">in</span> c.hist[:<span class="dv">4</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="997be1d5" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># with no `ctx_limit` there is nothing to measure against, so it stays out of the way</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> _mk([{<span class="st">'content'</span>: <span class="st">'ok'</span>}], cbs<span class="op">=</span>[SlidingWindowCallback(threshold<span class="op">=</span><span class="fl">0.5</span>, keep_first<span class="op">=</span><span class="dv">1</span>, keep_last<span class="op">=</span><span class="dv">1</span>)])</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>c.ctx_limit <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>c.hist[:] <span class="op">=</span> <span class="bu">list</span>(plain)</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>c(<span class="st">'go'</span>)</span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">getattr</span>(c, <span class="st">'evicted'</span>, <span class="dv">0</span>), <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vedicreader\.github\.io\/urai");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vedicreader/urai/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

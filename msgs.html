@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Canonical messages and wire conversions.">
+
+<title>msgs – uraiyadal</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-66a38d7287321bc50e069add96f8c30e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="msgs – uraiyadal">
+<meta property="og:description" content="Canonical messages and wire conversions.">
+<meta property="og:site_name" content="uraiyadal">
+<meta name="twitter:title" content="msgs – uraiyadal">
+<meta name="twitter:description" content="Canonical messages and wire conversions.">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">uraiyadal</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-end">
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./msgs.html">msgs</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">urai</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./core.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">core</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./tags.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">tags</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./msgs.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">msgs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./caps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">caps</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./opts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">opts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chat.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">chat</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./loop.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">loop</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./eval.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">eval</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sandbox.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">sandbox</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./record.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">record</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./broker.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">broker</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#content-parts" id="toc-content-parts" class="nav-link active" data-scroll-target="#content-parts">Content parts</a></li>
+  <li><a href="#messages" id="toc-messages" class="nav-link" data-scroll-target="#messages">Messages</a></li>
+  <li><a href="#tools" id="toc-tools" class="nav-link" data-scroll-target="#tools">Tools</a></li>
+  <li><a href="#tool-calls" id="toc-tool-calls" class="nav-link" data-scroll-target="#tool-calls">Tool calls</a></li>
+  <li><a href="#in-from-the-wire" id="toc-in-from-the-wire" class="nav-link" data-scroll-target="#in-from-the-wire">In from the wire</a></li>
+  <li><a href="#out-to-the-wire" id="toc-out-to-the-wire" class="nav-link" data-scroll-target="#out-to-the-wire">Out to the wire</a></li>
+  <li><a href="#usage-across-rounds" id="toc-usage-across-rounds" class="nav-link" data-scroll-target="#usage-across-rounds">Usage across rounds</a></li>
+  <li><a href="#prompt-transports" id="toc-prompt-transports" class="nav-link" data-scroll-target="#prompt-transports">Prompt transports</a></li>
+  <li><a href="#prefix-reuse" id="toc-prefix-reuse" class="nav-link" data-scroll-target="#prefix-reuse">Prefix reuse</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/vedicreader/urai/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="msgs.html.md"><i class="bi bi-file-code"></i>Markdown</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">msgs</h1>
+</div>
+
+<div>
+  <div class="description">
+    Canonical messages and wire conversions.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<section id="content-parts" class="level2">
+<h2 class="anchored" data-anchor-id="content-parts">Content parts</h2>
+<p>The content of a message can be a list of parts. Each part is a dict with a <code>type</code>. <code>mk_content(o)</code> builds one part. The result depends on the input:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>input</th>
+<th>result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>a string</td>
+<td>a text part</td>
+</tr>
+<tr class="even">
+<td>bytes or a path, holding an image</td>
+<td>an <code>image_url</code> part with the picture embedded as a base64 data URL</td>
+</tr>
+<tr class="odd">
+<td>bytes or a path, holding audio</td>
+<td>an <code>input_audio</code> part</td>
+</tr>
+<tr class="even">
+<td>a dict</td>
+<td>the dict, unchanged. Urai assumes it is a part already.</td>
+</tr>
+<tr class="odd">
+<td>any other bytes or path, such as a PDF</td>
+<td><code>TypeError</code></td>
+</tr>
+<tr class="even">
+<td>any other type</td>
+<td><code>TypeError</code></td>
+</tr>
+</tbody>
+</table>
+<p><a href="https://vedicreader.github.io/urai/msgs.html#mk_content"><code>mk_content</code></a> reads the bytes of a path and inspects them to find the type. The <code>TypeError</code> reports an attachment that the model cannot read. Urai never drops it silently.</p>
+<p><code>is_media(p)</code> returns <code>True</code> when a part is an image part or an audio part.</p>
+<div id="2eac7638" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:56.840946+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.016026+00:00&quot;,&quot;total&quot;:0.17508684200000602}}" data-execution_count="4">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L47" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="is_media" class="level3">
+<h3 class="anchored" data-anchor-id="is_media">is_media</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> is_media(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    p</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>True when <code>p</code> is an image or audio content part.</em></p>
+</section>
+</div>
+<div id="be4326ce" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.016227+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.021675+00:00&quot;,&quot;total&quot;:0.005451702000002001}}" data-execution_count="5">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L31" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="mk_content" class="level3">
+<h3 class="anchored" data-anchor-id="mk_content">mk_content</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mk_content(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    o</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Convert <code>o</code> to an OpenAI-style content part: text, a base64 <code>image_url</code>, or an <code>input_audio</code>.</em></p>
+</section>
+</div>
+<div id="4f9b5b63" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>test_eq(mk_content(<span class="st">'hi'</span>), {<span class="st">'type'</span>: <span class="st">'text'</span>, <span class="st">'text'</span>: <span class="st">'hi'</span>})</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>test_eq(mk_content({<span class="st">'type'</span>: <span class="st">'text'</span>, <span class="st">'text'</span>: <span class="st">'passthrough'</span>}), {<span class="st">'type'</span>: <span class="st">'text'</span>, <span class="st">'text'</span>: <span class="st">'passthrough'</span>})</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>test_eq(mk_content(tiny_png)[<span class="st">'type'</span>], <span class="st">'image_url'</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> mk_content(tiny_png)[<span class="st">'image_url'</span>][<span class="st">'url'</span>].startswith(<span class="st">'data:image/png;base64,'</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>test_eq(mk_content(tiny_wav)[<span class="st">'input_audio'</span>][<span class="st">'format'</span>], <span class="st">'wav'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="ea308717" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>test_fail(<span class="kw">lambda</span>: mk_content(<span class="st">b'%PDF-1.4 not media'</span>), contains<span class="op">=</span><span class="st">'text, image, and audio'</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>test_fail(<span class="kw">lambda</span>: mk_content(<span class="dv">42</span>), contains<span class="op">=</span><span class="st">'Unsupported content type'</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>test_eq(is_media(mk_content(tiny_png)), <span class="va">True</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>test_eq(is_media(mk_content(<span class="st">'hi'</span>)), <span class="va">False</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>test_eq(_audio_fmt(<span class="st">'audio/mpeg'</span>), <span class="st">'mp3'</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>test_eq(_audio_fmt(<span class="st">'audio/ogg'</span>), <span class="st">'ogg'</span>)     <span class="co"># unknown: the subtype is the best guess</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="messages" class="level2">
+<h2 class="anchored" data-anchor-id="messages">Messages</h2>
+<p><code>mk_msg(content, role)</code> builds one message from a string, bytes, a path, or a list that mixes these. A message dict is returned unchanged. <code>None</code> is also returned unchanged. When every part is text, <a href="https://vedicreader.github.io/urai/msgs.html#mk_msg"><code>mk_msg</code></a> joins the parts with newlines into one string. A message with a part that is not text keeps the list form. An image part is an example. <a href="https://vedicreader.github.io/urai/msgs.html#mk_msgs"><code>mk_msgs</code></a> applies <a href="https://vedicreader.github.io/urai/msgs.html#mk_msg"><code>mk_msg</code></a> to a list of messages.</p>
+<div id="86ff33ff" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.024854+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.028539+00:00&quot;,&quot;total&quot;:0.0036888730000015357}}" data-execution_count="7">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L60" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="mk_msgs" class="level3">
+<h3 class="anchored" data-anchor-id="mk_msgs">mk_msgs</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mk_msgs(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    msgs</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Apply <a href="https://vedicreader.github.io/urai/msgs.html#mk_msg"><code>mk_msg</code></a> to each item in <code>msgs</code>.</em></p>
+</section>
+</div>
+<div id="0d3b98c0" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.028664+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.032976+00:00&quot;,&quot;total&quot;:0.004316974999994727}}" data-execution_count="8">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L52" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="mk_msg" class="level3">
+<h3 class="anchored" data-anchor-id="mk_msg">mk_msg</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mk_msg(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    content, role:<span class="bu">str</span><span class="op">=</span><span class="st">'user'</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Build an OpenAI-style message from a string, bytes, path, list, or message dict.</em></p>
+</section>
+</div>
+<div id="6422dff8" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>test_eq(mk_msg(<span class="st">'hi'</span>), {<span class="st">'role'</span>: <span class="st">'user'</span>, <span class="st">'content'</span>: <span class="st">'hi'</span>})</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>test_eq(mk_msg([<span class="st">'a'</span>, <span class="st">'b'</span>]), {<span class="st">'role'</span>: <span class="st">'user'</span>, <span class="st">'content'</span>: <span class="st">'a</span><span class="ch">\n</span><span class="st">b'</span>})</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>test_eq(mk_msg(<span class="st">'ok'</span>, <span class="st">'assistant'</span>), {<span class="st">'role'</span>: <span class="st">'assistant'</span>, <span class="st">'content'</span>: <span class="st">'ok'</span>})</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>test_eq(mk_msg(<span class="va">None</span>), <span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="39ba8816" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> mk_msg([<span class="st">'look:'</span>, tiny_png])</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>test_eq(m[<span class="st">'role'</span>], <span class="st">'user'</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>test_eq([p[<span class="st">'type'</span>] <span class="cf">for</span> p <span class="kw">in</span> m[<span class="st">'content'</span>]], [<span class="st">'text'</span>, <span class="st">'image_url'</span>])</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>test_eq(mk_msgs([<span class="st">'a'</span>, <span class="st">'b'</span>]), [{<span class="st">'role'</span>: <span class="st">'user'</span>, <span class="st">'content'</span>: <span class="st">'a'</span>}, {<span class="st">'role'</span>: <span class="st">'user'</span>, <span class="st">'content'</span>: <span class="st">'b'</span>}])</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>test_eq(mk_msgs(<span class="va">None</span>), [])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>A picture in the history is sent again with every later turn. It costs the same tokens each time. <code>strip_media(m)</code> replaces each media part in a message with the placeholder <code>[image]</code> or <code>[audio]</code>. It joins the content with newlines into one string. The history still records that a picture was there. Call <a href="https://vedicreader.github.io/urai/msgs.html#strip_media"><code>strip_media</code></a> on past turns before you send them. <code>strip_hist_media(hist)</code> does the same for a whole history. Use it to save a conversation to disk without the base64 data.</p>
+<div id="de420a69" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.035722+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.039369+00:00&quot;,&quot;total&quot;:0.0036524149999976885}}" data-execution_count="10">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L74" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="strip_hist_media" class="level3">
+<h3 class="anchored" data-anchor-id="strip_hist_media">strip_hist_media</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> strip_hist_media(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    hist</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Apply <a href="https://vedicreader.github.io/urai/msgs.html#strip_media"><code>strip_media</code></a> to every message in <code>hist</code>.</em></p>
+</section>
+</div>
+<div id="5c93d300" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.039496+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.043532+00:00&quot;,&quot;total&quot;:0.004039677000001518}}" data-execution_count="11">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L67" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="strip_media" class="level3">
+<h3 class="anchored" data-anchor-id="strip_media">strip_media</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> strip_media(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    m</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Replace media parts with a text placeholder and collapse content to a string.</em></p>
+</section>
+</div>
+<div id="4b79f851" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>test_eq(strip_media(mk_msg([<span class="st">'look:'</span>, tiny_png])), {<span class="st">'role'</span>: <span class="st">'user'</span>, <span class="st">'content'</span>: <span class="st">'look:</span><span class="ch">\n</span><span class="st">[image]'</span>})</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>test_eq(strip_media(mk_msg([<span class="st">'hear:'</span>, tiny_wav])), {<span class="st">'role'</span>: <span class="st">'user'</span>, <span class="st">'content'</span>: <span class="st">'hear:</span><span class="ch">\n</span><span class="st">[audio]'</span>})</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>test_eq(strip_media({<span class="st">'role'</span>: <span class="st">'user'</span>, <span class="st">'content'</span>: <span class="st">'plain'</span>}), {<span class="st">'role'</span>: <span class="st">'user'</span>, <span class="st">'content'</span>: <span class="st">'plain'</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="11093114" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>test_eq(strip_hist_media([mk_msg(<span class="st">'hi'</span>), mk_msg([<span class="st">'shot:'</span>, tiny_png])]),</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>        [{<span class="st">'role'</span>: <span class="st">'user'</span>, <span class="st">'content'</span>: <span class="st">'hi'</span>}, {<span class="st">'role'</span>: <span class="st">'user'</span>, <span class="st">'content'</span>: <span class="st">'shot:</span><span class="ch">\n</span><span class="st">[image]'</span>}])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Some backends use the typed message parts of <a href="https://github.com/AnswerDotAI/aidialog">aidialog</a> instead of dicts. <code>to_media_part(p)</code> converts an image part to an aidialog <code>InputImage</code>. It converts an audio part to an aidialog <code>InputAudio</code>. It returns <code>None</code> for any other part.</p>
+<div id="1119ac5f" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.046210+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.050972+00:00&quot;,&quot;total&quot;:0.0047680770000013695}}" data-execution_count="13">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L79" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="to_media_part" class="level3">
+<h3 class="anchored" data-anchor-id="to_media_part">to_media_part</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> to_media_part(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    p</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Convert an image or audio part to an aidialog <code>InputImage</code> or <code>InputAudio</code>, or return None.</em></p>
+</section>
+</div>
+<div id="7294be3b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>test_eq(to_media_part(mk_content(tiny_png)).mime, <span class="st">'image/png'</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>test_eq(to_media_part(mk_content(tiny_wav)).mime, <span class="st">'audio/wav'</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>test_eq(to_media_part({<span class="st">'type'</span>: <span class="st">'text'</span>, <span class="st">'text'</span>: <span class="st">'hi'</span>}), <span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="tools" class="level2">
+<h2 class="anchored" data-anchor-id="tools">Tools</h2>
+<p>A tool schema is a JSON description of a tool. It gives the name, a description, and the parameters. <code>mk_toolspec(f)</code> builds the schema from a Python function with <a href="https://fastcore.fast.ai/funccall.html#get_schema"><code>fastcore.funccall.get_schema</code></a>. <code>get_schema</code> reads the name of the function, its docstring, its type annotations, and the comment after each parameter.</p>
+<p><a href="https://vedicreader.github.io/urai/msgs.html#mk_toolspec"><code>mk_toolspec</code></a> returns a dict unchanged. Urai assumes the dict is a schema already. Use a dict to describe a tool that the provider runs itself, such as a hosted web search.</p>
+<p><a href="https://vedicreader.github.io/urai/msgs.html#mk_toolspec"><code>mk_toolspec</code></a> handles two cases without the plain <code>get_schema</code> result. For a pydantic model, it uses <code>model_json_schema</code>. It inlines each <code>$ref</code> and removes the <code>title</code> keys. <code>get_schema</code> reads a pydantic model as one opaque <code>data</code> field.</p>
+<p>For a <code>Literal</code> annotation, <a href="https://vedicreader.github.io/urai/msgs.html#mk_toolspec"><code>mk_toolspec</code></a> writes an <code>enum</code> with the JSON type of the values. This holds for a <code>Literal</code> alone and for a <code>Literal</code> inside <code>Optional</code>, a union or a list. <code>get_schema</code> writes <code>"object[object, object]"</code> for these, which is not a JSON Schema type. Strict providers such as Gemini refuse such a schema.</p>
+<div id="51f8871a" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.058907+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.064360+00:00&quot;,&quot;total&quot;:0.005458214999997324}}" data-execution_count="15">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L121" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="mk_toolspec" class="level3">
+<h3 class="anchored" data-anchor-id="mk_toolspec">mk_toolspec</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mk_toolspec(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    f</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Build an OpenAI-style tool schema for function <code>f</code>, returning a dict schema unchanged.</em></p>
+</section>
+</div>
+<div id="e4097628" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.064509+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.069057+00:00&quot;,&quot;total&quot;:0.004552345000000457}}" data-execution_count="16">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L94" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="lit_schema" class="level3">
+<h3 class="anchored" data-anchor-id="lit_schema">lit_schema</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> lit_schema(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    vals</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>JSON Schema for a <code>Literal</code> of <code>vals</code>: their JSON type or types, and an <code>enum</code> of them.</em></p>
+</section>
+</div>
+<div id="897a0827" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(a: <span class="bu">int</span>,      <span class="co"># first addend</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>        b: <span class="bu">int</span> <span class="op">=</span> <span class="dv">2</span>   <span class="co"># second addend</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>       ) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Add two numbers."</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>spec <span class="op">=</span> mk_toolspec(add)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>test_eq(spec[<span class="st">'type'</span>], <span class="st">'function'</span>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>test_eq(spec[<span class="st">'function'</span>][<span class="st">'name'</span>], <span class="st">'add'</span>)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> spec[<span class="st">'function'</span>][<span class="st">'description'</span>].startswith(<span class="st">'Add two numbers.'</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">sorted</span>(spec[<span class="st">'function'</span>][<span class="st">'parameters'</span>][<span class="st">'properties'</span>]), [<span class="st">'a'</span>, <span class="st">'b'</span>])</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>test_eq(mk_toolspec(spec), spec)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="e006f1ce" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.070250+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.075426+00:00&quot;,&quot;total&quot;:0.0051799449999947456}}" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dataclasses <span class="im">import</span> dataclass</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> Optional</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Color(enum.Enum): red <span class="op">=</span> <span class="st">'red'</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="at">@dataclass</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Pick:</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">"A choice."</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    a: Literal[<span class="st">'x'</span>, <span class="st">'y'</span>]</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    b: Optional[Literal[<span class="st">'p'</span>, <span class="st">'q'</span>]] <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    c: <span class="bu">list</span>[Literal[<span class="st">'m'</span>, <span class="st">'n'</span>]] <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    d: Literal[<span class="dv">1</span>, <span class="va">True</span>] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    e: Literal[Color.red, <span class="va">None</span>] <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>ps <span class="op">=</span> mk_toolspec(Pick)[<span class="st">'function'</span>][<span class="st">'parameters'</span>][<span class="st">'properties'</span>]</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>test_eq(ps[<span class="st">'a'</span>], {<span class="st">'description'</span>: <span class="st">''</span>, <span class="st">'type'</span>: <span class="st">'string'</span>, <span class="st">'enum'</span>: [<span class="st">'x'</span>, <span class="st">'y'</span>]})</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>test_eq(ps[<span class="st">'b'</span>][<span class="st">'anyOf'</span>][<span class="dv">0</span>], {<span class="st">'type'</span>: <span class="st">'string'</span>, <span class="st">'enum'</span>: [<span class="st">'p'</span>, <span class="st">'q'</span>]})</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>test_eq(ps[<span class="st">'c'</span>][<span class="st">'items'</span>], {<span class="st">'type'</span>: <span class="st">'string'</span>, <span class="st">'enum'</span>: [<span class="st">'m'</span>, <span class="st">'n'</span>]})</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>test_eq(ps[<span class="st">'d'</span>][<span class="st">'type'</span>], [<span class="st">'integer'</span>, <span class="st">'boolean'</span>])</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>test_eq(ps[<span class="st">'e'</span>][<span class="st">'enum'</span>], [<span class="st">'red'</span>, <span class="va">None</span>])</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'object['</span> <span class="kw">not</span> <span class="kw">in</span> json.dumps(ps)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="85c433cf" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Outline:</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Stands in for a pydantic model: what `model_json_schema` gives for one holding a list of another."</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">@classmethod</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> model_json_schema(cls):</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {<span class="st">'$defs'</span>: {<span class="st">'Part'</span>: {<span class="st">'title'</span>: <span class="st">'Part'</span>, <span class="st">'description'</span>: <span class="st">'One part.'</span>, <span class="st">'type'</span>: <span class="st">'object'</span>, <span class="st">'required'</span>: [<span class="st">'title'</span>],</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="st">'properties'</span>: {<span class="st">'title'</span>: {<span class="st">'title'</span>: <span class="st">'Title'</span>, <span class="st">'type'</span>: <span class="st">'string'</span>},</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>                                                  <span class="st">'kind'</span>: {<span class="st">'anyOf'</span>: [{<span class="st">'enum'</span>: [<span class="st">'a'</span>, <span class="st">'b'</span>], <span class="st">'type'</span>: <span class="st">'string'</span>}, {<span class="st">'type'</span>: <span class="st">'null'</span>}], <span class="st">'default'</span>: <span class="va">None</span>, <span class="st">'title'</span>: <span class="st">'Kind'</span>}}}},</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>                <span class="st">'title'</span>: <span class="st">'Outline'</span>, <span class="st">'description'</span>: <span class="st">'An outline.'</span>, <span class="st">'type'</span>: <span class="st">'object'</span>, <span class="st">'required'</span>: [<span class="st">'work'</span>, <span class="st">'parts'</span>],</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>                <span class="st">'properties'</span>: {<span class="st">'work'</span>: {<span class="st">'title'</span>: <span class="st">'Work'</span>, <span class="st">'type'</span>: <span class="st">'string'</span>},</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>                               <span class="st">'parts'</span>: {<span class="st">'title'</span>: <span class="st">'Parts'</span>, <span class="st">'type'</span>: <span class="st">'array'</span>, <span class="st">'items'</span>: {<span class="st">'$ref'</span>: <span class="st">'#/$defs/Part'</span>}}}}</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> mk_toolspec(Outline)[<span class="st">'function'</span>]</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>test_eq((f[<span class="st">'name'</span>], f[<span class="st">'description'</span>]), (<span class="st">'Outline'</span>, <span class="st">'An outline.'</span>))</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">sorted</span>(f[<span class="st">'parameters'</span>][<span class="st">'properties'</span>]), [<span class="st">'parts'</span>, <span class="st">'work'</span>])</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">sorted</span>(f[<span class="st">'parameters'</span>][<span class="st">'properties'</span>][<span class="st">'parts'</span>][<span class="st">'items'</span>][<span class="st">'properties'</span>]), [<span class="st">'kind'</span>, <span class="st">'title'</span>])   <span class="co"># a field named `title` stays</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'$ref'</span> <span class="kw">not</span> <span class="kw">in</span> json.dumps(f) <span class="kw">and</span> <span class="st">'"title": "'</span> <span class="kw">not</span> <span class="kw">in</span> json.dumps(f)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="tool-calls" class="level2">
+<h2 class="anchored" data-anchor-id="tool-calls">Tool calls</h2>
+<p>When the model asks for a tool, the reply holds a list of tool calls. <code>ToolCall(name, arguments)</code> builds one in the canonical form. It is a <code>dict</code>, so code that indexes it as <code>tc['function']['name']</code> keeps working, and it adds <code>name</code>, <code>arguments</code> and <code>server</code> properties for easier reading. <code>server=True</code> marks a call the provider has already run on its side, such as a hosted web search; the tool loop records such calls but never runs them locally.</p>
+<p>The other helpers work on plain dicts as well as <a href="https://vedicreader.github.io/urai/msgs.html#toolcall"><code>ToolCall</code></a>. <code>tc_name(tc)</code> reads a call’s name, <code>tool_rows(m)</code> lists the <code>(name, arguments)</code> of every call in a message, and <code>mk_tool_res_msg(tc, result)</code> builds the <code>role='tool'</code> message that sends a result back to the model, linked to the call by its id. <a href="https://vedicreader.github.io/urai/msgs.html#mk_tool_res_msgs"><code>mk_tool_res_msgs</code></a> does that for several calls at once.</p>
+<div id="0117a6dd" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.081769+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.085786+00:00&quot;,&quot;total&quot;:0.004021394000005785}}" data-execution_count="19">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L177" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="mk_tool_res_msgs" class="level3">
+<h3 class="anchored" data-anchor-id="mk_tool_res_msgs">mk_tool_res_msgs</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mk_tool_res_msgs(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    tcs, results</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Apply <a href="https://vedicreader.github.io/urai/msgs.html#mk_tool_res_msg"><code>mk_tool_res_msg</code></a> to each pair of calls and results.</em></p>
+</section>
+</div>
+<div id="bf931f9a" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.085915+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.089764+00:00&quot;,&quot;total&quot;:0.0038536200000010012}}" data-execution_count="20">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L172" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="tool_media" class="level3">
+<h3 class="anchored" data-anchor-id="tool_media">tool_media</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tool_media(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    o</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>The pictures in tool result <code>o</code>, or an empty list.</em></p>
+</section>
+</div>
+<div id="9f237b44" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.089892+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.093575+00:00&quot;,&quot;total&quot;:0.003687801999994633}}" data-execution_count="21">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L167" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="toolmedia" class="level3">
+<h3 class="anchored" data-anchor-id="toolmedia">ToolMedia</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ToolMedia(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>args, <span class="op">**</span>kwargs</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>A tool result string that also carries pictures, as paths or bytes, in <code>media</code>.</em></p>
+</section>
+</div>
+<div id="8cdef0a9" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.093702+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.097519+00:00&quot;,&quot;total&quot;:0.003821801000000846}}" data-execution_count="22">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L163" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="mk_tool_res_msg" class="level3">
+<h3 class="anchored" data-anchor-id="mk_tool_res_msg">mk_tool_res_msg</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mk_tool_res_msg(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    tc, result</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>A <code>role='tool'</code> message that returns <code>result</code> for tool call <code>tc</code>.</em></p>
+</section>
+</div>
+<div id="47e4b7c7" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.097646+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.101534+00:00&quot;,&quot;total&quot;:0.0038927739999934374}}" data-execution_count="23">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L159" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="tool_rows" class="level3">
+<h3 class="anchored" data-anchor-id="tool_rows">tool_rows</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tool_rows(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    m</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>The <code>(name, arguments)</code> pair of each tool call in message <code>m</code>.</em></p>
+</section>
+</div>
+<div id="abc1aa5b" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.101660+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.105229+00:00&quot;,&quot;total&quot;:0.0035728169999984516}}" data-execution_count="24">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L155" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="tc_name" class="level3">
+<h3 class="anchored" data-anchor-id="tc_name">tc_name</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tc_name(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    tc</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>The name of tool call <code>tc</code>.</em></p>
+</section>
+</div>
+<div id="4d4b157e" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.105353+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.109683+00:00&quot;,&quot;total&quot;:0.004334879000005287}}" data-execution_count="25">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L139" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="toolcall" class="level3">
+<h3 class="anchored" data-anchor-id="toolcall">ToolCall</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ToolCall(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    name:<span class="bu">str</span><span class="op">=</span><span class="st">''</span>, arguments:NoneType<span class="op">=</span><span class="va">None</span>, <span class="bu">id</span>:NoneType<span class="op">=</span><span class="va">None</span>, server:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>One tool call in canonical form, as a <code>dict</code> with <code>name</code>, <code>arguments</code> and <code>server</code> properties.</em></p>
+</section>
+</div>
+<div id="ef22a55b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>tc <span class="op">=</span> ToolCall(<span class="st">'add'</span>, {<span class="st">'a'</span>: <span class="dv">1</span>})</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>test_eq((tc.name, tc.arguments, tc.server), (<span class="st">'add'</span>, {<span class="st">'a'</span>: <span class="dv">1</span>}, <span class="va">False</span>))</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">repr</span>(tc), <span class="st">'ToolCall(add, {</span><span class="ch">\'</span><span class="st">a</span><span class="ch">\'</span><span class="st">: 1})'</span>)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>test_eq(tc[<span class="st">'type'</span>], <span class="st">'function'</span>)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>test_eq(tc_name(tc), <span class="st">'add'</span>)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>test_eq(tool_rows({<span class="st">'tool_calls'</span>: [tc]}), [(<span class="st">'add'</span>, {<span class="st">'a'</span>: <span class="dv">1</span>})])</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>test_eq(ToolCall(<span class="st">'web_search'</span>, <span class="bu">id</span><span class="op">=</span><span class="st">'s1'</span>, server<span class="op">=</span><span class="va">True</span>).server, <span class="va">True</span>)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>test_eq(ToolCall().arguments, {})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="2c976292" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>test_eq(mk_tool_res_msg(ToolCall(<span class="st">'add'</span>, <span class="bu">id</span><span class="op">=</span><span class="st">'c1'</span>), <span class="dv">3</span>),</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'role'</span>: <span class="st">'tool'</span>, <span class="st">'tool_call_id'</span>: <span class="st">'c1'</span>, <span class="st">'name'</span>: <span class="st">'add'</span>, <span class="st">'content'</span>: <span class="st">'3'</span>})</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">len</span>(mk_tool_res_msgs([ToolCall(<span class="st">'a'</span>), ToolCall(<span class="st">'b'</span>)], [<span class="dv">1</span>, <span class="dv">2</span>])), <span class="dv">2</span>)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>test_eq(mk_tool_res_msgs([ToolCall(<span class="st">'a'</span>)], []), [])     <span class="co"># zip stops at the shorter side</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Most providers accept only text in a tool result message, so a tool cannot hand back a screenshot directly. A tool that produces pictures returns <code>ToolMedia(text, media)</code>, a string that also carries a list of image paths or bytes. The text goes into the tool message as usual. After all the results of a step, the tool loop sends the pictures to the model in one extra user message. <code>tool_media(o)</code> returns the pictures a result carries, or an empty list.</p>
+<div id="ff93c428" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> ToolMedia(<span class="st">'saved shot.png'</span>, [<span class="st">'shot.png'</span>])</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>test_eq((r, r.media, tool_media(r)), (<span class="st">'saved shot.png'</span>, [<span class="st">'shot.png'</span>], [<span class="st">'shot.png'</span>]))</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>test_eq(mk_tool_res_msg(ToolCall(<span class="st">'s'</span>, <span class="bu">id</span><span class="op">=</span><span class="st">'c1'</span>), r)[<span class="st">'content'</span>], <span class="st">'saved shot.png'</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">type</span>(mk_tool_res_msg(ToolCall(<span class="st">'s'</span>), r)[<span class="st">'content'</span>]), <span class="bu">str</span>)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>test_eq([tool_media(<span class="st">'x'</span>), tool_media(<span class="dv">3</span>), tool_media(ToolMedia(<span class="st">'x'</span>))], [[], [], []])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Small models often get argument types wrong. They write <code>"3"</code> where the schema asks for an integer, <code>"true"</code> for a boolean, or a JSON string where an object or a list belongs. Sometimes they nest all the arguments one level down, under a key such as <code>arguments</code>.</p>
+<p><code>coerce_args(args, params)</code> converts each argument to the type its schema declares: numbers, booleans (<code>true</code>, <code>yes</code>, <code>on</code> and their opposites), strings, arrays (a single value becomes a one-item list) and objects. The type always comes from the schema, never from how the value looks, and a value that cannot be converted safely is left as the model wrote it. Arguments without a declared type, or with a union type, are not touched. <code>hoist_buried(args, params)</code> lifts missing required parameters out of a nested container, but only when one container holds all of them. <code>coerce_tcs(tcs, toolspecs)</code> applies both to every call in a list, using each tool’s own schema found by <a href="https://vedicreader.github.io/urai/msgs.html#toolspec_params"><code>toolspec_params</code></a>, and leaves calls to tools with no schema alone. The tool loop runs it on each step.</p>
+<div id="a7b6a8e2" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.120170+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.124785+00:00&quot;,&quot;total&quot;:0.004619128999998168}}" data-execution_count="27">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L240" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="coerce_tcs" class="level3">
+<h3 class="anchored" data-anchor-id="coerce_tcs">coerce_tcs</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> coerce_tcs(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    tcs, toolspecs</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Run <a href="https://vedicreader.github.io/urai/msgs.html#hoist_buried"><code>hoist_buried</code></a> and <a href="https://vedicreader.github.io/urai/msgs.html#coerce_args"><code>coerce_args</code></a> on each call in <code>tcs</code> using its tool’s schema.</em></p>
+</section>
+</div>
+<div id="bdbc5433" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.124921+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.129863+00:00&quot;,&quot;total&quot;:0.00494607899999977}}" data-execution_count="28">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L228" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="hoist_buried" class="level3">
+<h3 class="anchored" data-anchor-id="hoist_buried">hoist_buried</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> hoist_buried(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    args, params</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Move missing required parameters out of a nested container when one container holds all of them.</em></p>
+</section>
+</div>
+<div id="d48d0a44" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.129986+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.134531+00:00&quot;,&quot;total&quot;:0.004549518999994007}}" data-execution_count="29">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L221" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="coerce_args" class="level3">
+<h3 class="anchored" data-anchor-id="coerce_args">coerce_args</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> coerce_args(</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    args, params</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Convert each argument in <code>args</code> to the type that schema <code>params</code> declares for it, where that is safe.</em></p>
+</section>
+</div>
+<div id="2cfe5709" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.134664+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.139197+00:00&quot;,&quot;total&quot;:0.004538779000000659}}" data-execution_count="30">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L182" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="toolspec_params" class="level3">
+<h3 class="anchored" data-anchor-id="toolspec_params">toolspec_params</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> toolspec_params(</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    toolspecs, name</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>The JSON schema <code>parameters</code> of tool <code>name</code> in <code>toolspecs</code>, or None when no schema names it.</em></p>
+</section>
+</div>
+<div id="c908c702" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> mk_toolspec(add)[<span class="st">'function'</span>][<span class="st">'parameters'</span>]</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>test_eq(coerce_args({<span class="st">'a'</span>: <span class="st">'1'</span>, <span class="st">'b'</span>: <span class="dv">2</span>}, p), {<span class="st">'a'</span>: <span class="dv">1</span>, <span class="st">'b'</span>: <span class="dv">2</span>})    <span class="co"># the schema decides, not the spelling</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>test_eq(coerce_args({<span class="st">'a'</span>: <span class="dv">1</span>, <span class="st">'b'</span>: <span class="dv">2</span>}, p), {<span class="st">'a'</span>: <span class="dv">1</span>, <span class="st">'b'</span>: <span class="dv">2</span>})      <span class="co"># conforming args come back untouched</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>test_eq(coerce_args({<span class="st">'a'</span>: <span class="st">'1'</span>}, p), coerce_args(coerce_args({<span class="st">'a'</span>: <span class="st">'1'</span>}, p), p))   <span class="co"># idempotent</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>test_eq(coerce_args({<span class="st">'a'</span>: <span class="fl">1.5</span>}, p), {<span class="st">'a'</span>: <span class="fl">1.5</span>})   <span class="co"># not an integer and not roundable: left alone</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>test_eq(coerce_args({<span class="st">'a'</span>: <span class="fl">2.0</span>}, p), {<span class="st">'a'</span>: <span class="dv">2</span>})     <span class="co"># an integer spelled as a float is one</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>test_eq(coerce_args({<span class="st">'a'</span>: <span class="st">'not a number'</span>}, p), {<span class="st">'a'</span>: <span class="st">'not a number'</span>})   <span class="co"># an unparseable string is kept</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="03059a86" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>flags <span class="op">=</span> {<span class="st">'type'</span>: <span class="st">'object'</span>, <span class="st">'properties'</span>: {<span class="st">'ok'</span>: {<span class="st">'type'</span>: <span class="st">'boolean'</span>}, <span class="st">'tags'</span>: {<span class="st">'type'</span>: <span class="st">'array'</span>, <span class="st">'items'</span>: {<span class="st">'type'</span>: <span class="st">'string'</span>}}},</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>         <span class="st">'required'</span>: [<span class="st">'ok'</span>]}</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>test_eq(coerce_args({<span class="st">'ok'</span>: <span class="st">'true'</span>, <span class="st">'tags'</span>: <span class="st">'[1, 2]'</span>}, flags), {<span class="st">'ok'</span>: <span class="va">True</span>, <span class="st">'tags'</span>: [<span class="st">'1'</span>, <span class="st">'2'</span>]})</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>test_eq(coerce_args({<span class="st">'ok'</span>: <span class="st">'maybe'</span>}, flags), {<span class="st">'ok'</span>: <span class="st">'maybe'</span>})     <span class="co"># undecidable, so untouched</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="co"># a required param the model buried in a container is misplaced, not missing</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>test_eq(hoist_buried({<span class="st">'arguments'</span>: {<span class="st">'ok'</span>: <span class="va">True</span>}}, flags), {<span class="st">'ok'</span>: <span class="va">True</span>})</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>test_eq(hoist_buried({<span class="st">'arguments'</span>: {<span class="st">'nope'</span>: <span class="dv">1</span>}}, flags), {<span class="st">'arguments'</span>: {<span class="st">'nope'</span>: <span class="dv">1</span>}})   <span class="co"># no unanimity, no hoist</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>tcs <span class="op">=</span> [ToolCall(<span class="st">'add'</span>, {<span class="st">'a'</span>: <span class="st">'3'</span>}), ToolCall(<span class="st">'unknown'</span>, {<span class="st">'a'</span>: <span class="st">'3'</span>})]</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>coerce_tcs(tcs, [mk_toolspec(add)])</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>test_eq(tcs[<span class="dv">0</span>][<span class="st">'function'</span>][<span class="st">'arguments'</span>], {<span class="st">'a'</span>: <span class="dv">3</span>})</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>test_eq(tcs[<span class="dv">1</span>][<span class="st">'function'</span>][<span class="st">'arguments'</span>], {<span class="st">'a'</span>: <span class="st">'3'</span>})   <span class="co"># no spec names it, so nothing is assumed</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="in-from-the-wire" class="level2">
+<h2 class="anchored" data-anchor-id="in-from-the-wire">In from the wire</h2>
+<p><code>norm_resp(r)</code> converts a completion in the OpenAI response format into a <a href="https://vedicreader.github.io/urai/core.html#resp"><code>Resp</code></a>, the urai reply object. It does these steps:</p>
+<ul>
+<li>It moves <code>&lt;think&gt;</code> text into <code>channels['thought']</code>.</li>
+<li>It puts the native tool calls of the provider and the tagged calls in the text into one <code>tool_calls</code> list.</li>
+<li>It sets <a href="https://vedicreader.github.io/urai/core.html#truncated"><code>truncated</code></a> when the model stopped at the token limit.</li>
+<li>It keeps <code>usage</code>.</li>
+</ul>
+<p>If the text has a tool block that <a href="https://vedicreader.github.io/urai/msgs.html#norm_resp"><code>norm_resp</code></a> cannot parse, it sets <code>tool_parse_failed</code> on the reply. The tool loop then asks the model to send the call again.</p>
+<p>A provider sends native tool arguments as a JSON string. <a href="https://vedicreader.github.io/urai/msgs.html#parse_args"><code>parse_args</code></a> decodes the string. It returns a dict unchanged. It returns <code>None</code> for empty strings, invalid JSON, or JSON values that are not objects. It does not raise for these inputs. <a href="https://vedicreader.github.io/urai/msgs.html#norm_resp"><code>norm_resp</code></a> marks these calls <code>unread</code> and sets <code>tool_parse_failed</code>. The loop can ask for the call again. A valid <code>{}</code> remains readable.</p>
+<p><code>stream_resp(split, ...)</code> builds a <a href="https://vedicreader.github.io/urai/core.html#resp"><code>Resp</code></a> at the end of a streamed step. Its inputs are a finished <a href="https://vedicreader.github.io/urai/tags.html#streamsplit"><code>StreamSplit</code></a> and the tool calls, thinking text and usage that the backend collected.</p>
+<div id="f3f4ccf0" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.146010+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.150693+00:00&quot;,&quot;total&quot;:0.004687015999998323}}" data-execution_count="32">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L280" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="stream_resp" class="level3">
+<h3 class="anchored" data-anchor-id="stream_resp">stream_resp</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> stream_resp(</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    split, tool_calls:NoneType<span class="op">=</span><span class="va">None</span>, thought:NoneType<span class="op">=</span><span class="va">None</span>, truncated:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, usage:NoneType<span class="op">=</span><span class="va">None</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Build the <a href="https://vedicreader.github.io/urai/core.html#resp"><code>Resp</code></a> for a streamed step from a finished <a href="https://vedicreader.github.io/urai/tags.html#streamsplit"><code>StreamSplit</code></a> and the backend’s own values.</em></p>
+</section>
+</div>
+<div id="c78c2c23" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.150816+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.156332+00:00&quot;,&quot;total&quot;:0.005520079999996597}}" data-execution_count="33">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L257" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="norm_resp" class="level3">
+<h3 class="anchored" data-anchor-id="norm_resp">norm_resp</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> norm_resp(</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    r</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Convert an OpenAI-style chat completion to a urai <a href="https://vedicreader.github.io/urai/core.html#resp"><code>Resp</code></a>.</em></p>
+</section>
+</div>
+<div id="0db48dca" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.156455+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.160374+00:00&quot;,&quot;total&quot;:0.0039233210000020335}}" data-execution_count="34">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L250" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="parse_args" class="level3">
+<h3 class="anchored" data-anchor-id="parse_args">parse_args</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> parse_args(</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    a</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Decode native arguments to a dict. Return None when they cannot be read.</em></p>
+</section>
+</div>
+<div id="f3b2501d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>test_eq(parse_args(<span class="st">'{"a": 1}'</span>), {<span class="st">'a'</span>: <span class="dv">1</span>})</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>test_eq(parse_args({<span class="st">'a'</span>: <span class="dv">1</span>}), {<span class="st">'a'</span>: <span class="dv">1</span>})</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>test_eq(parse_args(<span class="st">''</span>), <span class="va">None</span>)</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>test_eq(parse_args(<span class="st">'{oops'</span>), <span class="va">None</span>)</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>_oai <span class="op">=</span> <span class="kw">lambda</span> c: {<span class="st">'choices'</span>: [{<span class="st">'message'</span>: {<span class="st">'content'</span>: c}}]}</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> norm_resp(_oai(<span class="st">'&lt;tool_call&gt;{"name": &lt;/tool_call&gt;'</span>)).get(<span class="st">'tool_parse_failed'</span>), <span class="st">'an unreadable call is lost without a word'</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="kw">not</span> norm_resp(_oai(<span class="st">'&lt;tool_call&gt;{"name": "ls", "arguments": </span><span class="sc">{}</span><span class="st">}&lt;/tool_call&gt;'</span>)).get(<span class="st">'tool_parse_failed'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Empty or invalid native arguments mark the call <code>unread</code>. A valid empty JSON object stays readable.</p>
+<div id="unread-native" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> bad_args <span class="kw">in</span> (<span class="st">''</span>, <span class="st">'{oops'</span>, <span class="st">'[]'</span>, <span class="st">'null'</span>, <span class="va">None</span>):</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> parse_args(bad_args) <span class="kw">is</span> <span class="va">None</span>, <span class="st">'invalid native arguments must not become an empty dict'</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    bad_native <span class="op">=</span> norm_resp({<span class="st">'choices'</span>: [{<span class="st">'message'</span>: {<span class="st">'tool_calls'</span>: [</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'id'</span>: <span class="st">'bad'</span>, <span class="st">'function'</span>: {<span class="st">'name'</span>: <span class="st">'add'</span>, <span class="st">'arguments'</span>: bad_args}}]}}]})</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> bad_native[<span class="st">'tool_calls'</span>][<span class="dv">0</span>].get(<span class="st">'unread'</span>)</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> bad_native.get(<span class="st">'tool_parse_failed'</span>)</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>test_eq(parse_args(<span class="st">'</span><span class="sc">{}</span><span class="st">'</span>), {})</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>bad_native</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="1f67b00d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> norm_resp({<span class="st">'choices'</span>: [{<span class="st">'message'</span>: {<span class="st">'content'</span>: <span class="st">'&lt;think&gt;hmm&lt;/think&gt;the answer'</span>}}],</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>               <span class="st">'usage'</span>: {<span class="st">'total_tokens'</span>: <span class="dv">9</span>}})</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>test_eq(r[<span class="st">'content'</span>], <span class="st">'the answer'</span>)</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>test_eq(r[<span class="st">'channels'</span>], {<span class="st">'thought'</span>: <span class="st">'hmm'</span>})</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>test_eq(r[<span class="st">'usage'</span>], {<span class="st">'total_tokens'</span>: <span class="dv">9</span>})</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="st">'tool_calls'</span> <span class="kw">in</span> r, <span class="va">False</span>)</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">type</span>(r), Resp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="e8521aa4" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> norm_resp({<span class="st">'choices'</span>: [{<span class="st">'finish_reason'</span>: <span class="st">'length'</span>, <span class="st">'message'</span>: {</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [{<span class="st">'id'</span>: <span class="st">'c1'</span>, <span class="st">'function'</span>: {<span class="st">'name'</span>: <span class="st">'add'</span>, <span class="st">'arguments'</span>: <span class="st">'{"a": 1}'</span>}}]}}]})</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>test_eq(r[<span class="st">'tool_calls'</span>], [{<span class="st">'id'</span>: <span class="st">'c1'</span>, <span class="st">'type'</span>: <span class="st">'function'</span>,</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>                           <span class="st">'function'</span>: {<span class="st">'name'</span>: <span class="st">'add'</span>, <span class="st">'arguments'</span>: {<span class="st">'a'</span>: <span class="dv">1</span>}}}])</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>test_eq(r[<span class="st">'truncated'</span>], <span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="9660294d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> norm_resp({<span class="st">'choices'</span>: [{<span class="st">'message'</span>: {</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'content'</span>: <span class="st">'&lt;tool_call&gt;{"name": "b", "arguments": </span><span class="sc">{}</span><span class="st">}&lt;/tool_call&gt;'</span>,</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'tool_calls'</span>: [{<span class="st">'id'</span>: <span class="st">'c1'</span>, <span class="st">'function'</span>: {<span class="st">'name'</span>: <span class="st">'a'</span>, <span class="st">'arguments'</span>: <span class="st">'</span><span class="sc">{}</span><span class="st">'</span>}}]}}]})</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>test_eq([t[<span class="st">'function'</span>][<span class="st">'name'</span>] <span class="cf">for</span> t <span class="kw">in</span> r[<span class="st">'tool_calls'</span>]], [<span class="st">'a'</span>, <span class="st">'b'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="out-to-the-wire" class="level2">
+<h2 class="anchored" data-anchor-id="out-to-the-wire">Out to the wire</h2>
+<p>History messages carry keys that providers reject, such as <code>channels</code> and <code>usage</code>. <code>to_oai_msg(m)</code> converts a history message into a message that an OpenAI-compatible API accepts.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Input</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A key other than <code>role</code>, <code>content</code>, <code>tool_calls</code>, <code>tool_call_id</code> or <code>name</code></td>
+<td>Dropped</td>
+</tr>
+<tr class="even">
+<td>A key with the value <code>None</code></td>
+<td>Dropped</td>
+</tr>
+<tr class="odd">
+<td>Tool call arguments that are a dict</td>
+<td>Encoded as a JSON string</td>
+</tr>
+<tr class="even">
+<td>A tool call with no <code>id</code></td>
+<td><code>id</code> set to <code>call_</code> plus the position of the call, such as <code>call_0</code></td>
+</tr>
+<tr class="odd">
+<td>A message with <code>tool_calls</code> and no <code>content</code></td>
+<td><code>content</code> set to <code>''</code></td>
+</tr>
+</tbody>
+</table>
+<p>Several providers refuse a message with tool calls and no <code>content</code>.</p>
+<div id="5685a196" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.164599+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.169574+00:00&quot;,&quot;total&quot;:0.00497934199999861}}" data-execution_count="36">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L293" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="to_oai_msg" class="level3">
+<h3 class="anchored" data-anchor-id="to_oai_msg">to_oai_msg</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> to_oai_msg(</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>    m</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Convert a history message to the form an OpenAI-compatible API accepts.</em></p>
+</section>
+</div>
+<div id="59e7ae28" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>test_eq(to_oai_msg({<span class="st">'role'</span>: <span class="st">'assistant'</span>, <span class="st">'content'</span>: <span class="st">'hi'</span>, <span class="st">'channels'</span>: {<span class="st">'thought'</span>: <span class="st">'x'</span>},</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'usage'</span>: {<span class="st">'total_tokens'</span>: <span class="dv">1</span>}}),</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'role'</span>: <span class="st">'assistant'</span>, <span class="st">'content'</span>: <span class="st">'hi'</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="4821fcd2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> to_oai_msg({<span class="st">'role'</span>: <span class="st">'assistant'</span>, <span class="st">'tool_calls'</span>: [ToolCall(<span class="st">'add'</span>, {<span class="st">'a'</span>: <span class="dv">1</span>}, <span class="bu">id</span><span class="op">=</span><span class="st">'c1'</span>)]})</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>test_eq(out[<span class="st">'content'</span>], <span class="st">''</span>)                            <span class="co"># providers reject a call turn with no content</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>test_eq(out[<span class="st">'tool_calls'</span>][<span class="dv">0</span>][<span class="st">'function'</span>][<span class="st">'arguments'</span>], <span class="st">'{"a": 1}'</span>)</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>test_eq(to_oai_msg({<span class="st">'role'</span>: <span class="st">'assistant'</span>, <span class="st">'tool_calls'</span>: [{<span class="st">'function'</span>: {<span class="st">'name'</span>: <span class="st">'f'</span>}}]}</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>                   )[<span class="st">'tool_calls'</span>][<span class="dv">0</span>][<span class="st">'id'</span>], <span class="st">'call_0'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="usage-across-rounds" class="level2">
+<h2 class="anchored" data-anchor-id="usage-across-rounds">Usage across rounds</h2>
+<p>A turn with tool calls takes several requests to the model. The first request gets the calls. The next request follows the tool results. <code>sum_usage(us)</code> adds the usage dicts of these requests and skips <code>None</code>. It returns <code>None</code> when no request reported usage. The first <code>model</code> name found in the dicts is kept.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Key in the result</th>
+<th>When it appears</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>prompt_tokens</code>, <code>completion_tokens</code>, <code>total_tokens</code>, <code>cached_tokens</code></td>
+<td>Always</td>
+</tr>
+<tr class="even">
+<td><code>reasoning_tokens</code>, <code>cache_creation_tokens</code>, <code>cost</code></td>
+<td>Only when the sum is not zero</td>
+</tr>
+<tr class="odd">
+<td><code>model</code></td>
+<td>Only when a usage dict names one</td>
+</tr>
+</tbody>
+</table>
+<p>The optional totals <code>reasoning_tokens</code>, <code>cache_creation_tokens</code> and <code>cost</code> are left out when their sum is zero. A local model that reports no cost leaves <code>cost</code> out of the result.</p>
+<div id="4ddade13" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.172034+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.176921+00:00&quot;,&quot;total&quot;:0.004891867999994304}}" data-execution_count="38">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L308" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="sum_usage" class="level3">
+<h3 class="anchored" data-anchor-id="sum_usage">sum_usage</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sum_usage(</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>    us</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Add up OpenAI usage dicts, skipping None and keeping the first <code>model</code> named.</em></p>
+</section>
+</div>
+<div id="0e7e7967" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>test_eq(sum_usage([{<span class="st">'total_tokens'</span>: <span class="dv">3</span>}, <span class="va">None</span>, {<span class="st">'total_tokens'</span>: <span class="dv">4</span>, <span class="st">'model'</span>: <span class="st">'gpt-5.1'</span>}]),</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'prompt_tokens'</span>: <span class="dv">0</span>, <span class="st">'completion_tokens'</span>: <span class="dv">0</span>, <span class="st">'total_tokens'</span>: <span class="dv">7</span>,</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>         <span class="st">'cached_tokens'</span>: <span class="dv">0</span>, <span class="st">'model'</span>: <span class="st">'gpt-5.1'</span>})</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>test_eq(sum_usage([]), <span class="va">None</span>)</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>test_eq(sum_usage([<span class="va">None</span>]), <span class="va">None</span>)</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="st">'cost'</span> <span class="kw">in</span> sum_usage([{<span class="st">'cost'</span>: <span class="fl">0.0</span>}]), <span class="va">False</span>)</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>test_eq(sum_usage([{<span class="st">'cost'</span>: <span class="fl">0.5</span>}])[<span class="st">'cost'</span>], <span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="prompt-transports" class="level2">
+<h2 class="anchored" data-anchor-id="prompt-transports">Prompt transports</h2>
+<p>Some backends take one block of text instead of a list of messages. These backends have no tokenizer of their own. A tokenizer splits text into tokens, the units that a model counts.</p>
+<p><code>est_tokens(text)</code> estimates the token count of <code>text</code>. It divides the length by <code>CHARS_PER_TOKEN</code>, which is 3.25, and rounds up. It returns 0 for empty text.</p>
+<p><code>render_prompt(hist, sp)</code> writes a conversation as one block of text. The block starts with the system prompt <code>sp</code>. Each message then gets a heading and its text. A message with no text and no tool calls is skipped. The table shows the headings.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Message role</th>
+<th>Heading</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>user</code></td>
+<td><code>## User</code></td>
+</tr>
+<tr class="even">
+<td><code>assistant</code></td>
+<td><code>## Assistant</code></td>
+</tr>
+<tr class="odd">
+<td><code>system</code></td>
+<td><code>## System</code></td>
+</tr>
+<tr class="even">
+<td><code>tool</code></td>
+<td><code>## Tool result (name)</code>, with the tool name in the brackets</td>
+</tr>
+</tbody>
+</table>
+<p>A tool call is written as a <code>tool_call</code> block with a JSON object that has <code>name</code> and <code>arguments</code>. This is the form that <a href="https://vedicreader.github.io/urai/tags.html#tag_tools_sp"><code>tag_tools_sp</code></a> teaches the model. The example renders a short conversation with one tool call.</p>
+<div id="2eeb2e65" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.180551+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.185828+00:00&quot;,&quot;total&quot;:0.0052816759999956275}}" data-execution_count="40">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L330" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="render_prompt" class="level3">
+<h3 class="anchored" data-anchor-id="render_prompt">render_prompt</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> render_prompt(</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>    hist, sp:<span class="bu">str</span><span class="op">=</span><span class="st">''</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Render a conversation as one block of text with a heading per message.</em></p>
+</section>
+</div>
+<div id="77ee4dc3" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.185955+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.189863+00:00&quot;,&quot;total&quot;:0.003912800999998467}}" data-execution_count="41">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L323" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="est_tokens" class="level3">
+<h3 class="anchored" data-anchor-id="est_tokens">est_tokens</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> est_tokens(</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>    text</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Estimate the token count of <code>text</code> from its length.</em></p>
+</section>
+</div>
+<div id="aa35f9bd" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>test_eq(est_tokens(<span class="st">''</span>), <span class="dv">0</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>test_eq(est_tokens(<span class="st">'a'</span>), <span class="dv">1</span>)</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>test_eq(est_tokens(<span class="st">'a'</span> <span class="op">*</span> <span class="dv">13</span>), <span class="dv">4</span>)</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> est_tokens(<span class="st">'a'</span> <span class="op">*</span> <span class="dv">350</span>) <span class="op">&gt;</span> <span class="dv">100</span>   <span class="co"># above the measured 3.50 chars/token, never below</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="89cb3778" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>hist <span class="op">=</span> [{<span class="st">'role'</span>: <span class="st">'user'</span>, <span class="st">'content'</span>: <span class="st">'what is 1+1?'</span>},</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'role'</span>: <span class="st">'assistant'</span>, <span class="st">'content'</span>: <span class="st">''</span>, <span class="st">'tool_calls'</span>: [ToolCall(<span class="st">'add'</span>, {<span class="st">'a'</span>: <span class="dv">1</span>, <span class="st">'b'</span>: <span class="dv">1</span>})]},</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'role'</span>: <span class="st">'tool'</span>, <span class="st">'name'</span>: <span class="st">'add'</span>, <span class="st">'content'</span>: <span class="st">'2'</span>},</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'role'</span>: <span class="st">'assistant'</span>, <span class="st">'content'</span>: <span class="st">'Two.'</span>}]</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(render_prompt(hist, <span class="st">'Be brief.'</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="ff91316c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> render_prompt(hist, <span class="st">'Be brief.'</span>)</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>test_eq(out.split(<span class="st">'</span><span class="ch">\n\n</span><span class="st">'</span>)[<span class="dv">0</span>], <span class="st">'Be brief.'</span>)</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'## Tool result (add)'</span> <span class="kw">in</span> out <span class="kw">and</span> <span class="st">'&lt;tool_call&gt;'</span> <span class="kw">in</span> out</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>test_eq(render_prompt([{<span class="st">'role'</span>: <span class="st">'user'</span>, <span class="st">'content'</span>: <span class="st">''</span>}]), <span class="st">''</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="prefix-reuse" class="level2">
+<h2 class="anchored" data-anchor-id="prefix-reuse">Prefix reuse</h2>
+<p>A local engine keeps a KV cache. The KV cache holds the model state for the tokens that the engine has already processed. When a new prompt starts with the same tokens as the last prompt, the engine reuses that part of the cache and processes only the new tokens. <code>common_prefix_len(a, b)</code> returns the number of leading items that two token lists share. This number is the count of tokens that a backend can reuse.</p>
+<div id="8d5d2a93" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-30T03:36:57.192146+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-30T03:36:57.196230+00:00&quot;,&quot;total&quot;:0.004088508999998908}}" data-execution_count="43">
+<hr>
+<p><a href="https://github.com/vedicreader/urai/blob/main/urai/msgs.py#L345" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="common_prefix_len" class="level3">
+<h3 class="anchored" data-anchor-id="common_prefix_len">common_prefix_len</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> common_prefix_len(</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>    a, b</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Length of the longest common prefix of sequences <code>a</code> and <code>b</code>.</em></p>
+</section>
+</div>
+<div id="db8a6fdf" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>test_eq(common_prefix_len([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>], [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">9</span>]), <span class="dv">2</span>)</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>test_eq(common_prefix_len([<span class="dv">1</span>, <span class="dv">2</span>], [<span class="dv">1</span>, <span class="dv">2</span>]), <span class="dv">2</span>)</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>test_eq(common_prefix_len([], [<span class="dv">1</span>]), <span class="dv">0</span>)</span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>test_eq(common_prefix_len([<span class="dv">9</span>], [<span class="dv">1</span>]), <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vedicreader\.github\.io\/urai");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vedicreader/urai/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
