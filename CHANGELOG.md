@@ -2,6 +2,10 @@
 
 <!-- do not remove -->
 
+## 0.0.20
+
+- `parse_tool_tags` drops the text after the last call in a reply. A model that keeps writing after its call writes before the result exists, and often makes the result up. Before, that text reached the agent as part of the reply. Text before a call and between calls stays.
+
 ## 0.0.19
 
 - `call_tool` checks required arguments after hoisting and type conversion. A missing field returns a tool-call error without running the tool. The error lists all missing fields. Direct native calls and name-only JSON calls use the same check.

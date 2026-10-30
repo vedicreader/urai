@@ -50,10 +50,11 @@ register_runtime(Runtime('uscript', _Script, ('uscript-',)))
 def test_quoted_tags_in_a_string_argument_do_not_split_the_call():
     text = "see " + T + " and " + E + " there"
     body = json.dumps({"name": "write", "arguments": {"file": "a.md", "text": text}})
-    clean, tcs, failed = parse_tool_tags_ex("before " + T + "\n" + body + "\n" + E + " after")
-    assert not failed and len(tcs) == 1 and 'unread' not in tcs[0]
+    ls = T + '{"name": "ls", "arguments": {}}' + E
+    clean, tcs, failed = parse_tool_tags_ex("before " + T + "\n" + body + "\n" + E + " between " + ls)
+    assert not failed and len(tcs) == 2 and 'unread' not in tcs[0]
     assert tcs[0]['function'] == {'name': 'write', 'arguments': {'file': 'a.md', 'text': text}}
-    assert clean.strip() == "before  after"
+    assert clean.strip() == "before  between"
 
 
 def test_300_identical_calls_run_the_tool_once():

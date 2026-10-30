@@ -270,7 +270,8 @@ def parse_tool_tags_ex(text, names=None):
     segment = t[p:]
     if (opener := _open_re.search(segment)): segment = segment[:opener.start()]
     positioned += [(p + m.start(), tc) for m, tc in zip(_fn_re.finditer(segment), parse_fn_tags(segment))]
-    rest += t[p:]
+    end = max((m.end() for m in _fnblk_re.finditer(t, p)), default=p) if blocks or _fn_re.search(segment) else len(t)
+    rest += t[p:] if opener else t[p:end]   # past the last call the model is writing ahead of the result, often inventing it
     tail = ''
     if (k := rest.rfind('<tool_call>')) >= 0:   # an opener the model never closed, for example at the token cap
         tail, rest = rest[k + len('<tool_call>'):], rest[:k]
