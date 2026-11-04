@@ -2,6 +2,10 @@
 
 <!-- do not remove -->
 
+## 0.0.21
+
+- `mk_toolspec` builds a schema for a tool whose source file is gone. Before, it raised `OSError: could not get source code`, and the whole chat failed to start. Now the new `sig_schema` reads the types and the defaults from the signature. Only the parameter notes are lost.
+
 ## 0.0.20
 
 - `parse_tool_tags` drops the text after the last call in a reply. A model that keeps writing after its call writes before the result exists, and often makes the result up. Before, that text reached the agent as part of the reply. Text before a call and between calls stays.

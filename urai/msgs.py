@@ -6,10 +6,10 @@ Docs: https://vedicreader.github.io/urai/msgs.html.md"""
 
 # %% auto #0
 __all__ = ['CHARS_PER_TOKEN', 'ROLE_NAMES', 'mk_content', 'is_media', 'mk_msg', 'mk_msgs', 'strip_media', 'strip_hist_media',
-           'to_media_part', 'lit_schema', 'mk_toolspec', 'ToolCall', 'tc_name', 'tool_rows', 'mk_tool_res_msg',
-           'ToolMedia', 'tool_media', 'mk_tool_res_msgs', 'toolspec_params', 'coerce_args', 'hoist_buried',
-           'coerce_tcs', 'parse_args', 'norm_resp', 'stream_resp', 'to_oai_msg', 'sum_usage', 'est_tokens',
-           'render_prompt', 'common_prefix_len']
+           'to_media_part', 'lit_schema', 'sig_schema', 'mk_toolspec', 'ToolCall', 'tc_name', 'tool_rows',
+           'mk_tool_res_msg', 'ToolMedia', 'tool_media', 'mk_tool_res_msgs', 'toolspec_params', 'coerce_args',
+           'hoist_buried', 'coerce_tcs', 'parse_args', 'norm_resp', 'stream_resp', 'to_oai_msg', 'sum_usage',
+           'est_tokens', 'render_prompt', 'common_prefix_len']
 
 # %% ../nbs/02_msgs.ipynb #bc883722
 import json, math, os
@@ -88,8 +88,9 @@ def to_media_part(p):
     return InputAudio(text=url, mime=(data_url(url) or (None, None))[0])
 
 # %% ../nbs/02_msgs.ipynb #20e32a7f
-import enum, types, typing
+import enum, inspect, types, typing
 from typing import Literal, get_args, get_origin, get_type_hints
+from fastcore.funccall import handle_type
 
 def lit_schema(vals):
     "JSON Schema for a `Literal` of `vals`: their JSON type or types, and an `enum` of them."
@@ -118,13 +119,26 @@ def _plain(s, defs, seen=()):
     return {k: ({n: _plain(x, defs, seen) for n, x in v.items()} if k == 'properties' else _plain(v, defs, seen))
             for k, v in s.items() if k not in ('title', '$defs')}
 
+def sig_schema(f, pname='parameters'):
+    "The `get_schema` result for `f` from its signature alone: types and defaults, with no parameter notes."
+    props, req, defs = {}, [], {}
+    for n, p in inspect.signature(f).parameters.items():
+        if n == 'self': continue
+        t = p.annotation if p.annotation is not p.empty else p.empty if p.default is p.empty else type(p.default)
+        props[n] = {'description': '', **({} if p.default is p.empty else {'default': p.default}), **handle_type(t, defs)}
+        if 'anyOf' in props[n]: props[n].pop('type', None)
+        if p.default is p.empty: req.append(n)
+    ps = {'type': 'object', 'properties': props, **({'required': req} if req else {}), **({'$defs': defs} if defs else {})}
+    return {'name': getattr(f, '__name__', type(f).__name__), 'description': inspect.getdoc(f) or '', pname: ps}
+
 def mk_toolspec(f):
     "Build an OpenAI-style tool schema for function `f`, returning a dict schema unchanged."
     if isinstance(f, dict): return f
     if hasattr(f, 'model_json_schema'):   # pydantic: `get_schema` would read `__init__(**data)` as one `data` field
         sc = _plain((js := f.model_json_schema()), js.get('$defs', {}))
         return {'type': 'function', 'function': {'name': f.__name__, 'description': sc.pop('description', ''), 'parameters': sc}}
-    sc = get_schema(f, pname='parameters')
+    try: sc = get_schema(f, pname='parameters')
+    except OSError: sc = sig_schema(f)   # its source file is gone, so `docments` cannot read the parameter notes
     ps = sc.get('parameters', {})
     ps.pop('title', None)   # get_schema adds a stray title for classes
     try: hints = get_type_hints(f)
