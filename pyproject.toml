@@ -24,7 +24,6 @@ dependencies = [
     "safepyrun>=0.2.3",
     "truststore>=0.10",
     "httpx",
-    "diskcache>=5.6.3"
 ]
 
 [project.urls]

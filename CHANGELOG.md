@@ -2,6 +2,11 @@
 
 <!-- do not remove -->
 
+## 0.0.22
+
+- `RecordCache` keeps recordings as JSON in `records.sqlite` in its folder. urai no longer needs diskcache, which has PYSEC-2026-2447 (a changed cache file runs code through pickle) and no fixed version. A recording is often committed to a repository, so a pull request could change it. A value that JSON cannot hold raises `NotRecordable` and is not saved. A replay gives JSON types, so a tuple comes back as a list.
+- Breaking: recordings in an old diskcache `cache.db` are not read. Convert them once, or record them again with `URAI_RECORD_CHAT=1`.
+
 ## 0.0.21
 
 - `mk_toolspec` builds a schema for a tool whose source file is gone. Before, it raised `OSError: could not get source code`, and the whole chat failed to start. Now the new `sig_schema` reads the types and the defaults from the signature. Only the parameter notes are lost.
